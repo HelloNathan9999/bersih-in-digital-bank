@@ -311,7 +311,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ onRegisterSuccess, onSw
               <Checkbox
                 id="terms"
                 checked={agreedToTerms}
-                onCheckedChange={setAgreedToTerms}
+                onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
                 className="mt-1"
               />
               <Label htmlFor="terms" className="text-sm text-gray-700 leading-5">
