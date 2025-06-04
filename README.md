@@ -1,73 +1,160 @@
-# Welcome to your Lovable project
 
-## Project info
+# BERSIH.IN - Bank Sampah Digital 🌱
 
-**URL**: https://lovable.dev/projects/711102dc-8c91-4cd6-8e45-f6eb5a0080a9
+**Bank Sampah Digital untuk Semua Kalangan**
 
-## How can I edit this code?
+BERSIH.IN adalah aplikasi mobile inovatif yang mengubah cara masyarakat mengelola sampah non-organik dengan sistem digital terintegrasi. Pengguna dapat menukarkan sampah menjadi saldo dan poin yang dapat digunakan untuk berbagai keperluan.
 
-There are several ways of editing your application.
+## 📱 Fitur Utama
 
-**Use Lovable**
+### 🏠 Beranda Interaktif
+- Header yang dapat ditarik untuk melihat detail saldo dan statistik
+- Banner promo dan event terbaru
+- Feed berita dan edukasi lingkungan
+- Notifikasi real-time
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/711102dc-8c91-4cd6-8e45-f6eb5a0080a9) and start prompting.
+### 📷 Scan QR Code
+- Pemindaian QR code di bank sampah mitra
+- Konfirmasi transaksi setor sampah
+- Riwayat scan dan transaksi
+- Panduan penggunaan lengkap
 
-Changes made via Lovable will be committed automatically to this repo.
+### 🛒 Marketplace & Layanan
+- Belanja produk ramah lingkungan
+- Pembayaran tagihan (Listrik, PDAM, BPJS, WiFi)
+- Pembelian pulsa dan paket data
+- Sembako dan kebutuhan rumah tangga
+- Sistem pembayaran dengan saldo/poin
 
-**Use your preferred IDE**
+### 📰 Berita & Edukasi
+- Konten edukatif tentang lingkungan
+- Tips pengelolaan sampah
+- Event komunitas
+- Video tutorial daur ulang
+- Interaksi sosial (like, comment, share)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 👤 Profil Lengkap
+- Informasi pribadi terenkripsi
+- Statistik kontribusi lingkungan
+- Badge dan pencapaian
+- Sistem referral
+- Pengaturan keamanan
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### 🎮 Gamifikasi
+- Mini games edukatif
+- Sistem poin dan level
+- Misi harian dan komunitas
+- Leaderboard pengguna
+- Reward dan voucher
 
-Follow these steps:
+## 🔐 Keamanan & Privasi
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+- **Autentikasi Ganda**: NIK + PIN 6 digit
+- **Enkripsi Data**: Semua data pribadi terenkripsi
+- **Verifikasi Transaksi**: PIN required untuk setiap transaksi
+- **Compliance**: Sesuai UU No. 27 Tahun 2022 tentang Perlindungan Data Pribadi
+
+## 🎨 Desain & UX
+
+- **Modern & Minimalis**: Interface bersih dengan hierarki yang jelas
+- **Responsive**: Optimal untuk semua ukuran layar mobile
+- **Accessible**: Mudah digunakan untuk semua kalangan
+- **Theme Support**: Light/Dark mode
+- **Micro-animations**: Interaksi yang smooth dan engaging
+
+## 🛠 Teknologi
+
+- **Frontend**: React + TypeScript + Vite
+- **UI Components**: Shadcn/UI + Tailwind CSS
+- **Mobile**: Capacitor (iOS/Android native capabilities)
+- **State Management**: React Hooks + Local Storage
+- **Icons**: Lucide React
+- **Animations**: CSS3 + Tailwind transitions
+
+## 📋 Instalasi & Development
+
+### Prerequisites
+- Node.js 18+ dan npm
+- Git
+
+### Setup Development
+```bash
+# Clone repository
 git clone <YOUR_GIT_URL>
+cd bersih-in
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Install dependencies
+npm install
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Mobile Development
+```bash
+# Add platforms
+npx cap add ios
+npx cap add android
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+# Build and sync
+npm run build
+npx cap sync
 
-**Use GitHub Codespaces**
+# Run on device/emulator
+npx cap run android
+npx cap run ios  # Requires macOS + Xcode
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🗺 Roadmap
 
-## What technologies are used for this project?
+### Q1 2025 - Foundation ✅
+- [x] Core UI/UX Design
+- [x] Authentication System
+- [x] Basic Navigation
+- [x] QR Scanner Integration
 
-This project is built with:
+### Q2 2025 - Features
+- [ ] Backend Integration (Supabase)
+- [ ] Payment Gateway
+- [ ] Real-time Notifications
+- [ ] Advanced Gamification
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Q3 2025 - Enhancement
+- [ ] AI-powered Waste Detection
+- [ ] Community Features
+- [ ] Advanced Analytics
+- [ ] Multi-language Support
 
-## How can I deploy this project?
+### Q4 2025 - Scale
+- [ ] B2B Integration
+- [ ] Government Partnership
+- [ ] Advanced Reporting
+- [ ] API for Third-party
 
-Simply open [Lovable](https://lovable.dev/projects/711102dc-8c91-4cd6-8e45-f6eb5a0080a9) and click on Share -> Publish.
+## 📄 Lisensi & Copyright
 
-## Can I connect a custom domain to my Lovable project?
+**© 2025 BERSIH.IN - Semua Hak Cipta Dilindungi**
 
-Yes, you can!
+- **Dikembangkan oleh**: RUBIX STUDIO
+- **Diciptakan oleh**: Nathannael Wijaya, S.Ds, MIT
+- **Lisensi**: Proprietary - Dilindungi UU No. 28 Tahun 2014 tentang Hak Cipta
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Ketentuan Penggunaan
+- Aplikasi ini hanya untuk penggunaan pribadi
+- Dilarang menyalin, memodifikasi, atau menjual kembali tanpa izin
+- Reverse engineering dan replikasi dilarang keras
+- Pelanggaran akan ditindak sesuai hukum yang berlaku
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 🤝 Kontribusi
+
+Saat ini BERSIH.IN adalah proyek proprietary. Untuk kontribusi atau kolaborasi, silakan hubungi tim RUBIX STUDIO.
+
+## 📞 Support & Contact
+
+- **Email**: support@bersih.in
+- **Website**: https://bersih.in
+- **Developer**: RUBIX STUDIO
+
+---
+
+**BERSIH.IN** - *Bersama Wujudkan Indonesia Bersih dan Hijau* 🌍♻️
