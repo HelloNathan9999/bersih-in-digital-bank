@@ -17,17 +17,25 @@ import {
   Settings,
   GraduationCap,
   Gamepad2,
-  History,
   Earth
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
+import PinDialog from './PinDialog';
+import BelanjaPage from './pages/BelanjaPage';
+import ListrikPage from './pages/ListrikPage';
+import PDAMPage from './pages/PDAMPage';
+import CheckinPage from './pages/CheckinPage';
+import LokasiPage from './pages/LokasiPage';
 
 const ShoppingPage: React.FC = () => {
   const [activeToggle, setActiveToggle] = useState('pelayanan');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showPinDialog, setShowPinDialog] = useState(false);
+  const [currentService, setCurrentService] = useState('');
+  const [currentPage, setCurrentPage] = useState('main');
 
   const services = [
     { id: 'belanja', icon: ShoppingCart, label: 'Belanja', color: 'text-green-500', bg: 'bg-green-100' },
@@ -89,183 +97,221 @@ const ShoppingPage: React.FC = () => {
   ];
 
   const handleServiceClick = (serviceId: string) => {
-    toast({
-      title: "Fitur Akan Segera Hadir",
-      description: `${services.find(s => s.id === serviceId)?.label} sedang dalam pengembangan`,
-    });
-  };
-
-  const requestPinVerification = (callback: () => void) => {
-    // Simulate PIN verification
-    const pin = prompt("Masukkan PIN 6 digit untuk melanjutkan transaksi:");
-    if (pin && pin.length === 6) {
-      callback();
+    const pinRequiredServices = ['belanja', 'listrik', 'pdam', 'bpjs', 'wifi', 'pulsa', 'sembako'];
+    
+    if (pinRequiredServices.includes(serviceId)) {
+      setCurrentService(serviceId);
+      setShowPinDialog(true);
     } else {
-      toast({
-        title: "PIN Tidak Valid",
-        description: "PIN harus 6 digit",
-        variant: "destructive"
-      });
+      // Direct navigation for non-payment services
+      navigateToService(serviceId);
     }
   };
 
+  const navigateToService = (serviceId: string) => {
+    switch (serviceId) {
+      case 'belanja':
+      case 'listrik':
+      case 'pdam':
+      case 'checkin':
+      case 'lokasi':
+        setCurrentPage(serviceId);
+        break;
+      default:
+        toast({
+          title: "Fitur Akan Segera Hadir",
+          description: `${services.find(s => s.id === serviceId)?.label} sedang dalam pengembangan`,
+        });
+    }
+  };
+
+  const handlePinSuccess = () => {
+    navigateToService(currentService);
+  };
+
+  const handleBack = () => {
+    setCurrentPage('main');
+  };
+
+  // Render different pages
+  if (currentPage === 'belanja') {
+    return <BelanjaPage onBack={handleBack} />;
+  }
+  if (currentPage === 'listrik') {
+    return <ListrikPage onBack={handleBack} />;
+  }
+  if (currentPage === 'pdam') {
+    return <PDAMPage onBack={handleBack} />;
+  }
+  if (currentPage === 'checkin') {
+    return <CheckinPage onBack={handleBack} />;
+  }
+  if (currentPage === 'lokasi') {
+    return <LokasiPage onBack={handleBack} />;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 pt-16">
-      {/* Header */}
-      <div className="fixed top-0 left-0 right-0 bg-white shadow-sm z-10 pt-12 pb-4">
-        <div className="px-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">Belanja & Layanan</h1>
-          
-          {/* Toggle Switch */}
-          <div className="flex bg-gray-100 rounded-full p-1 mb-4">
-            <button
-              onClick={() => setActiveToggle('pelayanan')}
-              className={`flex-1 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                activeToggle === 'pelayanan'
-                  ? 'bg-blue-500 text-white'
-                  : 'text-blue-700 hover:bg-gray-200'
-              }`}
-            >
-              PELAYANAN
-            </button>
-            <button
-              onClick={() => setActiveToggle('riwayat')}
-              className={`flex-1 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                activeToggle === 'riwayat'
-                  ? 'bg-blue-500 text-white'
-                  : 'text-blue-700 hover:bg-gray-200'
-              }`}
-            >
-              RIWAYAT
-            </button>
+    <>
+      <div className="min-h-screen bg-gray-50 pt-16">
+        {/* Header */}
+        <div className="fixed top-0 left-0 right-0 bg-white shadow-sm z-10 pt-12 pb-4">
+          <div className="px-6">
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">Belanja & Layanan</h1>
+            
+            {/* Toggle Switch */}
+            <div className="flex bg-gray-100 rounded-full p-1 mb-4">
+              <button
+                onClick={() => setActiveToggle('pelayanan')}
+                className={`flex-1 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  activeToggle === 'pelayanan'
+                    ? 'bg-blue-500 text-white'
+                    : 'text-blue-700 hover:bg-gray-200'
+                }`}
+              >
+                PELAYANAN
+              </button>
+              <button
+                onClick={() => setActiveToggle('riwayat')}
+                className={`flex-1 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  activeToggle === 'riwayat'
+                    ? 'bg-blue-500 text-white'
+                    : 'text-blue-700 hover:bg-gray-200'
+                }`}
+              >
+                RIWAYAT
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="px-6 py-6" style={{ marginTop: '140px' }}>
-        {activeToggle === 'pelayanan' && (
-          <div className="space-y-6">
-            {/* Search */}
-            <div className="relative">
-              <Input
-                type="text"
-                placeholder="Cari layanan..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-4"
-              />
-            </div>
+        {/* Content */}
+        <div className="px-6 py-6" style={{ marginTop: '140px' }}>
+          {activeToggle === 'pelayanan' && (
+            <div className="space-y-6">
+              {/* Search */}
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="Cari layanan..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-4"
+                />
+              </div>
 
-            {/* Services Grid */}
-            <div className="grid grid-cols-3 gap-4">
-              {services
-                .filter(service => 
-                  service.label.toLowerCase().includes(searchQuery.toLowerCase())
-                )
-                .map((service) => {
-                  const IconComponent = service.icon;
-                  return (
-                    <Card 
-                      key={service.id} 
-                      className="bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                      onClick={() => {
-                        if (['belanja', 'listrik', 'pdam', 'bpjs', 'wifi', 'pulsa', 'sembako'].includes(service.id)) {
-                          requestPinVerification(() => handleServiceClick(service.id));
-                        } else {
-                          handleServiceClick(service.id);
-                        }
-                      }}
-                    >
-                      <CardContent className="p-4 text-center">
-                        <div className={`w-12 h-12 ${service.bg} rounded-xl flex items-center justify-center mx-auto mb-3`}>
-                          <IconComponent className={`w-6 h-6 ${service.color}`} />
-                        </div>
-                        <p className="text-xs font-medium text-gray-800 leading-tight">
-                          {service.label}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-            </div>
-
-            {/* Featured Promotions */}
-            <div className="space-y-4">
-              <h2 className="text-lg font-bold text-gray-800">Promo Spesial</h2>
-              <Card className="bg-gradient-to-r from-green-500 to-blue-500 text-white">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-bold text-lg mb-1">Cashback 10%</h3>
-                      <p className="text-sm opacity-90">Untuk pembelian token listrik</p>
-                    </div>
-                    <Zap className="w-12 h-12 opacity-80" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        )}
-
-        {activeToggle === 'riwayat' && (
-          <div className="space-y-4">
-            {transactions.length > 0 ? (
-              transactions.map((transaction) => (
-                <Card key={transaction.id} className="bg-white shadow-sm">
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-800 mb-1">
-                          {transaction.type}
-                        </h3>
-                        <p className="text-sm text-gray-600 mb-2">
-                          {transaction.description}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {transaction.date}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <div className={`font-bold ${
-                          transaction.amount.startsWith('+') 
-                            ? 'text-green-600' 
-                            : 'text-red-600'
-                        }`}>
-                          {transaction.amount}
-                        </div>
-                        {transaction.points && (
-                          <div className={`text-sm ${
-                            transaction.points.startsWith('+')
-                              ? 'text-blue-600'
-                              : 'text-orange-600'
-                          }`}>
-                            {transaction.points}
+              {/* Services Grid */}
+              <div className="grid grid-cols-3 gap-4">
+                {services
+                  .filter(service => 
+                    service.label.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .map((service) => {
+                    const IconComponent = service.icon;
+                    return (
+                      <Card 
+                        key={service.id} 
+                        className="bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                        onClick={() => handleServiceClick(service.id)}
+                      >
+                        <CardContent className="p-4 text-center">
+                          <div className={`w-12 h-12 ${service.bg} rounded-xl flex items-center justify-center mx-auto mb-3`}>
+                            <IconComponent className={`w-6 h-6 ${service.color}`} />
                           </div>
-                        )}
-                        <div className="text-xs text-green-600 mt-1">
-                          ✓ Berhasil
-                        </div>
+                          <p className="text-xs font-medium text-gray-800 leading-tight">
+                            {service.label}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+              </div>
+
+              {/* Featured Promotions */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-bold text-gray-800">Promo Spesial</h2>
+                <Card className="bg-gradient-to-r from-green-500 to-blue-500 text-white">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-bold text-lg mb-1">Cashback 10%</h3>
+                        <p className="text-sm opacity-90">Untuk pembelian token listrik</p>
                       </div>
+                      <Zap className="w-12 h-12 opacity-80" />
                     </div>
                   </CardContent>
                 </Card>
-              ))
-            ) : (
-              <div className="text-center py-12">
-                <Earth className="w-24 h-24 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                  Oppssss…. Belum ada yang bantuin aku
-                </h3>
-                <p className="text-gray-500">
-                  Riwayat transaksi akan muncul di sini
-                </p>
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+
+          {activeToggle === 'riwayat' && (
+            <div className="space-y-4">
+              {transactions.length > 0 ? (
+                transactions.map((transaction) => (
+                  <Card key={transaction.id} className="bg-white shadow-sm">
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-800 mb-1">
+                            {transaction.type}
+                          </h3>
+                          <p className="text-sm text-gray-600 mb-2">
+                            {transaction.description}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {transaction.date}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <div className={`font-bold ${
+                            transaction.amount.startsWith('+') 
+                              ? 'text-green-600' 
+                              : 'text-red-600'
+                          }`}>
+                            {transaction.amount}
+                          </div>
+                          {transaction.points && (
+                            <div className={`text-sm ${
+                              transaction.points.startsWith('+')
+                                ? 'text-blue-600'
+                                : 'text-orange-600'
+                            }`}>
+                              {transaction.points}
+                            </div>
+                          )}
+                          <div className="text-xs text-green-600 mt-1">
+                            ✓ Berhasil
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="text-center py-12">
+                  <Earth className="w-24 h-24 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                    Oppssss…. Belum ada yang bantuin aku
+                  </h3>
+                  <p className="text-gray-500">
+                    Riwayat transaksi akan muncul di sini
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* PIN Dialog */}
+      <PinDialog
+        open={showPinDialog}
+        onClose={() => setShowPinDialog(false)}
+        onSuccess={handlePinSuccess}
+        title="Verifikasi PIN"
+        description={`Masukkan PIN untuk melanjutkan ke ${services.find(s => s.id === currentService)?.label}`}
+      />
+    </>
   );
 };
 
