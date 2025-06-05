@@ -25,9 +25,10 @@ import { toast } from '@/hooks/use-toast';
 
 interface ProfilePageProps {
   onLogout: () => void;
+  isDarkMode?: boolean;
 }
 
-const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
+const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout, isDarkMode = false }) => {
   const [showFullNIK, setShowFullNIK] = useState(false);
   const [userData, setUserData] = useState({
     name: 'Pengguna BERSIH.IN',
@@ -97,11 +98,15 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16">
+    <div className={`min-h-screen pt-16 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
-      <div className="fixed top-0 left-0 right-0 bg-white shadow-sm z-10 pt-12 pb-4">
+      <div className={`fixed top-0 left-0 right-0 z-10 pt-12 pb-4 ${
+        isDarkMode ? 'bg-gray-800/90' : 'bg-white/90'
+      } backdrop-blur-lg shadow-sm`}>
         <div className="px-6">
-          <h1 className="text-2xl font-bold text-gray-800">Profile</h1>
+          <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+            Profile
+          </h1>
         </div>
       </div>
 
@@ -157,14 +162,18 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
         </Card>
 
         {/* Personal Information */}
-        <Card className="bg-white shadow-sm">
+        <Card className={`shadow-sm ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
           <CardContent className="p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">Informasi Pribadi</h3>
+            <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+              Informasi Pribadi
+            </h3>
             
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm text-gray-600">Nomor Induk Kependudukan</p>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Nomor Induk Kependudukan
+                  </p>
                   <p className="font-mono text-lg">{maskNIK(userData.nik)}</p>
                 </div>
                 <Button
@@ -180,26 +189,38 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
               <div className="border-t pt-4">
                 <div className="grid grid-cols-1 gap-4">
                   <div className="flex items-center space-x-3">
-                    <Phone className="w-5 h-5 text-gray-600" />
+                    <Phone className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} />
                     <div>
-                      <p className="text-sm text-gray-600">Nomor Telepon</p>
-                      <p className="font-medium">{userData.phone}</p>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        Nomor Telepon
+                      </p>
+                      <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                        {userData.phone}
+                      </p>
                     </div>
                   </div>
                   
                   <div className="flex items-center space-x-3">
-                    <Mail className="w-5 h-5 text-gray-600" />
+                    <Mail className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} />
                     <div>
-                      <p className="text-sm text-gray-600">Email</p>
-                      <p className="font-medium">{userData.email}</p>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        Email
+                      </p>
+                      <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                        {userData.email}
+                      </p>
                     </div>
                   </div>
                   
                   <div className="flex items-center space-x-3">
-                    <MapPin className="w-5 h-5 text-gray-600" />
+                    <MapPin className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} />
                     <div>
-                      <p className="text-sm text-gray-600">Alamat</p>
-                      <p className="font-medium">{userData.address}</p>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        Alamat
+                      </p>
+                      <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                        {userData.address}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -209,15 +230,23 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
         </Card>
 
         {/* Achievements */}
-        <Card className="bg-white shadow-sm">
+        <Card className={`shadow-sm ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
           <CardContent className="p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">Badge & Pencapaian</h3>
+            <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+              Badge & Pencapaian
+            </h3>
             <div className="grid grid-cols-2 gap-3">
               {achievements.map((achievement, index) => (
-                <div key={index} className="bg-gray-50 rounded-lg p-3 text-center">
+                <div key={index} className={`rounded-lg p-3 text-center ${
+                  isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
+                }`}>
                   <div className="text-2xl mb-2">{achievement.icon}</div>
-                  <h4 className="font-semibold text-sm text-gray-800">{achievement.title}</h4>
-                  <p className="text-xs text-gray-600">{achievement.description}</p>
+                  <h4 className={`font-semibold text-sm ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                    {achievement.title}
+                  </h4>
+                  <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {achievement.description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -225,9 +254,11 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
         </Card>
 
         {/* Menu Items */}
-        <Card className="bg-white shadow-sm">
+        <Card className={`shadow-sm ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
           <CardContent className="p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">Menu Lainnya</h3>
+            <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+              Menu Lainnya
+            </h3>
             <div className="space-y-1">
               {menuItems.map((item, index) => {
                 const IconComponent = item.icon;
@@ -235,13 +266,19 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
                   <button
                     key={index}
                     onClick={item.action}
-                    className="w-full flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                    className={`w-full flex items-center space-x-4 p-3 rounded-lg transition-colors ${
+                      isDarkMode 
+                        ? 'hover:bg-gray-700 text-white' 
+                        : 'hover:bg-gray-50 text-gray-800'
+                    }`}
                   >
-                    <IconComponent className="w-5 h-5 text-gray-600" />
-                    <span className="flex-1 text-left font-medium text-gray-800">
+                    <IconComponent className={`w-5 h-5 ${
+                      isDarkMode ? 'text-gray-400' : 'text-gray-600'
+                    }`} />
+                    <span className="flex-1 text-left font-medium">
                       {item.label}
                     </span>
-                    <span className="text-gray-400">›</span>
+                    <span className={isDarkMode ? 'text-gray-500' : 'text-gray-400'}>›</span>
                   </button>
                 );
               })}
@@ -250,11 +287,15 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
         </Card>
 
         {/* Copyright & Terms */}
-        <Card className="bg-gray-50 border-gray-200">
+        <Card className={`border-gray-200 ${
+          isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50'
+        }`}>
           <CardContent className="p-6 text-center">
-            <div className="space-y-3 text-sm text-gray-600">
+            <div className={`space-y-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
               <div>
-                <h4 className="font-semibold text-gray-800 mb-2">Copyright & Terms of Service</h4>
+                <h4 className={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                  Copyright & Terms of Service
+                </h4>
                 <p className="text-xs leading-relaxed">
                   © 2025 BERSIH.IN - Semua Hak Cipta Dilindungi<br/>
                   Dikembangkan oleh RUBIX STUDIO<br/>
@@ -263,7 +304,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout }) => {
               </div>
               
               <div className="border-t pt-3">
-                <p className="text-xs text-gray-500">
+                <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
                   Hak cipta aplikasi ini telah terdaftar dan dilindungi berdasarkan UU No. 28 Tahun 2014 
                   Tentang Hak Cipta di bawah naungan Direktorat Jenderal Kekayaan Intelektual (DJKI).
                 </p>
