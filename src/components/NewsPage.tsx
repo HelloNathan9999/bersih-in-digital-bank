@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   ArrowLeft, 
@@ -18,10 +17,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from '@/hooks/use-toast';
 
 interface NewsPageProps {
-  isDarkMode?: boolean;
+  isDarkMode: boolean;
 }
 
-const NewsPage: React.FC<NewsPageProps> = ({ isDarkMode = false }) => {
+const NewsPage: React.FC<NewsPageProps> = ({ isDarkMode }) => {
   const [posts, setPosts] = useState([
     {
       id: 1,
