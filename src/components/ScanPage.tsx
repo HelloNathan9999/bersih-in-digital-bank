@@ -19,43 +19,79 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
     setIsScanning(true);
     setScanResult(null);
 
-    // Simulate camera scanning
+    toast({
+      title: "Kamera Diaktifkan",
+      description: "Arahkan kamera ke QR code bank sampah",
+    });
+
+    // Simulasi scanning yang realistis - tidak langsung berhasil
     setTimeout(() => {
-      const mockResult = {
-        qrCode: 'BS2025060400123',
-        bankSampah: 'Bank Sampah Hijau',
-        operator: 'Ahmad Sutrisno',
-        timestamp: new Date().toISOString(),
-        ready: true,
-        sampahType: 'Plastik',
-        weight: 3.2,
-        points: 32,
-        amount: 6400
-      };
-      
-      setScanResult(mockResult);
-      setIsScanning(false);
-      setCameraActive(false);
-      
+      // Simulasi gagal scan pertama
       toast({
-        title: "QR Code Berhasil Dipindai",
-        description: `Terhubung dengan ${mockResult.bankSampah}`,
+        title: "Mencari QR Code...",
+        description: "Pastikan QR code terlihat jelas",
       });
-    }, 3000);
+    }, 2000);
+
+    // Hanya berhasil jika QR code benar-benar "terdeteksi"
+    // Untuk demo, kita akan simulasi bahwa scan berhasil setelah 8 detik
+    setTimeout(() => {
+      // User harus benar-benar scan QR code yang valid
+      // Untuk sementara, kita simulasi sukses hanya kadang-kadang
+      const scanSuccess = Math.random() > 0.3; // 70% chance sukses
+
+      if (scanSuccess) {
+        const mockResult = {
+          qrCode: 'BS2025060400123',
+          bankSampah: 'Bank Sampah Hijau',
+          operator: 'Ahmad Sutrisno',
+          timestamp: new Date().toISOString(),
+          ready: true,
+          sampahType: 'Plastik',
+          weight: 0, // Weight akan diinput manual oleh operator
+          points: 0,
+          amount: 0
+        };
+        
+        setScanResult(mockResult);
+        setIsScanning(false);
+        setCameraActive(false);
+        
+        toast({
+          title: "QR Code Berhasil Dipindai",
+          description: `Terhubung dengan ${mockResult.bankSampah}`,
+        });
+      } else {
+        setIsScanning(false);
+        setCameraActive(false);
+        toast({
+          title: "Scan Gagal",
+          description: "QR code tidak terdeteksi. Coba lagi.",
+        });
+      }
+    }, 8000);
   };
 
   const stopScan = () => {
     setIsScanning(false);
     setCameraActive(false);
     setScanResult(null);
+    
+    toast({
+      title: "Scan Dibatalkan",
+      description: "Kamera ditutup",
+    });
   };
 
   const confirmTransaction = () => {
-    toast({
-      title: "Transaksi Berhasil!",
-      description: `Anda mendapat ${scanResult.points} poin dan Rp ${scanResult.amount.toLocaleString()}`,
-    });
-    setScanResult(null);
+    if (scanResult) {
+      // Hanya konfirmasi koneksi, bukan transaksi
+      toast({
+        title: "Koneksi Berhasil!",
+        description: `Silakan serahkan sampah ke operator ${scanResult.operator}`,
+      });
+      setScanResult(null);
+    }
   };
 
   return (
@@ -141,7 +177,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
                   </div>
                 </div>
               ) : (
-                // Scan result
+                // Scan result - hanya menunjukkan koneksi berhasil
                 <div className="space-y-4">
                   <div className={`rounded-2xl p-6 ${
                     isDarkMode 
@@ -154,7 +190,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
                     <h3 className={`text-xl font-bold mb-4 ${
                       isDarkMode ? 'text-white' : 'text-gray-800'
                     }`}>
-                      QR Code Berhasil Dipindai!
+                      Koneksi Berhasil!
                     </h3>
                     
                     <div className={`rounded-xl p-4 mb-4 ${
@@ -179,37 +215,20 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
                         </div>
                         <div className="flex justify-between">
                           <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-                            Jenis Sampah:
-                          </span>
-                          <span className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                            {scanResult.sampahType}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-                            Berat:
-                          </span>
-                          <span className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                            {scanResult.weight} kg
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-                            Poin:
-                          </span>
-                          <span className="font-semibold text-blue-600">
-                            +{scanResult.points} poin
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className={isDarkMode ? 'text-gray-400' : 'text-gray-600'}>
-                            Saldo:
+                            Status:
                           </span>
                           <span className="font-semibold text-green-600">
-                            +Rp {scanResult.amount.toLocaleString()}
+                            Siap Menerima Sampah
                           </span>
                         </div>
                       </div>
+                    </div>
+
+                    <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-3 mb-4">
+                      <p className="text-yellow-800 text-sm">
+                        <strong>Petunjuk:</strong> Serahkan sampah Anda ke operator. 
+                        Operator akan menimbang dan mencatat transaksi secara manual.
+                      </p>
                     </div>
 
                     <div className="flex space-x-3">
@@ -224,7 +243,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
                         onClick={confirmTransaction}
                         className="flex-1 bg-green-500 hover:bg-green-600 text-white"
                       >
-                        Konfirmasi Setor
+                        Mengerti
                       </Button>
                     </div>
                   </div>
@@ -254,9 +273,9 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
                 }`}>
                   <li>1. Kunjungi bank sampah mitra terdekat</li>
                   <li>2. Pilah sampah sesuai jenisnya</li>
-                  <li>3. Scan QR code yang tersedia</li>
-                  <li>4. Serahkan sampah ke operator</li>
-                  <li>5. Saldo dan poin otomatis masuk ke akun</li>
+                  <li>3. Scan QR code yang tersedia di bank sampah</li>
+                  <li>4. Serahkan sampah ke operator untuk ditimbang</li>
+                  <li>5. Operator akan input data dan saldo masuk otomatis</li>
                 </ul>
               </div>
             </div>
