@@ -11,7 +11,13 @@ import {
   Recycle,
   Award,
   ChevronRight,
-  Play
+  Play,
+  Leaf,
+  Target,
+  Gift,
+  Users,
+  Star,
+  MapPin
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -22,7 +28,6 @@ interface HomePageProps {
 }
 
 const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }) => {
-  const [headerExpanded, setHeaderExpanded] = useState(false);
   const [userData, setUserData] = useState({
     name: 'Pengguna BERSIH.IN',
     saldo: 125000,
@@ -50,223 +55,201 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
     console.log('Opening notifications...');
   };
 
-  const banners = [
-    {
-      title: "Promo Spesial Hari Lingkungan",
-      subtitle: "Dapatkan 2x poin untuk setor sampah plastik",
-      color: "from-green-500 to-blue-500",
-      image: "🌱"
-    },
-    {
-      title: "Event Komunitas",
-      subtitle: "Bersih-bersih pantai bersama BERSIH.IN",
-      color: "from-blue-500 to-purple-500",
-      image: "🏖️"
-    },
-    {
-      title: "Tips Daur Ulang",
-      subtitle: "10 cara kreatif mengolah sampah plastik",
-      color: "from-orange-500 to-red-500",
-      image: "♻️"
-    }
+  const quickActions = [
+    { icon: Recycle, label: 'Setor Sampah', color: 'bg-green-500', action: () => console.log('Setor sampah') },
+    { icon: MapPin, label: 'Lokasi Terdekat', color: 'bg-blue-500', action: () => console.log('Lokasi') },
+    { icon: Gift, label: 'Tukar Poin', color: 'bg-purple-500', action: () => console.log('Tukar poin') },
+    { icon: Users, label: 'Komunitas', color: 'bg-orange-500', action: () => console.log('Komunitas') }
   ];
 
-  const newsItems = [
-    {
-      title: "5 Cara Mudah Mengurangi Sampah Plastik di Rumah",
-      category: "Tips",
-      time: "2 jam lalu",
-      image: "🏠"
-    },
-    {
-      title: "Komunitas BERSIH.IN Berhasil Kumpulkan 10 Ton Sampah",
-      category: "Event",
-      time: "1 hari lalu",
-      image: "🎉"
-    },
-    {
-      title: "Video: Proses Daur Ulang Botol Plastik Menjadi Pakaian",
-      category: "Edukasi",
-      time: "2 hari lalu",
-      image: "📹",
-      isVideo: true
-    }
+  const achievements = [
+    { title: 'Eco Beginner', desc: 'Setor sampah pertama', completed: true },
+    { title: 'Konsisten', desc: 'Setor 7 hari berturut', completed: true },
+    { title: 'Eco Master', desc: 'Setor 100kg sampah', completed: false },
   ];
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      {/* Header with rounded corners and blur effect */}
-      <div 
-        className={`fixed top-0 left-0 right-0 z-20 mx-4 mt-4 transition-all duration-300 ${
-          headerExpanded ? 'rounded-b-3xl pb-8' : 'rounded-3xl pb-6'
-        } bg-gradient-to-r from-green-500/90 to-blue-500/90 backdrop-blur-lg border border-white/20 shadow-xl`}
-        style={{ paddingTop: '3rem' }}
-      >
-        {/* Normal Header Content */}
-        <div className="px-6">
-          <div className="flex justify-between items-start mb-4">
-            <div className="text-white">
-              <p className="text-sm opacity-90">Selamat Datang</p>
-              <h1 className="text-lg font-bold">{userData.name}</h1>
-            </div>
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={onThemeToggle}
-                className="p-2 bg-white/10 rounded-full backdrop-blur-sm"
-              >
-                {isDarkMode ? <Sun className="w-5 h-5 text-white" /> : <Moon className="w-5 h-5 text-white" />}
-              </button>
-              <button 
-                onClick={handleNotificationClick}
-                className="p-2 bg-white/10 rounded-full backdrop-blur-sm relative"
-              >
-                <Bell className="w-5 h-5 text-white" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
-              </button>
-            </div>
-          </div>
-
-          {/* Pull to expand indicator */}
-          <div className="text-center">
-            <button
-              onClick={() => setHeaderExpanded(!headerExpanded)}
-              className="p-2 text-white/70 hover:text-white transition-colors"
-            >
-              {headerExpanded ? (
-                <ArrowUp className="w-5 h-5" />
-              ) : (
-                <ArrowDown className="w-5 h-5" />
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Expanded Header Content */}
-        {headerExpanded && (
-          <div className="px-6 mt-4 pb-4">
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="text-center bg-white/10 rounded-xl p-3 backdrop-blur-sm">
-                <div className="text-2xl font-bold text-white">
-                  Rp {userData.saldo.toLocaleString()}
+    <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-green-50 to-blue-50'}`}>
+      {/* Floating Header Card */}
+      <div className="fixed top-0 left-0 right-0 z-20 p-4">
+        <Card className={`backdrop-blur-xl border-0 shadow-2xl ${isDarkMode ? 'bg-gray-800/90' : 'bg-white/90'}`}>
+          <CardContent className="p-6">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Selamat Datang Kembali 👋</p>
+                <h1 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{userData.name}</h1>
+                <div className="flex items-center mt-1">
+                  <Star className="w-4 h-4 text-yellow-500 mr-1" />
+                  <span className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{userData.level}</span>
                 </div>
-                <div className="text-white/80 text-sm">Saldo</div>
               </div>
-              <div className="text-center bg-white/10 rounded-xl p-3 backdrop-blur-sm">
-                <div className="text-2xl font-bold text-white">
-                  {userData.poin.toLocaleString()}
-                </div>
-                <div className="text-white/80 text-sm">Poin</div>
-              </div>
-              <div className="text-center bg-white/10 rounded-xl p-3 backdrop-blur-sm">
-                <div className="text-2xl font-bold text-white">
-                  {userData.sampahDisetor} kg
-                </div>
-                <div className="text-white/80 text-sm">Sampah Disetor</div>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={onThemeToggle}
+                  className={`p-3 rounded-full transition-all ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}`}
+                >
+                  {isDarkMode ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5 text-purple-600" />}
+                </button>
+                <button 
+                  onClick={handleNotificationClick}
+                  className={`p-3 rounded-full relative transition-all ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}`}
+                >
+                  <Bell className={`w-5 h-5 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                </button>
               </div>
             </div>
 
-            <Button
-              onClick={handleWithdraw}
-              className="w-full bg-white/20 text-white hover:bg-white/30 font-semibold backdrop-blur-sm border border-white/30"
-            >
-              <Wallet className="w-4 h-4 mr-2" />
-              Tarik Saldo
-            </Button>
-          </div>
-        )}
+            {/* Balance Cards */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="text-center p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl text-white">
+                <Wallet className="w-6 h-6 mx-auto mb-1 opacity-90" />
+                <div className="text-lg font-bold">Rp {(userData.saldo / 1000).toFixed(0)}K</div>
+                <div className="text-xs opacity-80">Saldo</div>
+              </div>
+              <div className="text-center p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl text-white">
+                <Award className="w-6 h-6 mx-auto mb-1 opacity-90" />
+                <div className="text-lg font-bold">{(userData.poin / 1000).toFixed(1)}K</div>
+                <div className="text-xs opacity-80">Poin</div>
+              </div>
+              <div className="text-center p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl text-white">
+                <Recycle className="w-6 h-6 mx-auto mb-1 opacity-90" />
+                <div className="text-lg font-bold">{userData.sampahDisetor}kg</div>
+                <div className="text-xs opacity-80">Disetor</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Main Content */}
-      <div className="px-6 py-6 space-y-6" style={{ marginTop: headerExpanded ? '240px' : '140px' }}>
-        {/* Quick Stats */}
-        {!headerExpanded && (
-          <div className="grid grid-cols-3 gap-4">
-            <Card className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} shadow-lg`}>
-              <CardContent className="p-4 text-center">
-                <Wallet className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                <div className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                  {(userData.saldo / 1000).toFixed(0)}K
-                </div>
-                <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Saldo</div>
-              </CardContent>
-            </Card>
-            <Card className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} shadow-lg`}>
-              <CardContent className="p-4 text-center">
-                <Award className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-                <div className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                  {(userData.poin / 1000).toFixed(1)}K
-                </div>
-                <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Poin</div>
-              </CardContent>
-            </Card>
-            <Card className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} shadow-lg`}>
-              <CardContent className="p-4 text-center">
-                <Recycle className="w-6 h-6 text-purple-500 mx-auto mb-2" />
-                <div className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                  {userData.sampahDisetor}
-                </div>
-                <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>kg Disetor</div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Banner Promo */}
+      <div className="px-4 py-6 space-y-6" style={{ marginTop: '200px' }}>
+        
+        {/* Quick Actions */}
         <div className="space-y-4">
-          <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Promo & Event</h2>
-          <div className="space-y-3">
-            {banners.map((banner, index) => (
-              <Card key={index} className="overflow-hidden">
-                <div className={`bg-gradient-to-r ${banner.color} p-4 text-white`}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg mb-1">{banner.title}</h3>
-                      <p className="text-sm opacity-90">{banner.subtitle}</p>
-                    </div>
-                    <div className="text-4xl ml-4">{banner.image}</div>
-                  </div>
-                </div>
-              </Card>
+          <h2 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Aksi Cepat</h2>
+          <div className="grid grid-cols-2 gap-3">
+            {quickActions.map((action, index) => (
+              <button
+                key={index}
+                onClick={action.action}
+                className={`p-6 rounded-3xl text-white shadow-lg hover:scale-105 transition-all duration-200 ${action.color}`}
+              >
+                <action.icon className="w-8 h-8 mx-auto mb-3" />
+                <div className="font-semibold text-sm">{action.label}</div>
+              </button>
             ))}
           </div>
         </div>
 
-        {/* News & Education Feed */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Berita & Edukasi Terbaru</h2>
-            <button className="text-green-600 text-sm font-medium">
-              Lihat Semua
-            </button>
-          </div>
-          
-          <div className="space-y-3">
-            {newsItems.map((item, index) => (
-              <Card key={index} className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} shadow-sm hover:shadow-md transition-shadow`}>
-                <CardContent className="p-4">
-                  <div className="flex items-start space-x-4">
-                    <div className="text-3xl">{item.image}</div>
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                          {item.category}
-                        </span>
-                        <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{item.time}</span>
-                        {item.isVideo && (
-                          <Play className="w-4 h-4 text-red-500" />
-                        )}
-                      </div>
-                      <h3 className={`font-semibold text-sm leading-5 mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                        {item.title}
-                      </h3>
-                    </div>
-                    <ChevronRight className={`w-5 h-5 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
+        {/* Progress & Achievement */}
+        <Card className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} shadow-lg`}>
+          <CardContent className="p-6">
+            <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+              🏆 Pencapaian Minggu Ini
+            </h3>
+            <div className="space-y-3">
+              {achievements.map((achievement, index) => (
+                <div key={index} className="flex items-center space-x-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    achievement.completed ? 'bg-green-500' : 'bg-gray-300'
+                  }`}>
+                    {achievement.completed ? (
+                      <Award className="w-4 h-4 text-white" />
+                    ) : (
+                      <Target className="w-4 h-4 text-gray-600" />
+                    )}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                  <div className="flex-1">
+                    <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                      {achievement.title}
+                    </div>
+                    <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      {achievement.desc}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Environmental Impact */}
+        <Card className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} shadow-lg overflow-hidden`}>
+          <div className="bg-gradient-to-r from-green-500 to-blue-500 p-6 text-white">
+            <div className="flex items-center space-x-3">
+              <Leaf className="w-8 h-8" />
+              <div>
+                <h3 className="text-lg font-bold">Dampak Lingkungan Anda</h3>
+                <p className="text-sm opacity-90">Kontribusi Anda untuk bumi 🌍</p>
+              </div>
+            </div>
           </div>
-        </div>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center">
+                <div className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>2.1 ton</div>
+                <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>CO₂ Dikurangi</div>
+              </div>
+              <div className="text-center">
+                <div className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>156</div>
+                <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Pohon Diselamatkan</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Activity */}
+        <Card className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} shadow-lg`}>
+          <CardContent className="p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                Aktivitas Terbaru
+              </h3>
+              <button className="text-green-600 text-sm font-medium">
+                Lihat Semua
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                  <Recycle className="w-5 h-5 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                    Setor Sampah Plastik
+                  </div>
+                  <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    2.5kg • +125 poin • 2 jam lalu
+                  </div>
+                </div>
+                <div className="text-green-600 font-bold">
+                  +Rp 12.500
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-4">
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Gift className="w-5 h-5 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                    Tukar Poin - Voucher
+                  </div>
+                  <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    500 poin • 1 hari lalu
+                  </div>
+                </div>
+                <div className="text-blue-600 font-bold">
+                  -500 poin
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Bottom spacing for navigation */}
+        <div className="h-20"></div>
       </div>
     </div>
   );
