@@ -46,6 +46,12 @@ const MainApp: React.FC<MainAppProps> = ({ onLogout }) => {
     }
   };
 
+  // Custom colors based on theme
+  const themeColors = {
+    active: isDarkMode ? 'bg-gradient-to-r from-emerald-500 to-teal-600' : 'bg-gradient-to-r from-sky-500 to-blue-600',
+    navBg: isDarkMode ? 'bg-gray-800/95' : 'bg-white/95'
+  };
+
   return (
     <div className={`min-h-screen pb-20 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Main Content */}
@@ -54,27 +60,28 @@ const MainApp: React.FC<MainAppProps> = ({ onLogout }) => {
       </div>
 
       {/* Bottom Navigation */}
-      <div className={`fixed bottom-0 left-0 right-0 backdrop-blur-lg border-t rounded-t-3xl mx-4 mb-4 ${
+      <div className={`fixed bottom-0 left-0 right-0 backdrop-blur-lg border-t rounded-t-2xl mx-3 mb-3 ${
         isDarkMode 
-          ? 'bg-gray-800/90 border-gray-700' 
-          : 'bg-white/90 border-gray-200'
+          ? 'bg-gray-800/95 border-gray-700' 
+          : 'bg-white/95 border-gray-200'
       }`}>
         <div className="flex justify-around items-center py-2">
           {tabs.map((tab) => {
             const IconComponent = tab.icon;
+            const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex flex-col items-center py-2 px-3 rounded-xl transition-all duration-200 ${
-                  activeTab === tab.id
-                    ? 'bg-green-500 text-white scale-110'
+                  isActive
+                    ? `${themeColors.active} text-white scale-105 shadow-lg`
                     : isDarkMode 
-                      ? 'text-gray-400 hover:text-green-400' 
-                      : 'text-gray-600 hover:text-green-500'
+                      ? 'text-gray-400 hover:text-emerald-400' 
+                      : 'text-gray-600 hover:text-blue-500'
                 }`}
               >
-                <IconComponent className="w-6 h-6 mb-1" />
+                <IconComponent className={`w-5 h-5 mb-1 ${isActive ? 'drop-shadow-sm' : ''}`} />
                 <span className="text-xs font-medium">{tab.label}</span>
               </button>
             );
