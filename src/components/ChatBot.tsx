@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { MessageCircle, X, Send, Bot } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,34 @@ const ChatBot: React.FC<ChatBotProps> = ({ isDarkMode = false }) => {
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
+  const [animationClass, setAnimationClass] = useState('');
+
+  // Enhanced animation: bounce only twice per minute
+  useEffect(() => {
+    if (!isOpen) {
+      const interval = setInterval(() => {
+        setAnimationClass('animate-bounce');
+        setTimeout(() => {
+          setAnimationClass('');
+        }, 2000); // Bounce for 2 seconds (2 bounces)
+      }, 60000); // Every minute
+
+      return () => clearInterval(interval);
+    }
+  }, [isOpen]);
+
+  const botResponses = [
+    'Terima kasih atas pertanyaannya! Saya akan membantu Anda dengan senang hati.',
+    'Untuk informasi lebih lanjut tentang BERSIH.IN, Anda bisa mengecek menu Berita atau hubungi customer service kami.',
+    'Apakah Anda memerlukan bantuan dengan fitur bank sampah digital? Saya siap membantu!',
+    'Untuk menukar sampah menjadi poin, silakan gunakan fitur Scan QR di bank sampah terdekat.',
+    'Jika ada masalah dengan aplikasi, jangan ragu untuk menghubungi tim support kami.',
+    'Anda bisa melihat riwayat transaksi dan poin di halaman Profile.',
+    'Untuk informasi lokasi bank sampah terdekat, gunakan fitur Lokasi Bank Sampah di menu Belanja.',
+    'Tim customer service kami siap membantu Anda 24/7. Ada pertanyaan lain?',
+    'Untuk tutorial penggunaan aplikasi, silakan kunjungi halaman Edukasi & Komunitas.',
+    'Jangan lupa untuk selalu memilah sampah sesuai jenisnya ya! Lingkungan yang bersih adalah tanggung jawab kita bersama.'
+  ];
 
   const handleSendMessage = () => {
     if (inputMessage.trim()) {
@@ -32,12 +61,13 @@ const ChatBot: React.FC<ChatBotProps> = ({ isDarkMode = false }) => {
       setMessages([...messages, newMessage]);
       setInputMessage('');
       
-      // Simulate bot response
+      // Simulate bot response with varied responses
       setTimeout(() => {
+        const randomResponse = botResponses[Math.floor(Math.random() * botResponses.length)];
         const botResponse = {
           id: messages.length + 2,
           sender: 'Michelle',
-          text: 'Terima kasih atas pertanyaannya! Tim customer service kami akan segera membantu Anda. Apakah ada hal lain yang ingin ditanyakan?',
+          text: randomResponse,
           timestamp: new Date().toLocaleTimeString()
         };
         setMessages(prev => [...prev, botResponse]);
@@ -54,7 +84,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isDarkMode = false }) => {
           isDarkMode 
             ? 'bg-gradient-to-br from-emerald-500 to-teal-600' 
             : 'bg-gradient-to-br from-blue-500 to-indigo-600'
-        } ${isOpen ? 'rotate-180' : 'animate-bounce'}`}
+        } ${isOpen ? 'rotate-180' : animationClass}`}
       >
         {isOpen ? (
           <X className="w-6 h-6 text-white mx-auto" />

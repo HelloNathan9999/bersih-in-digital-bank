@@ -30,7 +30,11 @@ import PDAMPage from './pages/PDAMPage';
 import CheckinPage from './pages/CheckinPage';
 import LokasiPage from './pages/LokasiPage';
 
-const ShoppingPage: React.FC = () => {
+interface ShoppingPageProps {
+  isDarkMode?: boolean;
+}
+
+const ShoppingPage: React.FC<ShoppingPageProps> = ({ isDarkMode = false }) => {
   const [activeToggle, setActiveToggle] = useState('pelayanan');
   const [searchQuery, setSearchQuery] = useState('');
   const [showPinDialog, setShowPinDialog] = useState(false);
@@ -135,7 +139,7 @@ const ShoppingPage: React.FC = () => {
 
   // Render different pages
   if (currentPage === 'belanja') {
-    return <BelanjaPage onBack={handleBack} />;
+    return <BelanjaPage onBack={handleBack} isDarkMode={isDarkMode} />;
   }
   if (currentPage === 'listrik') {
     return <ListrikPage onBack={handleBack} />;
@@ -152,20 +156,32 @@ const ShoppingPage: React.FC = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 pt-16">
+      <div className={`min-h-screen pt-16 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
         {/* Header */}
-        <div className="fixed top-0 left-0 right-0 bg-white shadow-sm z-10 pt-12 pb-4">
+        <div className={`fixed top-0 left-0 right-0 shadow-sm z-10 pt-12 pb-4 ${
+          isDarkMode ? 'bg-gray-900' : 'bg-white'
+        }`}>
           <div className="px-6">
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">Belanja & Layanan</h1>
+            <h1 className={`text-2xl font-bold mb-4 ${
+              isDarkMode ? 'text-white' : 'text-gray-800'
+            }`}>
+              Belanja & Layanan
+            </h1>
             
             {/* Toggle Switch */}
-            <div className="flex bg-gray-100 rounded-full p-1 mb-4">
+            <div className={`flex rounded-full p-1 mb-4 ${
+              isDarkMode ? 'bg-gray-800' : 'bg-gray-100'
+            }`}>
               <button
                 onClick={() => setActiveToggle('pelayanan')}
                 className={`flex-1 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   activeToggle === 'pelayanan'
-                    ? 'bg-blue-500 text-white'
-                    : 'text-blue-700 hover:bg-gray-200'
+                    ? isDarkMode 
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-blue-500 text-white'
+                    : isDarkMode
+                      ? 'text-emerald-400 hover:bg-gray-700'
+                      : 'text-blue-700 hover:bg-gray-200'
                 }`}
               >
                 PELAYANAN
@@ -174,8 +190,12 @@ const ShoppingPage: React.FC = () => {
                 onClick={() => setActiveToggle('riwayat')}
                 className={`flex-1 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   activeToggle === 'riwayat'
-                    ? 'bg-blue-500 text-white'
-                    : 'text-blue-700 hover:bg-gray-200'
+                    ? isDarkMode 
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-blue-500 text-white'
+                    : isDarkMode
+                      ? 'text-emerald-400 hover:bg-gray-700'
+                      : 'text-blue-700 hover:bg-gray-200'
                 }`}
               >
                 RIWAYAT
@@ -195,7 +215,9 @@ const ShoppingPage: React.FC = () => {
                   placeholder="Cari layanan..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-4"
+                  className={`pl-4 ${
+                    isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : ''
+                  }`}
                 />
               </div>
 
@@ -210,14 +232,20 @@ const ShoppingPage: React.FC = () => {
                     return (
                       <Card 
                         key={service.id} 
-                        className="bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                        className={`shadow-sm hover:shadow-md transition-shadow cursor-pointer ${
+                          isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'
+                        }`}
                         onClick={() => handleServiceClick(service.id)}
                       >
                         <CardContent className="p-4 text-center">
-                          <div className={`w-12 h-12 ${service.bg} rounded-xl flex items-center justify-center mx-auto mb-3`}>
+                          <div className={`w-12 h-12 ${
+                            isDarkMode ? 'bg-gray-700' : service.bg
+                          } rounded-xl flex items-center justify-center mx-auto mb-3`}>
                             <IconComponent className={`w-6 h-6 ${service.color}`} />
                           </div>
-                          <p className="text-xs font-medium text-gray-800 leading-tight">
+                          <p className={`text-xs font-medium leading-tight ${
+                            isDarkMode ? 'text-white' : 'text-gray-800'
+                          }`}>
                             {service.label}
                           </p>
                         </CardContent>
@@ -228,8 +256,16 @@ const ShoppingPage: React.FC = () => {
 
               {/* Featured Promotions */}
               <div className="space-y-4">
-                <h2 className="text-lg font-bold text-gray-800">Promo Spesial</h2>
-                <Card className="bg-gradient-to-r from-green-500 to-blue-500 text-white">
+                <h2 className={`text-lg font-bold ${
+                  isDarkMode ? 'text-white' : 'text-gray-800'
+                }`}>
+                  Promo Spesial
+                </h2>
+                <Card className={`${
+                  isDarkMode 
+                    ? 'bg-gradient-to-r from-emerald-600 to-teal-600' 
+                    : 'bg-gradient-to-r from-green-500 to-blue-500'
+                } text-white`}>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
@@ -248,17 +284,25 @@ const ShoppingPage: React.FC = () => {
             <div className="space-y-4">
               {transactions.length > 0 ? (
                 transactions.map((transaction) => (
-                  <Card key={transaction.id} className="bg-white shadow-sm">
+                  <Card key={transaction.id} className={`shadow-sm ${
+                    isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'
+                  }`}>
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-gray-800 mb-1">
+                          <h3 className={`font-semibold mb-1 ${
+                            isDarkMode ? 'text-white' : 'text-gray-800'
+                          }`}>
                             {transaction.type}
                           </h3>
-                          <p className="text-sm text-gray-600 mb-2">
+                          <p className={`text-sm mb-2 ${
+                            isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                          }`}>
                             {transaction.description}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className={`text-xs ${
+                            isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                          }`}>
                             {transaction.date}
                           </p>
                         </div>
@@ -289,11 +333,17 @@ const ShoppingPage: React.FC = () => {
                 ))
               ) : (
                 <div className="text-center py-12">
-                  <Earth className="w-24 h-24 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                  <Earth className={`w-24 h-24 mx-auto mb-4 ${
+                    isDarkMode ? 'text-gray-600' : 'text-gray-400'
+                  }`} />
+                  <h3 className={`text-lg font-semibold mb-2 ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                  }`}>
                     Oppssss…. Belum ada yang bantuin aku
                   </h3>
-                  <p className="text-gray-500">
+                  <p className={`${
+                    isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                  }`}>
                     Riwayat transaksi akan muncul di sini
                   </p>
                 </div>

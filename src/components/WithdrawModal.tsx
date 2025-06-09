@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 interface WithdrawModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onNavigateToBank: (amount: string) => void;
   isDarkMode?: boolean;
   currentBalance: number;
 }
@@ -14,18 +15,19 @@ interface WithdrawModalProps {
 const WithdrawModal: React.FC<WithdrawModalProps> = ({ 
   isOpen, 
   onClose, 
+  onNavigateToBank,
   isDarkMode = false,
   currentBalance 
 }) => {
   const [amount, setAmount] = useState('');
-  const [selectedMethod, setSelectedMethod] = useState('bank');
 
   const quickAmounts = [50000, 100000, 200000, 500000];
 
   const handleWithdraw = () => {
-    // Simulate withdrawal
-    console.log('Withdrawing:', amount);
-    onClose();
+    if (amount && parseInt(amount) <= currentBalance) {
+      onNavigateToBank(amount);
+      onClose();
+    }
   };
 
   if (!isOpen) return null;
@@ -102,7 +104,7 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({
           disabled={!amount || parseInt(amount) > currentBalance}
           className="w-full py-3 text-lg bg-green-600 hover:bg-green-700"
         >
-          <span>Tarik Saldo</span>
+          <span>Lanjutkan</span>
           <ArrowRight className="w-5 h-5 ml-2" />
         </Button>
 

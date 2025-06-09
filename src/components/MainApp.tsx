@@ -6,6 +6,7 @@ import NewsPage from './NewsPage';
 import ScanPage from './ScanPage';
 import ShoppingPage from './ShoppingPage';
 import ProfilePage from './ProfilePage';
+import ChatBot from './ChatBot';
 import { Toaster } from '@/components/ui/toaster';
 
 interface MainAppProps {
@@ -58,6 +59,9 @@ const MainApp: React.FC<MainAppProps> = ({ onLogout }) => {
       <div className="flex-1">
         {renderActiveTab()}
       </div>
+
+      {/* Chat Bot */}
+      <ChatBot isDarkMode={isDarkMode} />
 
       {/* Bottom Navigation */}
       <div className={`fixed bottom-0 left-0 right-0 backdrop-blur-lg border-t rounded-t-2xl mx-3 mb-3 ${
