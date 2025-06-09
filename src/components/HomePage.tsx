@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Bell, 
@@ -26,6 +25,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import NotificationPage from './NotificationPage';
 import WithdrawModal from './WithdrawModal';
+import WithdrawBankPage from './pages/WithdrawBankPage';
 import ChatBot from './ChatBot';
 
 interface HomePageProps {
@@ -44,6 +44,8 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [showWithdrawBank, setShowWithdrawBank] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState('');
   const [headerExpanded, setHeaderExpanded] = useState(false);
   const [currentBanner, setCurrentBanner] = useState(0);
 
@@ -117,8 +119,29 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
     setShowWithdrawModal(true);
   };
 
+  const handleNavigateToBank = (amount: string) => {
+    setWithdrawAmount(amount);
+    setShowWithdrawModal(false);
+    setShowWithdrawBank(true);
+  };
+
+  const handleBackFromBank = () => {
+    setShowWithdrawBank(false);
+    setWithdrawAmount('');
+  };
+
   if (showNotifications) {
     return <NotificationPage isDarkMode={isDarkMode} onBack={() => setShowNotifications(false)} />;
+  }
+
+  if (showWithdrawBank) {
+    return (
+      <WithdrawBankPage 
+        onBack={handleBackFromBank}
+        amount={withdrawAmount}
+        isDarkMode={isDarkMode}
+      />
+    );
   }
 
   const themeColors = {
@@ -357,6 +380,7 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
       <WithdrawModal 
         isOpen={showWithdrawModal}
         onClose={() => setShowWithdrawModal(false)}
+        onNavigateToBank={handleNavigateToBank}
         isDarkMode={isDarkMode}
         currentBalance={userData.saldo}
       />
