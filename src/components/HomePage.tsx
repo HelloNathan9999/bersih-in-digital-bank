@@ -14,12 +14,19 @@ import {
   Gift,
   Users,
   Star,
-  ArrowDownLeft
+  ArrowDownLeft,
+  Heart,
+  MessageCircle,
+  Share2,
+  ShoppingBag,
+  Zap,
+  Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import NotificationPage from './NotificationPage';
 import WithdrawModal from './WithdrawModal';
+import ChatBot from './ChatBot';
 
 interface HomePageProps {
   isDarkMode?: boolean;
@@ -38,6 +45,51 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
   const [showNotifications, setShowNotifications] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [headerExpanded, setHeaderExpanded] = useState(false);
+  const [currentBanner, setCurrentBanner] = useState(0);
+
+  const banners = [
+    {
+      id: 1,
+      title: "Cashback 15%",
+      subtitle: "Token Listrik",
+      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=200&fit=crop",
+      color: isDarkMode ? "from-emerald-500 to-teal-600" : "from-blue-500 to-indigo-600"
+    },
+    {
+      id: 2,
+      title: "Tukar Poin",
+      subtitle: "Dapat Voucher",
+      image: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=400&h=200&fit=crop",
+      color: isDarkMode ? "from-teal-500 to-cyan-600" : "from-indigo-500 to-purple-600"
+    }
+  ];
+
+  const featuredProducts = [
+    { id: 1, name: "Token Listrik 100K", price: "Rp 100.000", discount: "5%", icon: Zap },
+    { id: 2, name: "Voucher Belanja", price: "500 Poin", discount: "New", icon: ShoppingBag }
+  ];
+
+  const feedPosts = [
+    {
+      id: 1,
+      author: "Admin BERSIH.IN",
+      content: "Tips hari ini: Pisahkan sampah organik dan anorganik untuk hasil maksimal! 🌱",
+      image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400&h=300&fit=crop",
+      likes: 124,
+      comments: 18,
+      shares: 7,
+      time: "2 jam lalu"
+    },
+    {
+      id: 2,
+      author: "Eco Community",
+      content: "Selamat kepada user yang berhasil mencapai 100kg sampah disetor bulan ini! 🏆",
+      likes: 89,
+      comments: 12,
+      shares: 4,
+      time: "4 jam lalu"
+    }
+  ];
 
   useEffect(() => {
     const storedUserData = localStorage.getItem('userData');
@@ -48,6 +100,13 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
         name: parsed.name || 'Pengguna BERSIH.IN'
       }));
     }
+
+    // Auto slide banner
+    const interval = setInterval(() => {
+      setCurrentBanner((prev) => (prev + 1) % banners.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleNotificationClick = () => {
@@ -58,23 +117,15 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
     setShowWithdrawModal(true);
   };
 
-  const quickActions = [
-    { icon: Recycle, label: 'Setor Sampah', action: () => console.log('Setor sampah') },
-    { icon: MapPin, label: 'Lokasi Terdekat', action: () => console.log('Lokasi') },
-    { icon: Gift, label: 'Tukar Poin', action: () => console.log('Tukar poin') },
-    { icon: Users, label: 'Komunitas', action: () => console.log('Komunitas') }
-  ];
-
   if (showNotifications) {
     return <NotificationPage isDarkMode={isDarkMode} onBack={() => setShowNotifications(false)} />;
   }
 
-  // Custom colors based on theme
   const themeColors = {
     primary: isDarkMode ? 'from-emerald-400 to-teal-500' : 'from-sky-400 to-blue-500',
     secondary: isDarkMode ? 'from-emerald-500 to-green-600' : 'from-blue-500 to-indigo-600',
     accent: isDarkMode ? 'from-teal-500 to-cyan-600' : 'from-indigo-500 to-purple-600',
-    background: isDarkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 to-indigo-50'
+    background: isDarkMode ? 'bg-gray-900' : 'bg-gray-50'
   };
 
   return (
@@ -119,7 +170,6 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
                   }`}
                 >
                   <Bell className={`w-4 h-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} />
-                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                 </button>
                 
                 <button
@@ -173,82 +223,136 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
       {/* Main Content */}
       <div className="px-4 pb-24 space-y-4">
         
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 gap-3">
-          {quickActions.map((action, index) => (
-            <button
-              key={index}
-              onClick={action.action}
-              className={`p-4 rounded-2xl shadow-sm hover:scale-105 transition-all duration-200 ${
-                isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-white hover:bg-gray-50'
-              }`}
-            >
-              <action.icon className={`w-6 h-6 mx-auto mb-2 ${
-                isDarkMode ? 'text-emerald-400' : 'text-blue-600'
-              }`} />
-              <div className={`font-medium text-sm ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                {action.label}
+        {/* Banner Slider */}
+        <div className="relative h-32 rounded-2xl overflow-hidden">
+          <div 
+            className="flex transition-transform duration-500 ease-in-out h-full"
+            style={{ transform: `translateX(-${currentBanner * 100}%)` }}
+          >
+            {banners.map((banner, index) => (
+              <div
+                key={banner.id}
+                className={`w-full h-full flex-shrink-0 bg-gradient-to-r ${banner.color} relative overflow-hidden`}
+              >
+                <div className="absolute inset-0 bg-black/20"></div>
+                <div className="relative z-10 p-4 flex items-center justify-between h-full">
+                  <div className="text-white">
+                    <h3 className="text-lg font-bold">{banner.title}</h3>
+                    <p className="text-sm opacity-90">{banner.subtitle}</p>
+                  </div>
+                  <div className="w-16 h-16 rounded-lg overflow-hidden">
+                    <img src={banner.image} alt={banner.title} className="w-full h-full object-cover" />
+                  </div>
+                </div>
               </div>
-            </button>
-          ))}
+            ))}
+          </div>
+          
+          {/* Banner Indicators */}
+          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
+            {banners.map((_, index) => (
+              <div
+                key={index}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  currentBanner === index ? 'bg-white' : 'bg-white/50'
+                }`}
+              />
+            ))}
+          </div>
         </div>
 
-        {/* Stats Card */}
-        <Card className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} shadow-sm`}>
-          <CardContent className="p-4">
-            <h3 className={`font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-              🌱 Dampak Lingkungan
-            </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center">
-                <div className={`text-xl font-bold ${isDarkMode ? 'text-emerald-400' : 'text-blue-600'}`}>
-                  2.1 ton
-                </div>
-                <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  CO₂ Dikurangi
-                </div>
-              </div>
-              <div className="text-center">
-                <div className={`text-xl font-bold ${isDarkMode ? 'text-emerald-400' : 'text-blue-600'}`}>
-                  156
-                </div>
-                <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Pohon Diselamatkan
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Featured Products */}
+        <div className="space-y-3">
+          <h3 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+            Produk Terlaris
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            {featuredProducts.map((product) => {
+              const IconComponent = product.icon;
+              return (
+                <Card key={product.id} className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
+                  <CardContent className="p-3">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <IconComponent className={`w-4 h-4 ${isDarkMode ? 'text-emerald-400' : 'text-blue-600'}`} />
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        product.discount === 'New' 
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-orange-100 text-orange-600'
+                      }`}>
+                        {product.discount}
+                      </span>
+                    </div>
+                    <h4 className={`font-medium text-sm ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                      {product.name}
+                    </h4>
+                    <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      {product.price}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
 
-        {/* Recent Activity */}
-        <Card className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} shadow-sm`}>
-          <CardContent className="p-4">
-            <h3 className={`font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-              Aktivitas Terbaru
-            </h3>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                  isDarkMode ? 'bg-emerald-900' : 'bg-green-100'
-                }`}>
-                  <Recycle className={`w-4 h-4 ${isDarkMode ? 'text-emerald-400' : 'text-green-600'}`} />
-                </div>
-                <div className="flex-1">
-                  <div className={`font-medium text-sm ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                    Setor Sampah Plastik
+        {/* Feed Posts */}
+        <div className="space-y-3">
+          <h3 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+            Aktivitas Terbaru
+          </h3>
+          {feedPosts.map((post) => (
+            <Card key={post.id} className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2 mb-3">
+                  <div className={`w-8 h-8 rounded-full ${isDarkMode ? 'bg-emerald-600' : 'bg-blue-600'} flex items-center justify-center`}>
+                    <span className="text-white text-xs font-bold">
+                      {post.author.charAt(0)}
+                    </span>
                   </div>
-                  <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    2.5kg • +125 poin
+                  <div className="flex-1">
+                    <p className={`font-medium text-sm ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                      {post.author}
+                    </p>
+                    <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      {post.time}
+                    </p>
                   </div>
                 </div>
-                <div className={`font-bold text-sm ${isDarkMode ? 'text-emerald-400' : 'text-green-600'}`}>
-                  +Rp 12.500
+                
+                <p className={`text-sm mb-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {post.content}
+                </p>
+                
+                {post.image && (
+                  <div className="mb-3 rounded-lg overflow-hidden">
+                    <img src={post.image} alt="Post" className="w-full h-32 object-cover" />
+                  </div>
+                )}
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <button className="flex items-center space-x-1 text-red-500">
+                      <Heart className="w-4 h-4" />
+                      <span className="text-sm">{post.likes}</span>
+                    </button>
+                    <button className={`flex items-center space-x-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <MessageCircle className="w-4 h-4" />
+                      <span className="text-sm">{post.comments}</span>
+                    </button>
+                    <button className={`flex items-center space-x-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      <Share2 className="w-4 h-4" />
+                      <span className="text-sm">{post.shares}</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
+
+      {/* Chat Bot */}
+      <ChatBot isDarkMode={isDarkMode} />
 
       <WithdrawModal 
         isOpen={showWithdrawModal}
