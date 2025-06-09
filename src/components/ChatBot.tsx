@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MessageCircle, X, Send, Bot } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
