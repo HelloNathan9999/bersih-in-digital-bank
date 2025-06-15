@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Camera, CheckCircle, AlertCircle, RefreshCw, X } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Camera, CheckCircle, AlertCircle, X, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
@@ -13,34 +13,35 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState<any>(null);
   const [cameraActive, setCameraActive] = useState(false);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  const startScan = () => {
-    setCameraActive(true);
-    setIsScanning(true);
-    setScanResult(null);
-
-    toast({
-      title: "Kamera Diaktifkan",
-      description: "Arahkan kamera ke QR code bank sampah",
-    });
-
-    // Simulasi scanning yang realistis - tidak langsung berhasil
-    setTimeout(() => {
-      // Simulasi gagal scan pertama
-      toast({
-        title: "Mencari QR Code...",
-        description: "Pastikan QR code terlihat jelas",
+  const startScan = async () => {
+    try {
+      // Request camera permission and start video stream
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          facingMode: 'environment' // Use back camera if available
+        } 
       });
-    }, 2000);
+      
+      setStream(mediaStream);
+      setCameraActive(true);
+      setIsScanning(true);
+      setScanResult(null);
 
-    // Hanya berhasil jika QR code benar-benar "terdeteksi"
-    // Untuk demo, kita akan simulasi bahwa scan berhasil setelah 8 detik
-    setTimeout(() => {
-      // User harus benar-benar scan QR code yang valid
-      // Untuk sementara, kita simulasi sukses hanya kadang-kadang
-      const scanSuccess = Math.random() > 0.3; // 70% chance sukses
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+        videoRef.current.play();
+      }
 
-      if (scanSuccess) {
+      toast({
+        title: "Kamera Diaktifkan",
+        description: "Arahkan kamera ke QR code bank sampah",
+      });
+
+      // Simulate QR detection after some time
+      setTimeout(() => {
         const mockResult = {
           qrCode: 'BS2025060400123',
           bankSampah: 'Bank Sampah Hijau',
@@ -48,33 +49,41 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
           timestamp: new Date().toISOString(),
           ready: true,
           sampahType: 'Plastik',
-          weight: 0, // Weight akan diinput manual oleh operator
+          weight: 0,
           points: 0,
           amount: 0
         };
         
         setScanResult(mockResult);
         setIsScanning(false);
-        setCameraActive(false);
+        stopCamera();
         
         toast({
           title: "QR Code Berhasil Dipindai",
           description: `Terhubung dengan ${mockResult.bankSampah}`,
         });
-      } else {
-        setIsScanning(false);
-        setCameraActive(false);
-        toast({
-          title: "Scan Gagal",
-          description: "QR code tidak terdeteksi. Coba lagi.",
-        });
-      }
-    }, 8000);
+      }, 5000); // Simulate successful scan after 5 seconds
+
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      toast({
+        title: "Error Kamera",
+        description: "Tidak dapat mengakses kamera. Pastikan izin kamera diberikan.",
+      });
+    }
+  };
+
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+    setCameraActive(false);
   };
 
   const stopScan = () => {
     setIsScanning(false);
-    setCameraActive(false);
+    stopCamera();
     setScanResult(null);
     
     toast({
@@ -85,7 +94,6 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
 
   const confirmTransaction = () => {
     if (scanResult) {
-      // Hanya konfirmasi koneksi, bukan transaksi
       toast({
         title: "Koneksi Berhasil!",
         description: `Silakan serahkan sampah ke operator ${scanResult.operator}`,
@@ -94,17 +102,24 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
     }
   };
 
+  // Cleanup camera when component unmounts
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, []);
+
   return (
     <div className={`min-h-screen pt-16 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
       <div className={`fixed top-0 left-0 right-0 z-10 pt-12 pb-4 ${
-        isDarkMode ? 'bg-gray-800/90' : 'bg-white/90'
-      } backdrop-blur-lg shadow-sm`}>
+        isDarkMode ? 'bg-emerald-700' : 'bg-emerald-600'
+      } text-white shadow-sm`}>
         <div className="px-6">
-          <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+          <h1 className="text-2xl font-bold">
             Scan QR Code
           </h1>
-          <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+          <p className="text-sm opacity-90">
             Pindai QR code di bank sampah mitra
           </p>
         </div>
@@ -117,21 +132,24 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
           <CardContent className="p-6">
             <div className="text-center">
               {cameraActive && isScanning ? (
-                // Camera Simulation
+                // Real Camera View
                 <div className="space-y-4">
-                  <div className={`rounded-2xl p-8 relative overflow-hidden ${
-                    isDarkMode 
-                      ? 'bg-gradient-to-br from-gray-800 to-gray-900' 
-                      : 'bg-gradient-to-br from-gray-800 to-black'
-                  }`}>
-                    {/* Camera viewfinder */}
-                    <div className="relative w-64 h-64 mx-auto border-4 border-green-500 rounded-lg">
-                      <div className="absolute inset-4 border-2 border-white/30 rounded"></div>
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                        <RefreshCw className="w-8 h-8 text-green-400 animate-spin" />
+                  <div className="relative rounded-2xl overflow-hidden">
+                    <video
+                      ref={videoRef}
+                      className="w-full h-64 object-cover"
+                      autoPlay
+                      playsInline
+                      muted
+                    />
+                    {/* Scanner overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-48 h-48 border-4 border-green-500 rounded-lg relative">
+                        <div className="absolute top-0 left-0 w-6 h-6 border-t-4 border-l-4 border-green-500"></div>
+                        <div className="absolute top-0 right-0 w-6 h-6 border-t-4 border-r-4 border-green-500"></div>
+                        <div className="absolute bottom-0 left-0 w-6 h-6 border-b-4 border-l-4 border-green-500"></div>
+                        <div className="absolute bottom-0 right-0 w-6 h-6 border-b-4 border-r-4 border-green-500"></div>
                       </div>
-                      {/* Scanning line animation */}
-                      <div className="absolute top-0 left-0 right-0 h-1 bg-green-400 animate-pulse"></div>
                     </div>
                     
                     <button
@@ -177,7 +195,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
                   </div>
                 </div>
               ) : (
-                // Scan result - hanya menunjukkan koneksi berhasil
+                // Scan result
                 <div className="space-y-4">
                   <div className={`rounded-2xl p-6 ${
                     isDarkMode 
@@ -237,6 +255,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
                         variant="outline"
                         className="flex-1"
                       >
+                        <RotateCcw className="w-4 h-4 mr-2" />
                         Scan Ulang
                       </Button>
                       <Button

@@ -1,10 +1,12 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, ShoppingCart, Search, Star } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Search, Star, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
+import ShoppingCartPage from './ShoppingCartPage';
+import TransactionReceiptPage from './TransactionReceiptPage';
 
 interface BelanjaPageProps {
   onBack: () => void;
@@ -13,6 +15,8 @@ interface BelanjaPageProps {
 
 const BelanjaPage: React.FC<BelanjaPageProps> = ({ onBack, isDarkMode = false }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState('products');
+  const [cartItemCount, setCartItemCount] = useState(2);
 
   const products = [
     {
@@ -74,25 +78,104 @@ const BelanjaPage: React.FC<BelanjaPageProps> = ({ onBack, isDarkMode = false })
       category: "Sembako",
       rating: 4.9,
       sold: 150
+    },
+    {
+      id: 7,
+      name: "Notebook Kertas Daur Ulang",
+      price: 15000,
+      description: "Notebook ramah lingkungan dari kertas daur ulang",
+      image: "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=300&h=200&fit=crop",
+      category: "Eco-Friendly",
+      rating: 4.5,
+      sold: 90
+    },
+    {
+      id: 8,
+      name: "Madu Organik 250ml",
+      price: 75000,
+      description: "Madu murni organik dari lebah lokal",
+      image: "https://images.unsplash.com/photo-1587049332846-4a222e784d9d?w=300&h=200&fit=crop",
+      category: "Sembako",
+      rating: 4.9,
+      sold: 110
     }
   ];
 
   const handleAddToCart = (productName: string) => {
+    setCartItemCount(cartItemCount + 1);
     toast({
       title: "Ditambahkan ke Keranjang",
       description: `${productName} berhasil ditambahkan ke keranjang`,
     });
   };
 
+  const handleCheckout = (items: any[], total: number) => {
+    const transaction = {
+      type: 'Pembelian Produk',
+      amount: `-Rp ${total.toLocaleString()}`,
+      transactionId: `TRX${Date.now()}`,
+      date: new Date().toLocaleString('id-ID'),
+      status: 'success' as const,
+      description: `Pembelian ${items.length} produk`,
+    };
+    
+    setCurrentPage('receipt');
+    // You would pass the transaction data here
+  };
+
+  if (currentPage === 'cart') {
+    return (
+      <ShoppingCartPage
+        onBack={() => setCurrentPage('products')}
+        onCheckout={handleCheckout}
+        isDarkMode={isDarkMode}
+      />
+    );
+  }
+
+  if (currentPage === 'receipt') {
+    const mockTransaction = {
+      type: 'Pembelian Produk',
+      amount: '-Rp 115.000',
+      transactionId: `TRX${Date.now()}`,
+      date: new Date().toLocaleString('id-ID'),
+      status: 'success' as const,
+      description: 'Pembelian 2 produk'
+    };
+
+    return (
+      <TransactionReceiptPage
+        onBack={() => setCurrentPage('products')}
+        isDarkMode={isDarkMode}
+        transaction={mockTransaction}
+      />
+    );
+  }
+
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
-      <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-green-500'} text-white p-4`}>
-        <div className="flex items-center mb-4">
-          <Button variant="ghost" size="icon" onClick={onBack} className="text-white">
-            <ArrowLeft className="w-6 h-6" />
-          </Button>
-          <h1 className="text-xl font-bold ml-2">Belanja Produk</h1>
+      <div className={`${isDarkMode ? 'bg-emerald-700' : 'bg-emerald-600'} text-white p-4`}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <Button variant="ghost" size="icon" onClick={onBack} className="text-white">
+              <ArrowLeft className="w-6 h-6" />
+            </Button>
+            <h1 className="text-xl font-bold ml-2">Belanja Produk</h1>
+          </div>
+          
+          {/* Shopping Cart Icon */}
+          <button
+            onClick={() => setCurrentPage('cart')}
+            className="relative p-2 rounded-full hover:bg-white/10"
+          >
+            <ShoppingCart className="w-6 h-6" />
+            {cartItemCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {cartItemCount}
+              </span>
+            )}
+          </button>
         </div>
         
         {/* Search */}
@@ -140,7 +223,7 @@ const BelanjaPage: React.FC<BelanjaPageProps> = ({ onBack, isDarkMode = false })
                     alt={product.name}
                     className="w-full h-32 object-cover"
                   />
-                  <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs">
+                  <div className="absolute top-2 right-2 bg-emerald-500 text-white px-2 py-1 rounded text-xs">
                     {product.category}
                   </div>
                 </div>
@@ -174,15 +257,15 @@ const BelanjaPage: React.FC<BelanjaPageProps> = ({ onBack, isDarkMode = false })
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <span className="font-bold text-green-600">
+                    <span className="font-bold text-emerald-600">
                       Rp {product.price.toLocaleString()}
                     </span>
                     <Button 
                       size="sm" 
-                      className="bg-green-500"
+                      className="bg-emerald-500 hover:bg-emerald-600"
                       onClick={() => handleAddToCart(product.name)}
                     >
-                      <ShoppingCart className="w-4 h-4" />
+                      <Plus className="w-4 h-4" />
                     </Button>
                   </div>
                 </CardContent>

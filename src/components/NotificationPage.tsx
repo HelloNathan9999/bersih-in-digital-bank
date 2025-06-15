@@ -1,7 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Bell, ArrowLeft, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import NotificationDetailPage from './pages/NotificationDetailPage';
 
 interface NotificationPageProps {
   isDarkMode?: boolean;
@@ -9,14 +10,15 @@ interface NotificationPageProps {
 }
 
 const NotificationPage: React.FC<NotificationPageProps> = ({ isDarkMode = false, onBack }) => {
-  const notifications = [
+  const [notifications, setNotifications] = useState([
     {
       id: 1,
       title: 'Setor Sampah Berhasil!',
       message: 'Selamat! Anda telah menyetor 2.5kg sampah plastik dan mendapat +125 poin.',
       time: '2 jam lalu',
       type: 'success',
-      read: false
+      read: false,
+      details: 'Transaksi setor sampah telah berhasil diproses. Sampah plastik seberat 2.5kg telah diterima di Bank Sampah Hijau dengan operator Ahmad Sutrisno. Poin reward sebesar 125 poin telah ditambahkan ke akun Anda.'
     },
     {
       id: 2,
@@ -24,7 +26,8 @@ const NotificationPage: React.FC<NotificationPageProps> = ({ isDarkMode = false,
       message: 'Dapatkan diskon 20% untuk voucher belanja dengan menukar 500 poin!',
       time: '1 hari lalu',
       type: 'info',
-      read: false
+      read: false,
+      details: 'Promo spesial berlaku hingga akhir bulan ini. Tukarkan 500 poin Anda untuk mendapatkan voucher belanja senilai Rp 50.000 dengan diskon 20%. Promo terbatas, buruan tukar sekarang!'
     },
     {
       id: 3,
@@ -32,7 +35,8 @@ const NotificationPage: React.FC<NotificationPageProps> = ({ isDarkMode = false,
       message: 'Anda hampir mencapai target mingguan! Tinggal 1.5kg lagi.',
       time: '2 hari lalu',
       type: 'warning',
-      read: true
+      read: true,
+      details: 'Target mingguan Anda adalah 10kg sampah. Saat ini Anda telah menyetor 8.5kg. Masih butuh 1.5kg lagi untuk mencapai target dan mendapatkan bonus poin 50!'
     },
     {
       id: 4,
@@ -40,9 +44,31 @@ const NotificationPage: React.FC<NotificationPageProps> = ({ isDarkMode = false,
       message: 'Penarikan saldo Rp 50.000 telah berhasil diproses.',
       time: '3 hari lalu',
       type: 'success',
-      read: true
+      read: true,
+      details: 'Penarikan saldo sebesar Rp 50.000 ke rekening Bank BCA ****1234 atas nama John Doe telah berhasil diproses pada tanggal 1 Juni 2025 pukul 14:30 WIB.'
+    },
+    {
+      id: 5,
+      title: 'Pembelian Token Listrik',
+      message: 'Pembelian token listrik Rp 100.000 berhasil diproses.',
+      time: '4 hari lalu',
+      type: 'success',
+      read: true,
+      details: 'Token listrik PLN senilai Rp 100.000 telah berhasil dibeli untuk ID Pelanggan 123456789. Token: 1234-5678-9012-3456. Silakan masukkan token ke meteran listrik Anda.'
     }
-  ];
+  ]);
+
+  const [selectedNotification, setSelectedNotification] = useState<any>(null);
+
+  const handleNotificationClick = (notification: any) => {
+    // Mark as read
+    setNotifications(notifications.map(notif => 
+      notif.id === notification.id ? { ...notif, read: true } : notif
+    ));
+    
+    // Show detail page
+    setSelectedNotification(notification);
+  };
 
   const getIconByType = (type: string) => {
     switch (type) {
@@ -55,18 +81,30 @@ const NotificationPage: React.FC<NotificationPageProps> = ({ isDarkMode = false,
     }
   };
 
+  if (selectedNotification) {
+    return (
+      <NotificationDetailPage
+        onBack={() => setSelectedNotification(null)}
+        isDarkMode={isDarkMode}
+        notification={selectedNotification}
+      />
+    );
+  }
+
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
-      <div className={`sticky top-0 z-10 p-4 border-b ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+      <div className={`sticky top-0 z-10 p-4 border-b ${
+        isDarkMode ? 'bg-emerald-700 text-white' : 'bg-emerald-600 text-white'
+      }`}>
         <div className="flex items-center space-x-4">
           <button 
             onClick={onBack}
-            className={`p-2 rounded-full ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+            className="p-2 rounded-full hover:bg-white/10"
           >
-            <ArrowLeft className={`w-6 h-6 ${isDarkMode ? 'text-white' : 'text-gray-800'}`} />
+            <ArrowLeft className="w-6 h-6" />
           </button>
-          <h1 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+          <h1 className="text-xl font-bold">
             Notifikasi
           </h1>
         </div>
@@ -75,7 +113,13 @@ const NotificationPage: React.FC<NotificationPageProps> = ({ isDarkMode = false,
       {/* Notifications List */}
       <div className="p-4 space-y-3">
         {notifications.map((notification) => (
-          <Card key={notification.id} className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} ${!notification.read ? 'ring-2 ring-blue-500/20' : ''}`}>
+          <Card 
+            key={notification.id} 
+            className={`cursor-pointer transition-all hover:shadow-md ${
+              isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'
+            } ${!notification.read ? 'ring-2 ring-blue-500/20' : ''}`}
+            onClick={() => handleNotificationClick(notification)}
+          >
             <CardContent className="p-4">
               <div className="flex items-start space-x-3">
                 <div className="flex-shrink-0 mt-1">
@@ -83,7 +127,9 @@ const NotificationPage: React.FC<NotificationPageProps> = ({ isDarkMode = false,
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <h3 className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'} ${!notification.read ? 'font-semibold' : ''}`}>
+                    <h3 className={`font-medium ${
+                      isDarkMode ? 'text-white' : 'text-gray-800'
+                    } ${!notification.read ? 'font-semibold' : ''}`}>
                       {notification.title}
                     </h3>
                     {!notification.read && (
