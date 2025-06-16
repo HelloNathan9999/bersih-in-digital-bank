@@ -224,7 +224,7 @@ const PulsaDataPage: React.FC<PulsaDataPageProps> = ({ onBack, isDarkMode = fals
           <div className="grid grid-cols-1 gap-3">
             {pulsaPackages.map((pkg) => (
               <Card
-                key={pkg.i}
+                key={pkg.id}
                 className={`cursor-pointer transition-all ${
                   selectedProduct === pkg.id
                     ? 'ring-2 ring-blue-500 border-blue-500'

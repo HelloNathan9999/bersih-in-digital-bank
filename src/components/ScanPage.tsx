@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, X, FlashOff, Flash, RotateCcw } from 'lucide-react';
+import { Camera, X, Flashlight, FlashlightOff, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
@@ -46,10 +46,11 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
 
       setIsCameraActive(true);
 
-      // Check if flash is available
+      // Check if flash is available (simplified check)
       const track = mediaStream.getVideoTracks()[0];
       const capabilities = track.getCapabilities();
-      if (capabilities.torch) {
+      // Check for flash support in a more compatible way
+      if ('torch' in capabilities || navigator.mediaDevices.getSupportedConstraints().torch) {
         setHasFlash(true);
       }
 
@@ -79,12 +80,17 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
     if (stream && hasFlash) {
       const track = stream.getVideoTracks()[0];
       try {
+        // Use a more compatible approach for torch control
         await track.applyConstraints({
-          advanced: [{ torch: !flashEnabled }]
+          advanced: [{ torch: !flashEnabled } as any]
         });
         setFlashEnabled(!flashEnabled);
       } catch (error) {
         console.error('Error toggling flash:', error);
+        toast({
+          title: "Flash Error",
+          description: "Tidak dapat mengontrol flash pada perangkat ini",
+        });
       }
     }
   };
@@ -237,7 +243,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
                         onClick={toggleFlash}
                         className="bg-black/50 border-white/20 text-white hover:bg-black/70"
                       >
-                        {flashEnabled ? <Flash className="w-4 h-4" /> : <FlashOff className="w-4 h-4" />}
+                        {flashEnabled ? <Flashlight className="w-4 h-4" /> : <FlashlightOff className="w-4 h-4" />}
                       </Button>
                     )}
                     <Button
