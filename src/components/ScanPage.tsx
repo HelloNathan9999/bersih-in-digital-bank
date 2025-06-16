@@ -49,8 +49,9 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
       // Check if flash is available (simplified check)
       const track = mediaStream.getVideoTracks()[0];
       const capabilities = track.getCapabilities();
-      // Check for flash support in a more compatible way
-      if ('torch' in capabilities || navigator.mediaDevices.getSupportedConstraints().torch) {
+      // Use type assertion to handle the torch property safely
+      const supportedConstraints = navigator.mediaDevices.getSupportedConstraints() as any;
+      if ((capabilities as any).torch || supportedConstraints.torch) {
         setHasFlash(true);
       }
 
