@@ -12,12 +12,14 @@ interface WithdrawBankPageProps {
   onBack: () => void;
   amount: string;
   isDarkMode?: boolean;
+  onWithdrawComplete?: (amount: number) => void;
 }
 
 const WithdrawBankPage: React.FC<WithdrawBankPageProps> = ({ 
   onBack, 
   amount, 
-  isDarkMode = false 
+  isDarkMode = false,
+  onWithdrawComplete
 }) => {
   const [selectedMethod, setSelectedMethod] = useState('');
   const [bankName, setBankName] = useState('');
@@ -56,6 +58,11 @@ const WithdrawBankPage: React.FC<WithdrawBankPageProps> = ({
     // Show receipt page
     setShowReceipt(true);
     
+    // Call onWithdrawComplete to update balance in parent component
+    if (onWithdrawComplete) {
+      onWithdrawComplete(parseInt(amount));
+    }
+    
     toast({
       title: "Penarikan Berhasil",
       description: "Permintaan penarikan telah diproses",
@@ -86,7 +93,7 @@ const WithdrawBankPage: React.FC<WithdrawBankPageProps> = ({
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
-      <div className={`${isDarkMode ? 'bg-emerald-700' : 'bg-emerald-600'} text-white p-4`}>
+      <div className={`${isDarkMode ? 'bg-gradient-to-r from-emerald-600 to-teal-700' : 'bg-gradient-to-r from-emerald-500 to-green-600'} text-white p-4`}>
         <div className="flex items-center mb-4">
           <Button variant="ghost" size="icon" onClick={onBack} className="text-white">
             <ArrowLeft className="w-6 h-6" />

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   ShoppingCart, 
@@ -28,6 +27,8 @@ import ListrikPage from './pages/ListrikPage';
 import PDAMPage from './pages/PDAMPage';
 import CheckinPage from './pages/CheckinPage';
 import LokasiPage from './pages/LokasiPage';
+import PulsaDataPage from './pages/PulsaDataPage';
+import SembakoPage from './pages/SembakoPage';
 
 interface ShoppingPageProps {
   isDarkMode?: boolean;
@@ -107,7 +108,6 @@ const ShoppingPage: React.FC<ShoppingPageProps> = ({ isDarkMode = false }) => {
   ];
 
   const handleServiceClick = (serviceId: string) => {
-    // Direct navigation for all services - PIN will be asked during payment
     navigateToService(serviceId);
   };
 
@@ -118,6 +118,8 @@ const ShoppingPage: React.FC<ShoppingPageProps> = ({ isDarkMode = false }) => {
       case 'pdam':
       case 'checkin':
       case 'lokasi':
+      case 'pulsa':
+      case 'sembako':
         setCurrentPage(serviceId);
         break;
       default:
@@ -148,12 +150,18 @@ const ShoppingPage: React.FC<ShoppingPageProps> = ({ isDarkMode = false }) => {
   if (currentPage === 'lokasi') {
     return <LokasiPage onBack={handleBack} />;
   }
+  if (currentPage === 'pulsa') {
+    return <PulsaDataPage onBack={handleBack} isDarkMode={isDarkMode} />;
+  }
+  if (currentPage === 'sembako') {
+    return <SembakoPage onBack={handleBack} isDarkMode={isDarkMode} />;
+  }
 
   return (
     <div className={`min-h-screen pt-16 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
       <div className={`fixed top-0 left-0 right-0 shadow-sm z-10 pt-12 pb-4 ${
-        isDarkMode ? 'bg-emerald-700' : 'bg-emerald-600'
+        isDarkMode ? 'bg-gradient-to-r from-emerald-600 to-teal-700' : 'bg-gradient-to-r from-emerald-500 to-green-600'
       } text-white`}>
         <div className="px-6">
           <h1 className="text-2xl font-bold mb-4">

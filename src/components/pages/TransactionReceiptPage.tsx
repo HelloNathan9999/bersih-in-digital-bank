@@ -3,6 +3,7 @@ import React from 'react';
 import { ArrowLeft, CheckCircle, Download, Share } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { toast } from '@/hooks/use-toast';
 
 interface TransactionReceiptPageProps {
   onBack: () => void;
@@ -24,10 +25,33 @@ const TransactionReceiptPage: React.FC<TransactionReceiptPageProps> = ({
   isDarkMode = false,
   transaction 
 }) => {
+  const handleDownload = () => {
+    toast({
+      title: "Mengunduh Bukti",
+      description: "Bukti transaksi berhasil diunduh",
+    });
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Bukti Transaksi',
+        text: `${transaction.type} - ${transaction.amount}`,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(`${transaction.type} - ${transaction.amount} - ${transaction.transactionId}`);
+      toast({
+        title: "Disalin",
+        description: "Detail transaksi berhasil disalin",
+      });
+    }
+  };
+
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
-      <div className={`${isDarkMode ? 'bg-emerald-700' : 'bg-emerald-600'} text-white p-4`}>
+      <div className={`${isDarkMode ? 'bg-gradient-to-r from-emerald-600 to-teal-700' : 'bg-gradient-to-r from-emerald-500 to-green-600'} text-white p-4`}>
         <div className="flex items-center mb-4">
           <Button variant="ghost" size="icon" onClick={onBack} className="text-white">
             <ArrowLeft className="w-6 h-6" />
@@ -111,11 +135,11 @@ const TransactionReceiptPage: React.FC<TransactionReceiptPageProps> = ({
 
             {/* Action Buttons */}
             <div className="flex space-x-3 mt-6">
-              <Button variant="outline" className="flex-1">
+              <Button variant="outline" className="flex-1" onClick={handleDownload}>
                 <Download className="w-4 h-4 mr-2" />
                 Unduh
               </Button>
-              <Button variant="outline" className="flex-1">
+              <Button variant="outline" className="flex-1" onClick={handleShare}>
                 <Share className="w-4 h-4 mr-2" />
                 Bagikan
               </Button>

@@ -8,6 +8,15 @@ import { toast } from '@/hooks/use-toast';
 import ShoppingCartPage from './ShoppingCartPage';
 import TransactionReceiptPage from './TransactionReceiptPage';
 
+interface CartItem {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  selected: boolean;
+}
+
 interface BelanjaPageProps {
   onBack: () => void;
   isDarkMode?: boolean;
@@ -16,7 +25,7 @@ interface BelanjaPageProps {
 const BelanjaPage: React.FC<BelanjaPageProps> = ({ onBack, isDarkMode = false }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState('products');
-  const [cartItemCount, setCartItemCount] = useState(2);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   const products = [
     {
@@ -101,15 +110,34 @@ const BelanjaPage: React.FC<BelanjaPageProps> = ({ onBack, isDarkMode = false })
     }
   ];
 
-  const handleAddToCart = (productName: string) => {
-    setCartItemCount(cartItemCount + 1);
+  const handleAddToCart = (product: any) => {
+    const existingItem = cartItems.find(item => item.id === product.id);
+    
+    if (existingItem) {
+      setCartItems(cartItems.map(item => 
+        item.id === product.id 
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      ));
+    } else {
+      const newItem: CartItem = {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        image: product.image,
+        selected: true
+      };
+      setCartItems([...cartItems, newItem]);
+    }
+    
     toast({
       title: "Ditambahkan ke Keranjang",
-      description: `${productName} berhasil ditambahkan ke keranjang`,
+      description: `${product.name} berhasil ditambahkan ke keranjang`,
     });
   };
 
-  const handleCheckout = (items: any[], total: number) => {
+  const handleCheckout = (items: CartItem[], total: number) => {
     const transaction = {
       type: 'Pembelian Produk',
       amount: `-Rp ${total.toLocaleString()}`,
@@ -120,7 +148,6 @@ const BelanjaPage: React.FC<BelanjaPageProps> = ({ onBack, isDarkMode = false })
     };
     
     setCurrentPage('receipt');
-    // You would pass the transaction data here
   };
 
   if (currentPage === 'cart') {
@@ -129,6 +156,8 @@ const BelanjaPage: React.FC<BelanjaPageProps> = ({ onBack, isDarkMode = false })
         onBack={() => setCurrentPage('products')}
         onCheckout={handleCheckout}
         isDarkMode={isDarkMode}
+        cartItems={cartItems}
+        setCartItems={setCartItems}
       />
     );
   }
@@ -140,7 +169,7 @@ const BelanjaPage: React.FC<BelanjaPageProps> = ({ onBack, isDarkMode = false })
       transactionId: `TRX${Date.now()}`,
       date: new Date().toLocaleString('id-ID'),
       status: 'success' as const,
-      description: 'Pembelian 2 produk'
+      description: 'Pembelian produk berhasil'
     };
 
     return (
@@ -152,10 +181,12 @@ const BelanjaPage: React.FC<BelanjaPageProps> = ({ onBack, isDarkMode = false })
     );
   }
 
+  const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
-      <div className={`${isDarkMode ? 'bg-emerald-700' : 'bg-emerald-600'} text-white p-4`}>
+      <div className={`${isDarkMode ? 'bg-gradient-to-r from-emerald-600 to-teal-700' : 'bg-gradient-to-r from-emerald-500 to-green-600'} text-white p-4`}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
             <Button variant="ghost" size="icon" onClick={onBack} className="text-white">
@@ -263,9 +294,9 @@ const BelanjaPage: React.FC<BelanjaPageProps> = ({ onBack, isDarkMode = false })
                     <Button 
                       size="sm" 
                       className="bg-emerald-500 hover:bg-emerald-600"
-                      onClick={() => handleAddToCart(product.name)}
+                      onClick={() => handleAddToCart(product)}
                     >
-                      <Plus className="w-4 h-4" />
+                      <ShoppingCart className="w-4 h-4" />
                     </Button>
                   </div>
                 </CardContent>
