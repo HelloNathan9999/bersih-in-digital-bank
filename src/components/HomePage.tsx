@@ -59,7 +59,8 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
   const [currentBalance, setCurrentBalance] = useState(1247500);
   const [isHeaderExpanded, setIsHeaderExpanded] = useState(false); // Changed to false by default
   const [currentTransaction, setCurrentTransaction] = useState<Transaction | null>(null);
-
+  const [totalSampah, setTotalSampah] = useState(45);
+  const [totalPoin, setTotalPoin] = useState(100);
   // Persist theme mode
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -197,14 +198,14 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
     <div className={`min-h-screen pb-20 ${isDarkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'}`}>
       {/* Floating Tray Header */}
       <div className="fixed top-4 left-4 right-4 z-50">
-        <div className={`rounded-2xl shadow-2xl backdrop-blur-lg border relative overflow-hidden transition-all duration-500 ${
+        <div className={`rounded-3xl shadow-2xl backdrop-blur-lg border relative overflow-hidden transition-all duration-500 ${
           isDarkMode 
-            ? 'bg-gradient-to-r from-purple-900/90 via-blue-900/90 to-indigo-900/90 border-purple-500/30' 
+            ? 'bg-gradient-to-r from-purple-900/90 via-blue-900/90 to-indigo-900/90 border-purple-500/20' 
             : 'bg-gradient-to-r from-purple-600/95 via-blue-600/95 to-indigo-700/95 border-white/20'
         } ${isHeaderExpanded ? 'pb-6' : 'pb-4'}`}>
           {/* Aurora Effect Background */}
           <div className="absolute inset-0 bg-gradient-to-r from-purple-400/10 via-blue-400/10 to-indigo-400/10 animate-pulse"></div>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/10 to-transparent rounded-full blur-xl"></div>
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/10 to-transparent rounded-full blur-xl"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-white/10 to-transparent rounded-full blur-lg"></div>
           
           <div className="relative z-10 px-6 pt-4 text-white">
@@ -214,7 +215,7 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
                 <Sparkles className="w-6 h-6 text-yellow-300 animate-pulse" />
                 <div>
                   <h1 className="text-xl font-bold">Selamat Datang</h1>
-                  <p className="text-sm text-blue-100">Ahmad Rizky</p>
+                  <p className="text-sm text-blue-100">Nathannael Wijaya</p>
                 </div>
               </div>
               
@@ -237,62 +238,73 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
               </div>
             </div>
 
-            {/* Expandable Content */}
-            {isHeaderExpanded && (
-              <div className="space-y-4 animate-fade-in">
-                {/* Balance and Stats */}
-                <div className="grid grid-cols-3 gap-4">
-                  <Card className="bg-white/15 backdrop-blur-md border-white/20 text-white">
-                    <CardContent className="p-4 text-center">
-                      <Wallet className="w-6 h-6 mx-auto mb-2 text-blue-200" />
-                      <div className="text-lg font-bold">
-                        {showBalance ? `Rp ${currentBalance.toLocaleString()}` : 'Rp ••••••'}
-                      </div>
-                      <p className="text-xs text-blue-100">Saldo</p>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="bg-white/15 backdrop-blur-md border-white/20 text-white">
-                    <CardContent className="p-4 text-center">
-                      <Trash2 className="w-6 h-6 mx-auto mb-2 text-green-200" />
-                      <div className="text-lg font-bold">45 kg</div>
-                      <p className="text-xs text-blue-100">Sampah</p>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="bg-white/15 backdrop-blur-md border-white/20 text-white">
-                    <CardContent className="p-4 text-center">
-                      <Coins className="w-6 h-6 mx-auto mb-2 text-yellow-200" />
-                      <div className="text-lg font-bold">125</div>
-                      <p className="text-xs text-blue-100">Poin</p>
-                    </CardContent>
-                  </Card>
-                </div>
-                
-                {/* Withdraw Button */}
-                <Button 
-                  onClick={() => setShowWithdrawModal(true)}
-                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold py-3 rounded-xl shadow-lg"
-                >
-                  <ArrowUpRight className="w-5 h-5 mr-2" />
-                  Tarik Saldo
-                </Button>
-              </div>
-            )}
+{/* Expandable Content */}
+{isHeaderExpanded && (
+  <div className="animate-fade-in px-4 py-4 bg-white/5 backdrop-blur-md rounded-xl mt-2 space-y-4 text-white">
+
+    {/* SALDO */}
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-xxs text-blue-100">Saldo</p>
+        <p className="text-2xl font-bold">
+          {showBalance ? `Rp ${currentBalance.toLocaleString()}` : 'Rp ••••••'}
+        </p>
+      </div>
+
+      {/* Toggle Hide Balance */}
+      <button
+        onClick={() => setShowBalance(!showBalance)}
+        className="text-white/80 hover:text-white transition"
+      >
+        {showBalance ? (
+          <Eye className="w-5 h-5" />
+        ) : (
+          <EyeOff className="w-5 h-5" />
+        )}
+      </button>
+    </div>
+
+    {/* SAMPAH - POIN - TARIK SALDO */}
+    <div className="flex items-center justify-between gap-4">
+      {/* SAMPAH & POIN */}
+      <div className="flex gap-8">
+        <div className="text-left">
+          <div className="text-xl font-bold text-green-200">{totalSampah} kg</div>
+          <div className="text-xxs text-blue-100">Sampah</div>
+        </div>
+        <div className="text-left">
+          <div className="text-xl font-bold text-yellow-200">{totalPoin}</div>
+          <div className="text-xxs text-blue-100">Poin</div>
+        </div>
+      </div>
+
+      {/* Tombol Tarik Saldo */}
+<button
+  onClick={() => setShowWithdrawModal(true)}
+  className="p-3 bg-white/10 hover:bg-white/20 rounded-full shadow-lg transition"
+>
+  <ArrowUpRight className="w-5 h-5 text-white" />
+</button>
+
+    </div>
+  </div>
+)}
 
             {/* Repositioned Toggle Button - Moved to bottom center with better positioning */}
-            <button
-              onClick={() => setIsHeaderExpanded(!isHeaderExpanded)}
-              className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-300 shadow-lg"
-            >
-              {isHeaderExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </button>
+<button
+  onClick={() => setIsHeaderExpanded(!isHeaderExpanded)}
+  className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-white hover:text-blue-200 transition z-60"
+>
+  {isHeaderExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+</button>
+
           </div>
         </div>
       </div>
 
       {/* Main Content with proper spacing */}
-      <div className="px-6 py-6" style={{ marginTop: isHeaderExpanded ? '280px' : '120px' }}>
+      <div className={`px-6 py-6 ${isHeaderExpanded ? 'mt-[280px]' : 'mt-[120px]'}`}>
+
         {/* Educational Banners */}
         <section>
           <div className="flex items-center space-x-2 mb-6">
