@@ -57,7 +57,7 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
   const [currentPage, setCurrentPage] = useState('home');
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [currentBalance, setCurrentBalance] = useState(1247500);
-  const [isHeaderExpanded, setIsHeaderExpanded] = useState(true);
+  const [isHeaderExpanded, setIsHeaderExpanded] = useState(false); // Changed to false by default
   const [currentTransaction, setCurrentTransaction] = useState<Transaction | null>(null);
 
   // Persist theme mode
@@ -73,6 +73,13 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
   useEffect(() => {
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
+
+  // Reset header to collapsed when returning to home
+  useEffect(() => {
+    if (currentPage === 'home') {
+      setIsHeaderExpanded(false);
+    }
+  }, [currentPage]);
 
   const handleNavigateToBank = (amount: string) => {
     setWithdrawAmount(amount);
@@ -273,19 +280,19 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
               </div>
             )}
 
-            {/* Transparent Toggle Button */}
+            {/* Repositioned Toggle Button - Moved to bottom center with better positioning */}
             <button
               onClick={() => setIsHeaderExpanded(!isHeaderExpanded)}
-              className="absolute bottom-2 left-1/2 transform -translate-x-1/2 p-2 bg-white/10 backdrop-blur-sm rounded-full hover:bg-white/20 transition-all duration-300"
+              className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-300 shadow-lg"
             >
-              {isHeaderExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+              {isHeaderExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
           </div>
         </div>
       </div>
 
       {/* Main Content with proper spacing */}
-      <div className="px-6 py-6" style={{ marginTop: '200px' }}>
+      <div className="px-6 py-6" style={{ marginTop: isHeaderExpanded ? '280px' : '120px' }}>
         {/* Educational Banners */}
         <section>
           <div className="flex items-center space-x-2 mb-6">
