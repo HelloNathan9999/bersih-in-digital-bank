@@ -31,11 +31,23 @@ import { Card, CardContent } from '@/components/ui/card';
 import NotificationPage from './NotificationPage';
 import WithdrawModal from './WithdrawModal';
 import WithdrawBankPage from './pages/WithdrawBankPage';
+import TransactionReceiptPage from './pages/TransactionReceiptPage';
 import { toast } from '@/hooks/use-toast';
 
 interface HomePageProps {
   isDarkMode?: boolean;
   onThemeToggle: () => void;
+}
+
+interface Transaction {
+  type: string;
+  amount: string;
+  transactionId: string;
+  date: string;
+  status: 'success' | 'pending' | 'failed';
+  description: string;
+  bankName?: string;
+  accountNumber?: string;
 }
 
 const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }) => {
@@ -46,6 +58,7 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [currentBalance, setCurrentBalance] = useState(1247500);
   const [isHeaderExpanded, setIsHeaderExpanded] = useState(true);
+  const [currentTransaction, setCurrentTransaction] = useState<Transaction | null>(null);
 
   // Persist theme mode
   useEffect(() => {
@@ -67,16 +80,36 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
   };
 
   const handleWithdrawComplete = (amount: number) => {
+    const transaction: Transaction = {
+      type: 'Penarikan Saldo',
+      amount: `Rp ${amount.toLocaleString()}`,
+      transactionId: `TXN${Date.now()}`,
+      date: new Date().toLocaleString('id-ID'),
+      status: 'success',
+      description: 'Penarikan saldo berhasil',
+      bankName: 'Bank BCA',
+      accountNumber: '****1234'
+    };
+    
     setCurrentBalance(prevBalance => prevBalance - amount);
-    setCurrentPage('home');
+    setCurrentTransaction(transaction);
+    setCurrentPage('transaction-receipt');
+    
+    // Show floating toast notification
     toast({
-      title: "Penarikan Berhasil",
+      title: "✅ Penarikan Berhasil",
       description: `Saldo Rp ${amount.toLocaleString()} berhasil ditarik`,
+      duration: 3000,
     });
   };
 
   const handleBack = () => {
-    setCurrentPage('home');
+    if (currentPage === 'transaction-receipt') {
+      setCurrentPage('home');
+      setCurrentTransaction(null);
+    } else {
+      setCurrentPage('home');
+    }
   };
 
   if (showNotifications) {
@@ -90,6 +123,16 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
         amount={withdrawAmount}
         isDarkMode={isDarkMode}
         onWithdrawComplete={handleWithdrawComplete}
+      />
+    );
+  }
+
+  if (currentPage === 'transaction-receipt' && currentTransaction) {
+    return (
+      <TransactionReceiptPage
+        onBack={handleBack}
+        isDarkMode={isDarkMode}
+        transaction={currentTransaction}
       />
     );
   }
@@ -144,99 +187,105 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
   ];
 
   return (
-    <div className={`min-h-screen pb-16 ${isDarkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'}`}>
-      {/* Tray Header */}
-      <div className={`bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-700 text-white shadow-2xl relative overflow-hidden transition-all duration-300 ${isHeaderExpanded ? 'pb-6' : 'pb-4'}`}>
-        {/* Aurora Effect Background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-blue-400/20 to-indigo-400/20 animate-pulse"></div>
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/10 to-transparent rounded-full blur-xl"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-white/10 to-transparent rounded-full blur-lg"></div>
-        
-        <div className="relative z-10 px-6 pt-12">
-          {/* Top Bar */}
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center space-x-3">
-              <Sparkles className="w-6 h-6 text-yellow-300 animate-pulse" />
-              <div>
-                <h1 className="text-xl font-bold">Selamat Datang</h1>
-                <p className="text-sm text-blue-100">Ahmad Rizky</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={onThemeToggle}
-                className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-300"
-              >
-                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </button>
-              <button 
-                onClick={() => setShowNotifications(true)}
-                className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-300 relative"
-              >
-                <Bell className="w-5 h-5" />
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center">
-                  <span className="text-xs font-bold">3</span>
+    <div className={`min-h-screen pb-20 ${isDarkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'}`}>
+      {/* Floating Tray Header */}
+      <div className="fixed top-4 left-4 right-4 z-50">
+        <div className={`rounded-2xl shadow-2xl backdrop-blur-lg border relative overflow-hidden transition-all duration-500 ${
+          isDarkMode 
+            ? 'bg-gradient-to-r from-purple-900/90 via-blue-900/90 to-indigo-900/90 border-purple-500/30' 
+            : 'bg-gradient-to-r from-purple-600/95 via-blue-600/95 to-indigo-700/95 border-white/20'
+        } ${isHeaderExpanded ? 'pb-6' : 'pb-4'}`}>
+          {/* Aurora Effect Background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-400/10 via-blue-400/10 to-indigo-400/10 animate-pulse"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/10 to-transparent rounded-full blur-xl"></div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-white/10 to-transparent rounded-full blur-lg"></div>
+          
+          <div className="relative z-10 px-6 pt-4 text-white">
+            {/* Top Bar */}
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center space-x-3">
+                <Sparkles className="w-6 h-6 text-yellow-300 animate-pulse" />
+                <div>
+                  <h1 className="text-xl font-bold">Selamat Datang</h1>
+                  <p className="text-sm text-blue-100">Ahmad Rizky</p>
                 </div>
-              </button>
-            </div>
-          </div>
-
-          {/* Expandable Content */}
-          {isHeaderExpanded && (
-            <div className="space-y-4 animate-fade-in">
-              {/* Balance and Stats */}
-              <div className="grid grid-cols-3 gap-4">
-                <Card className="bg-white/15 backdrop-blur-md border-white/20 text-white">
-                  <CardContent className="p-4 text-center">
-                    <Wallet className="w-6 h-6 mx-auto mb-2 text-blue-200" />
-                    <div className="text-lg font-bold">
-                      {showBalance ? `Rp ${currentBalance.toLocaleString()}` : 'Rp ••••••'}
-                    </div>
-                    <p className="text-xs text-blue-100">Saldo</p>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-white/15 backdrop-blur-md border-white/20 text-white">
-                  <CardContent className="p-4 text-center">
-                    <Trash2 className="w-6 h-6 mx-auto mb-2 text-green-200" />
-                    <div className="text-lg font-bold">45 kg</div>
-                    <p className="text-xs text-blue-100">Sampah</p>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-white/15 backdrop-blur-md border-white/20 text-white">
-                  <CardContent className="p-4 text-center">
-                    <Coins className="w-6 h-6 mx-auto mb-2 text-yellow-200" />
-                    <div className="text-lg font-bold">125</div>
-                    <p className="text-xs text-blue-100">Poin</p>
-                  </CardContent>
-                </Card>
               </div>
               
-              {/* Withdraw Button */}
-              <Button 
-                onClick={() => setShowWithdrawModal(true)}
-                className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold py-3 rounded-xl shadow-lg"
-              >
-                <ArrowUpRight className="w-5 h-5 mr-2" />
-                Tarik Saldo
-              </Button>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={onThemeToggle}
+                  className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-300"
+                >
+                  {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
+                <button 
+                  onClick={() => setShowNotifications(true)}
+                  className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-300 relative"
+                >
+                  <Bell className="w-5 h-5" />
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center">
+                    <span className="text-xs font-bold">3</span>
+                  </div>
+                </button>
+              </div>
             </div>
-          )}
 
-          {/* Toggle Button */}
-          <button
-            onClick={() => setIsHeaderExpanded(!isHeaderExpanded)}
-            className="absolute bottom-2 left-1/2 transform -translate-x-1/2 p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-300"
-          >
-            {isHeaderExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-          </button>
+            {/* Expandable Content */}
+            {isHeaderExpanded && (
+              <div className="space-y-4 animate-fade-in">
+                {/* Balance and Stats */}
+                <div className="grid grid-cols-3 gap-4">
+                  <Card className="bg-white/15 backdrop-blur-md border-white/20 text-white">
+                    <CardContent className="p-4 text-center">
+                      <Wallet className="w-6 h-6 mx-auto mb-2 text-blue-200" />
+                      <div className="text-lg font-bold">
+                        {showBalance ? `Rp ${currentBalance.toLocaleString()}` : 'Rp ••••••'}
+                      </div>
+                      <p className="text-xs text-blue-100">Saldo</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="bg-white/15 backdrop-blur-md border-white/20 text-white">
+                    <CardContent className="p-4 text-center">
+                      <Trash2 className="w-6 h-6 mx-auto mb-2 text-green-200" />
+                      <div className="text-lg font-bold">45 kg</div>
+                      <p className="text-xs text-blue-100">Sampah</p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="bg-white/15 backdrop-blur-md border-white/20 text-white">
+                    <CardContent className="p-4 text-center">
+                      <Coins className="w-6 h-6 mx-auto mb-2 text-yellow-200" />
+                      <div className="text-lg font-bold">125</div>
+                      <p className="text-xs text-blue-100">Poin</p>
+                    </CardContent>
+                  </Card>
+                </div>
+                
+                {/* Withdraw Button */}
+                <Button 
+                  onClick={() => setShowWithdrawModal(true)}
+                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold py-3 rounded-xl shadow-lg"
+                >
+                  <ArrowUpRight className="w-5 h-5 mr-2" />
+                  Tarik Saldo
+                </Button>
+              </div>
+            )}
+
+            {/* Transparent Toggle Button */}
+            <button
+              onClick={() => setIsHeaderExpanded(!isHeaderExpanded)}
+              className="absolute bottom-2 left-1/2 transform -translate-x-1/2 p-2 bg-white/10 backdrop-blur-sm rounded-full hover:bg-white/20 transition-all duration-300"
+            >
+              {isHeaderExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="px-6 py-6 space-y-8">
+      {/* Main Content with proper spacing */}
+      <div className="px-6 py-6" style={{ marginTop: '200px' }}>
         {/* Educational Banners */}
         <section>
           <div className="flex items-center space-x-2 mb-6">
@@ -277,7 +326,7 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
         </section>
 
         {/* Latest News */}
-        <section>
+        <section className="mt-8">
           <div className="flex items-center space-x-2 mb-6">
             <TrendingUp className={`w-5 h-5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
             <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
@@ -310,7 +359,7 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
         </section>
 
         {/* Quick Stats */}
-        <section>
+        <section className="mt-8">
           <div className="flex items-center space-x-2 mb-6">
             <Trophy className={`w-5 h-5 ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`} />
             <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
