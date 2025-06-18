@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Home, Scan, Target, ShoppingBag, User } from 'lucide-react';
 import HomePage from './HomePage';
 import NewsPage from './NewsPage';
@@ -17,6 +17,18 @@ const MainApp: React.FC<MainAppProps> = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState('home');
   const [isDarkMode, setIsDarkMode] = useState(false);
 
+  // Initialize theme from localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      setIsDarkMode(false);
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
   const tabs = [
     { id: 'home', icon: Home, label: 'Beranda' },
     { id: 'news', icon: Target, label: 'Berita' },
@@ -26,8 +38,15 @@ const MainApp: React.FC<MainAppProps> = ({ onLogout }) => {
   ];
 
   const handleThemeToggle = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    localStorage.setItem('theme', newMode ? 'dark' : 'light');
+    
+    if (newMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   };
 
   const renderActiveTab = () => {

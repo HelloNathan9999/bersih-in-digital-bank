@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Bell, 
   Eye, 
@@ -18,7 +18,13 @@ import {
   CreditCard,
   Sparkles,
   Star,
-  Trophy
+  Trophy,
+  ChevronDown,
+  ChevronUp,
+  Moon,
+  Sun,
+  Trash2,
+  Coins
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -38,85 +44,22 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [currentPage, setCurrentPage] = useState('home');
   const [withdrawAmount, setWithdrawAmount] = useState('');
-  const [currentBalance, setCurrentBalance] = useState(1247500); // State untuk saldo yang bisa berubah
+  const [currentBalance, setCurrentBalance] = useState(1247500);
+  const [isHeaderExpanded, setIsHeaderExpanded] = useState(true);
 
-  const quickActions = [
-    { 
-      icon: Plus, 
-      label: 'Setor Sampah', 
-      color: 'text-emerald-600', 
-      bg: isDarkMode ? 'bg-gradient-to-br from-emerald-600/20 to-emerald-700/30' : 'bg-gradient-to-br from-emerald-100 to-emerald-200',
-      action: () => toast({
-        title: "Fitur Setor Sampah",
-        description: "Halaman setor sampah akan segera tersedia",
-      })
-    },
-    { 
-      icon: Minus, 
-      label: 'Tarik Saldo', 
-      color: 'text-red-600', 
-      bg: isDarkMode ? 'bg-gradient-to-br from-red-600/20 to-red-700/30' : 'bg-gradient-to-br from-red-100 to-red-200',
-      action: () => setShowWithdrawModal(true)
-    },
-    { 
-      icon: ArrowUpRight, 
-      label: 'Transfer', 
-      color: 'text-blue-600', 
-      bg: isDarkMode ? 'bg-gradient-to-br from-blue-600/20 to-blue-700/30' : 'bg-gradient-to-br from-blue-100 to-blue-200',
-      action: () => toast({
-        title: "Fitur Transfer",
-        description: "Halaman transfer akan segera tersedia",
-      })
-    },
-    { 
-      icon: Gift, 
-      label: 'Reward', 
-      color: 'text-purple-600', 
-      bg: isDarkMode ? 'bg-gradient-to-br from-purple-600/20 to-purple-700/30' : 'bg-gradient-to-br from-purple-100 to-purple-200',
-      action: () => toast({
-        title: "Fitur Reward",
-        description: "Halaman reward akan segera tersedia",
-      })
+  // Persist theme mode
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark' && !isDarkMode) {
+      onThemeToggle();
+    } else if (savedTheme === 'light' && isDarkMode) {
+      onThemeToggle();
     }
-  ];
+  }, []);
 
-  const recentActivities = [
-    {
-      id: 1,
-      type: 'deposit',
-      title: 'Setor Sampah Plastik',
-      amount: '+Rp 15,000',
-      points: '+25 poin',
-      time: '2 jam lalu',
-      icon: ArrowDownLeft,
-      color: 'text-emerald-600'
-    },
-    {
-      id: 2,
-      type: 'withdraw',
-      title: 'Penarikan Saldo',
-      amount: '-Rp 50,000',
-      time: '1 hari lalu',
-      icon: ArrowUpRight,
-      color: 'text-red-600'
-    },
-    {
-      id: 3,
-      type: 'reward',
-      title: 'Reward Mingguan',
-      amount: '+Rp 10,000',
-      points: '+15 poin',
-      time: '3 hari lalu',
-      icon: Gift,
-      color: 'text-purple-600'
-    }
-  ];
-
-  const achievements = [
-    { title: 'Eco Warrior', description: 'Setor sampah 50x', icon: Leaf, progress: 80 },
-    { title: 'Loyal Member', description: 'Aktif 30 hari berturut', icon: Award, progress: 95 },
-    { title: 'Community Helper', description: 'Ajak 10 teman', icon: Users, progress: 60 }
-  ];
+  useEffect(() => {
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+  }, [isDarkMode]);
 
   const handleNavigateToBank = (amount: string) => {
     setWithdrawAmount(amount);
@@ -124,7 +67,6 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
   };
 
   const handleWithdrawComplete = (amount: number) => {
-    // Potong saldo saat penarikan berhasil
     setCurrentBalance(prevBalance => prevBalance - amount);
     setCurrentPage('home');
     toast({
@@ -152,184 +94,252 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
     );
   }
 
+  // Educational banners and news data
+  const educationalBanners = [
+    {
+      id: 1,
+      title: "Cara Memilah Sampah yang Benar",
+      description: "Pelajari cara memilah sampah organik dan anorganik untuk lingkungan yang lebih bersih",
+      image: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=400&h=200&fit=crop",
+      tag: "Edukasi"
+    },
+    {
+      id: 2,
+      title: "Manfaat Daur Ulang Plastik",
+      description: "Ketahui dampak positif mendaur ulang plastik bagi bumi kita",
+      image: "https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=400&h=200&fit=crop",
+      tag: "Lingkungan"
+    },
+    {
+      id: 3,
+      title: "Tips Mengurangi Sampah Harian",
+      description: "Langkah sederhana untuk mengurangi produksi sampah di rumah",
+      image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400&h=200&fit=crop",
+      tag: "Tips"
+    }
+  ];
+
+  const latestNews = [
+    {
+      id: 1,
+      title: "Program Bank Sampah Terbaru",
+      summary: "Peluncuran program bank sampah digital untuk masyarakat urban",
+      time: "2 jam lalu",
+      category: "Berita"
+    },
+    {
+      id: 2,
+      title: "Reward Poin Bertambah",
+      summary: "Sistem reward baru memberikan poin lebih banyak untuk setiap setoran",
+      time: "5 jam lalu",
+      category: "Update"
+    },
+    {
+      id: 3,
+      title: "Event Kebersihan Kota",
+      summary: "Bergabunglah dalam acara bersih-bersih kota weekend ini",
+      time: "1 hari lalu",
+      category: "Event"
+    }
+  ];
+
   return (
     <div className={`min-h-screen pb-16 ${isDarkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'}`}>
-      {/* Header with Aurora Blue Colors */}
-      <div className={`bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 text-white p-6 pt-12 rounded-b-3xl shadow-2xl relative overflow-hidden`}>
+      {/* Tray Header */}
+      <div className={`bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-700 text-white shadow-2xl relative overflow-hidden transition-all duration-300 ${isHeaderExpanded ? 'pb-6' : 'pb-4'}`}>
         {/* Aurora Effect Background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/20 animate-pulse"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-blue-400/20 to-indigo-400/20 animate-pulse"></div>
         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/10 to-transparent rounded-full blur-xl"></div>
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-white/10 to-transparent rounded-full blur-lg"></div>
         
-        <div className="relative z-10">
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <div className="flex items-center space-x-2 mb-2">
-                <Sparkles className="w-6 h-6 text-yellow-300 animate-pulse" />
-                <h1 className="text-2xl font-bold">Selamat Datang!</h1>
+        <div className="relative z-10 px-6 pt-12">
+          {/* Top Bar */}
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center space-x-3">
+              <Sparkles className="w-6 h-6 text-yellow-300 animate-pulse" />
+              <div>
+                <h1 className="text-xl font-bold">Selamat Datang</h1>
+                <p className="text-sm text-blue-100">Ahmad Rizky</p>
               </div>
-              <p className="opacity-90 text-blue-100">Kelola sampah, raih keuntungan bersama</p>
             </div>
-            <button 
-              onClick={() => setShowNotifications(true)}
-              className="p-3 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-300 relative shadow-lg hover:shadow-xl transform hover:scale-105"
-            >
-              <Bell className="w-6 h-6" />
-              <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-xs font-bold">3</span>
-              </div>
-            </button>
+            
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={onThemeToggle}
+                className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-300"
+              >
+                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+              <button 
+                onClick={() => setShowNotifications(true)}
+                className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-300 relative"
+              >
+                <Bell className="w-5 h-5" />
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center">
+                  <span className="text-xs font-bold">3</span>
+                </div>
+              </button>
+            </div>
           </div>
 
-          {/* Enhanced Balance Card */}
-          <Card className="bg-white/15 backdrop-blur-md border-white/20 text-white shadow-2xl">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-center mb-3">
-                <div className="flex items-center space-x-2">
-                  <Wallet className="w-5 h-5 text-blue-200" />
-                  <span className="text-sm text-blue-100">Saldo Tersedia</span>
-                </div>
-                <button
-                  onClick={() => setShowBalance(!showBalance)}
-                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                >
-                  {showBalance ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+          {/* Expandable Content */}
+          {isHeaderExpanded && (
+            <div className="space-y-4 animate-fade-in">
+              {/* Balance and Stats */}
+              <div className="grid grid-cols-3 gap-4">
+                <Card className="bg-white/15 backdrop-blur-md border-white/20 text-white">
+                  <CardContent className="p-4 text-center">
+                    <Wallet className="w-6 h-6 mx-auto mb-2 text-blue-200" />
+                    <div className="text-lg font-bold">
+                      {showBalance ? `Rp ${currentBalance.toLocaleString()}` : 'Rp ••••••'}
+                    </div>
+                    <p className="text-xs text-blue-100">Saldo</p>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-white/15 backdrop-blur-md border-white/20 text-white">
+                  <CardContent className="p-4 text-center">
+                    <Trash2 className="w-6 h-6 mx-auto mb-2 text-green-200" />
+                    <div className="text-lg font-bold">45 kg</div>
+                    <p className="text-xs text-blue-100">Sampah</p>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-white/15 backdrop-blur-md border-white/20 text-white">
+                  <CardContent className="p-4 text-center">
+                    <Coins className="w-6 h-6 mx-auto mb-2 text-yellow-200" />
+                    <div className="text-lg font-bold">125</div>
+                    <p className="text-xs text-blue-100">Poin</p>
+                  </CardContent>
+                </Card>
               </div>
-              <div className="text-3xl font-bold mb-4 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-                {showBalance ? `Rp ${currentBalance.toLocaleString()}` : 'Rp ••••••'}
-              </div>
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-2">
-                  <Star className="w-4 h-4 text-yellow-300" />
-                  <span className="text-sm text-blue-100">Poin: 125</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Award className="w-4 h-4 text-yellow-300" />
-                  <span className="text-sm text-blue-100">Level: Gold</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Enhanced Quick Actions */}
-      <div className="px-6 -mt-8 relative z-10">
-        <div className="grid grid-cols-4 gap-4 mb-8">
-          {quickActions.map((action, index) => {
-            const IconComponent = action.icon;
-            return (
-              <button
-                key={index}
-                onClick={action.action}
-                className={`${action.bg} p-5 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl backdrop-blur-sm border border-white/20`}
+              
+              {/* Withdraw Button */}
+              <Button 
+                onClick={() => setShowWithdrawModal(true)}
+                className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold py-3 rounded-xl shadow-lg"
               >
-                <IconComponent className={`w-7 h-7 ${action.color} mx-auto mb-3`} />
-                <span className={`text-xs font-semibold block ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                  {action.label}
-                </span>
-              </button>
-            );
-          })}
+                <ArrowUpRight className="w-5 h-5 mr-2" />
+                Tarik Saldo
+              </Button>
+            </div>
+          )}
+
+          {/* Toggle Button */}
+          <button
+            onClick={() => setIsHeaderExpanded(!isHeaderExpanded)}
+            className="absolute bottom-2 left-1/2 transform -translate-x-1/2 p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-300"
+          >
+            {isHeaderExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+          </button>
         </div>
       </div>
 
-      {/* Enhanced Recent Activities */}
-      <div className="px-6 mb-6">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center space-x-2">
-            <TrendingUp className={`w-5 h-5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
-            <h2 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-              Aktivitas Terbaru
+      {/* Main Content */}
+      <div className="px-6 py-6 space-y-8">
+        {/* Educational Banners */}
+        <section>
+          <div className="flex items-center space-x-2 mb-6">
+            <Leaf className={`w-5 h-5 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`} />
+            <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+              Edukasi Kebersihan
             </h2>
           </div>
-          <Button variant="ghost" size="sm" className={`${isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'} font-semibold`}>
-            Lihat Semua
-          </Button>
-        </div>
-        
-        <div className="space-y-4">
-          {recentActivities.map((activity) => {
-            const IconComponent = activity.icon;
-            return (
-              <Card key={activity.id} className={`${isDarkMode ? 'bg-gray-800/80 border-gray-700/50 backdrop-blur-sm' : 'bg-white/80 backdrop-blur-sm border-white/50'} hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1`}>
-                <CardContent className="p-5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-gray-700/80' : 'bg-gray-100/80'} backdrop-blur-sm`}>
-                        <IconComponent className={`w-5 h-5 ${activity.color}`} />
-                      </div>
-                      <div>
-                        <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                          {activity.title}
+          
+          <div className="space-y-4">
+            {educationalBanners.map((banner) => (
+              <Card key={banner.id} className={`${isDarkMode ? 'bg-gray-800/80 border-gray-700/50' : 'bg-white/80 border-white/50'} hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden`}>
+                <CardContent className="p-0">
+                  <div className="flex">
+                    <img 
+                      src={banner.image} 
+                      alt={banner.title}
+                      className="w-24 h-24 object-cover"
+                    />
+                    <div className="p-4 flex-1">
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className={`font-semibold text-sm ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                          {banner.title}
                         </h3>
-                        <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                          {activity.time}
-                        </p>
+                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                          {banner.tag}
+                        </span>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <div className={`font-bold text-lg ${activity.color}`}>
-                        {activity.amount}
-                      </div>
-                      {activity.points && (
-                        <div className="text-xs text-blue-600 font-medium">
-                          {activity.points}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Enhanced Achievements */}
-      <div className="px-6 mb-6">
-        <div className="flex items-center space-x-2 mb-6">
-          <Trophy className={`w-5 h-5 ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`} />
-          <h2 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-            Pencapaian
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 gap-4">
-          {achievements.map((achievement, index) => {
-            const IconComponent = achievement.icon;
-            return (
-              <Card key={index} className={`${isDarkMode ? 'bg-gray-800/80 border-gray-700/50 backdrop-blur-sm' : 'bg-white/80 backdrop-blur-sm border-white/50'} hover:shadow-xl transition-all duration-300`}>
-                <CardContent className="p-5">
-                  <div className="flex items-center space-x-4">
-                    <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-gray-700/80' : 'bg-gray-100/80'} backdrop-blur-sm`}>
-                      <IconComponent className="w-6 h-6 text-emerald-600" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                        {achievement.title}
-                      </h3>
-                      <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'} mb-3`}>
-                        {achievement.description}
+                      <p className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        {banner.description}
                       </p>
-                      <div className={`h-3 rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} overflow-hidden`}>
-                        <div 
-                          className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full transition-all duration-1000 ease-out"
-                          style={{ width: `${achievement.progress}%` }}
-                        />
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <span className={`text-lg font-bold ${isDarkMode ? 'text-emerald-400' : 'text-emerald-600'}`}>
-                        {achievement.progress}%
-                      </span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Latest News */}
+        <section>
+          <div className="flex items-center space-x-2 mb-6">
+            <TrendingUp className={`w-5 h-5 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+            <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+              Berita Terbaru
+            </h2>
+          </div>
+          
+          <div className="space-y-4">
+            {latestNews.map((news) => (
+              <Card key={news.id} className={`${isDarkMode ? 'bg-gray-800/80 border-gray-700/50' : 'bg-white/80 border-white/50'} hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1`}>
+                <CardContent className="p-5">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                      {news.title}
+                    </h3>
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                      {news.category}
+                    </span>
+                  </div>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'} mb-3`}>
+                    {news.summary}
+                  </p>
+                  <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {news.time}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* Quick Stats */}
+        <section>
+          <div className="flex items-center space-x-2 mb-6">
+            <Trophy className={`w-5 h-5 ${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'}`} />
+            <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+              Statistik Mingguan
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <Card className={`${isDarkMode ? 'bg-gray-800/80 border-gray-700/50' : 'bg-white/80 border-white/50'}`}>
+              <CardContent className="p-4 text-center">
+                <div className={`w-12 h-12 rounded-full ${isDarkMode ? 'bg-emerald-600/20' : 'bg-emerald-100'} flex items-center justify-center mx-auto mb-3`}>
+                  <Leaf className="w-6 h-6 text-emerald-600" />
+                </div>
+                <div className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>12 kg</div>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Sampah Minggu Ini</p>
+              </CardContent>
+            </Card>
+            
+            <Card className={`${isDarkMode ? 'bg-gray-800/80 border-gray-700/50' : 'bg-white/80 border-white/50'}`}>
+              <CardContent className="p-4 text-center">
+                <div className={`w-12 h-12 rounded-full ${isDarkMode ? 'bg-blue-600/20' : 'bg-blue-100'} flex items-center justify-center mx-auto mb-3`}>
+                  <Users className="w-6 h-6 text-blue-600" />
+                </div>
+                <div className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>#15</div>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Ranking Komunitas</p>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
       </div>
 
       <WithdrawModal
