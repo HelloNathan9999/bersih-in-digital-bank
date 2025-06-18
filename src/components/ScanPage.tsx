@@ -16,6 +16,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
   const [flashEnabled, setFlashEnabled] = useState(false);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
   const [cameraError, setCameraError] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -29,59 +30,89 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
 
   const startCamera = async () => {
     try {
+      setIsLoading(true);
       setCameraError('');
       
+      // Stop existing stream first
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        setStream(null);
+      }
+
       // Check if mediaDevices is supported
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Camera tidak didukung di browser ini');
+        throw new Error('Kamera tidak didukung di browser ini');
       }
 
       const constraints: MediaStreamConstraints = {
         video: {
           facingMode: facingMode,
-          width: { ideal: 1280, min: 640 },
-          height: { ideal: 720, min: 480 }
+          width: { ideal: 1280, min: 320 },
+          height: { ideal: 720, min: 240 }
         },
         audio: false
       };
 
-      console.log('Requesting camera with constraints:', constraints);
-
+      console.log('Requesting camera access...');
+      
       const mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
-      console.log('Camera stream obtained:', mediaStream);
+      console.log('Camera stream obtained successfully');
       
       setStream(mediaStream);
       
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
         
-        // Wait for video to load metadata
-        videoRef.current.onloadedmetadata = () => {
-          console.log('Video metadata loaded');
-          if (videoRef.current) {
-            videoRef.current.play().then(() => {
-              console.log('Video playing successfully');
-              setIsCameraActive(true);
-            }).catch(err => {
-              console.error('Error playing video:', err);
-              setCameraError('Gagal memulai video kamera');
-            });
-          }
+        // Wait for video to be ready
+        const playVideo = () => {
+          return new Promise<void>((resolve, reject) => {
+            if (!videoRef.current) {
+              reject(new Error('Video element not found'));
+              return;
+            }
+
+            const video = videoRef.current;
+            
+            const onLoadedMetadata = () => {
+              video.removeEventListener('loadedmetadata', onLoadedMetadata);
+              video.removeEventListener('error', onError);
+              
+              video.play()
+                .then(() => {
+                  console.log('Video started playing');
+                  setIsCameraActive(true);
+                  resolve();
+                })
+                .catch(reject);
+            };
+
+            const onError = (error: Event) => {
+              video.removeEventListener('loadedmetadata', onLoadedMetadata);
+              video.removeEventListener('error', onError);
+              reject(error);
+            };
+
+            video.addEventListener('loadedmetadata', onLoadedMetadata);
+            video.addEventListener('error', onError);
+            
+            // Trigger load if not already loading
+            if (video.readyState === 0) {
+              video.load();
+            } else if (video.readyState >= 1) {
+              onLoadedMetadata();
+            }
+          });
         };
-        
-        videoRef.current.onerror = (error) => {
-          console.error('Video error:', error);
-          setCameraError('Error pada video kamera');
-        };
+
+        await playVideo();
       }
 
-      // Check if flash is available
+      // Check for flash support
       const track = mediaStream.getVideoTracks()[0];
       if (track) {
         const capabilities = track.getCapabilities();
         console.log('Camera capabilities:', capabilities);
         
-        // Check for flash support
         if ((capabilities as any).torch) {
           setHasFlash(true);
           console.log('Flash is supported');
@@ -89,28 +120,37 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
       }
 
       toast({
-        title: "Kamera Aktif",
+        title: "✅ Kamera Aktif",
         description: "Arahkan kamera ke QR code untuk memindai",
+        duration: 3000,
       });
+      
     } catch (error: any) {
-      console.error('Error accessing camera:', error);
+      console.error('Camera error:', error);
       let errorMessage = 'Gagal mengakses kamera';
       
       if (error.name === 'NotAllowedError') {
         errorMessage = 'Izin kamera ditolak. Silakan berikan izin kamera dan coba lagi.';
       } else if (error.name === 'NotFoundError') {
         errorMessage = 'Kamera tidak ditemukan pada perangkat ini.';
-      } else if (error.name === 'NotSupportedError') {
-        errorMessage = 'Kamera tidak didukung di browser ini.';
+      } else if (error.name === 'NotReadableError') {
+        errorMessage = 'Kamera sedang digunakan aplikasi lain.';
+      } else if (error.name === 'OverconstrainedError') {
+        errorMessage = 'Kamera tidak mendukung konfigurasi yang diminta.';
       } else if (error.message) {
         errorMessage = error.message;
       }
       
       setCameraError(errorMessage);
+      setIsCameraActive(false);
+      
       toast({
-        title: "Gagal Mengakses Kamera",
+        title: "❌ Gagal Mengakses Kamera",
         description: errorMessage,
+        duration: 3000,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -118,7 +158,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
     console.log('Stopping camera');
     if (stream) {
       stream.getTracks().forEach(track => {
-        console.log('Stopping track:', track);
+        console.log('Stopping track:', track.label);
         track.stop();
       });
       setStream(null);
@@ -145,8 +185,9 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
       } catch (error) {
         console.error('Error toggling flash:', error);
         toast({
-          title: "Flash Error",
+          title: "⚠️ Flash Error",
           description: "Tidak dapat mengontrol flash pada perangkat ini",
+          duration: 3000,
         });
       }
     }
@@ -159,7 +200,6 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
     
     if (isCameraActive) {
       stopCamera();
-      // Wait a bit before starting the new camera
       setTimeout(() => {
         startCamera();
       }, 500);
@@ -167,7 +207,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
   };
 
   const captureQR = () => {
-    if (videoRef.current && canvasRef.current) {
+    if (videoRef.current && canvasRef.current && isCameraActive) {
       const canvas = canvasRef.current;
       const video = videoRef.current;
       const context = canvas.getContext('2d');
@@ -179,21 +219,24 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
         
         console.log('QR capture attempted');
         toast({
-          title: "QR Code Terdeteksi",
+          title: "📷 QR Code Terdeteksi",
           description: "Menganalisis QR code...",
+          duration: 3000,
         });
         
-        // Simulate processing delay
+        // Simulate processing
         setTimeout(() => {
           toast({
-            title: "Scan Berhasil",
+            title: "✅ Scan Berhasil",
             description: "QR Code berhasil dipindai!",
+            duration: 3000,
           });
         }, 1500);
       } else {
         toast({
-          title: "Error",
+          title: "⚠️ Error",
           description: "Video belum siap untuk capture",
+          duration: 3000,
         });
       }
     }
@@ -201,15 +244,11 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
 
   return (
     <div className={`min-h-screen pt-16 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      {/* Header with Aurora Blue Colors */}
+      {/* Fixed Header */}
       <div className="fixed top-0 left-0 right-0 shadow-sm z-10 pt-12 pb-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 text-white">
         <div className="px-6">
-          <h1 className="text-2xl font-bold mb-2">
-            Scan QR Code
-          </h1>
-          <p className="text-sm opacity-90">
-            Pindai QR code untuk transaksi cepat
-          </p>
+          <h1 className="text-2xl font-bold mb-2">Scan QR Code</h1>
+          <p className="text-sm opacity-90">Pindai QR code untuk transaksi cepat</p>
         </div>
       </div>
 
@@ -226,10 +265,10 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
               </Card>
             )}
 
-            {/* Info Card */}
+            {/* Camera Activation Card */}
             <Card className={`${isDarkMode ? 'bg-purple-800/20 border-purple-600' : 'bg-purple-50 border-purple-200'}`}>
               <CardContent className="p-6 text-center">
-                <Camera className={`w-16 h-16 mx-auto mb-4 ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`} />
+                <Camera className={`w-20 h-20 mx-auto mb-4 ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`} />
                 <h3 className={`text-xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
                   Scan QR Code
                 </h3>
@@ -238,10 +277,20 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
                 </p>
                 <Button 
                   onClick={startCamera}
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3"
+                  disabled={isLoading}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 disabled:opacity-50"
                 >
-                  <Camera className="w-5 h-5 mr-2" />
-                  Buka Kamera
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      Mengaktifkan...
+                    </>
+                  ) : (
+                    <>
+                      <Camera className="w-5 h-5 mr-2" />
+                      Buka Kamera
+                    </>
+                  )}
                 </Button>
               </CardContent>
             </Card>
@@ -254,7 +303,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
                 </h4>
                 <div className="space-y-3">
                   <div className="flex items-start space-x-3">
-                    <div className="w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-bold">
+                    <div className="w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
                       1
                     </div>
                     <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -262,7 +311,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
                     </p>
                   </div>
                   <div className="flex items-start space-x-3">
-                    <div className="w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-bold">
+                    <div className="w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
                       2
                     </div>
                     <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -270,7 +319,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
                     </p>
                   </div>
                   <div className="flex items-start space-x-3">
-                    <div className="w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-bold">
+                    <div className="w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
                       3
                     </div>
                     <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -278,7 +327,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
                     </p>
                   </div>
                   <div className="flex items-start space-x-3">
-                    <div className="w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-bold">
+                    <div className="w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
                       4
                     </div>
                     <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -294,23 +343,30 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
             {/* Camera View */}
             <Card className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} relative overflow-hidden`}>
               <CardContent className="p-0">
-                <div className="relative">
+                <div className="relative bg-black">
                   <video
                     ref={videoRef}
-                    className="w-full h-80 object-cover bg-black"
+                    className="w-full h-80 object-cover"
                     autoPlay
                     playsInline
                     muted
-                    style={{ transform: facingMode === 'user' ? 'scaleX(-1)' : 'none' }}
+                    style={{ 
+                      transform: facingMode === 'user' ? 'scaleX(-1)' : 'none',
+                      backgroundColor: 'black'
+                    }}
                   />
                   
                   {/* QR Frame Overlay */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-48 h-48 border-4 border-white rounded-lg relative">
-                      <div className="absolute top-0 left-0 w-6 h-6 border-l-4 border-t-4 border-purple-500"></div>
-                      <div className="absolute top-0 right-0 w-6 h-6 border-r-4 border-t-4 border-purple-500"></div>
-                      <div className="absolute bottom-0 left-0 w-6 h-6 border-l-4 border-b-4 border-purple-500"></div>
-                      <div className="absolute bottom-0 right-0 w-6 h-6 border-r-4 border-b-4 border-purple-500"></div>
+                      {/* Corner indicators */}
+                      <div className="absolute -top-1 -left-1 w-6 h-6 border-l-4 border-t-4 border-purple-400 rounded-tl-lg"></div>
+                      <div className="absolute -top-1 -right-1 w-6 h-6 border-r-4 border-t-4 border-purple-400 rounded-tr-lg"></div>
+                      <div className="absolute -bottom-1 -left-1 w-6 h-6 border-l-4 border-b-4 border-purple-400 rounded-bl-lg"></div>
+                      <div className="absolute -bottom-1 -right-1 w-6 h-6 border-r-4 border-b-4 border-purple-400 rounded-br-lg"></div>
+                      
+                      {/* Scanning line animation */}
+                      <div className="absolute top-0 left-0 w-full h-1 bg-purple-400 animate-pulse"></div>
                     </div>
                   </div>
 
@@ -321,7 +377,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
                         size="sm"
                         variant="outline"
                         onClick={toggleFlash}
-                        className="bg-black/50 border-white/20 text-white hover:bg-black/70"
+                        className="bg-black/60 border-white/30 text-white hover:bg-black/80 backdrop-blur-sm"
                       >
                         {flashEnabled ? <Flashlight className="w-4 h-4" /> : <FlashlightOff className="w-4 h-4" />}
                       </Button>
@@ -330,7 +386,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
                       size="sm"
                       variant="outline"
                       onClick={switchCamera}
-                      className="bg-black/50 border-white/20 text-white hover:bg-black/70"
+                      className="bg-black/60 border-white/30 text-white hover:bg-black/80 backdrop-blur-sm"
                     >
                       <RotateCcw className="w-4 h-4" />
                     </Button>
@@ -338,7 +394,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
                       size="sm"
                       variant="outline"
                       onClick={stopCamera}
-                      className="bg-black/50 border-white/20 text-white hover:bg-black/70"
+                      className="bg-black/60 border-white/30 text-white hover:bg-black/80 backdrop-blur-sm"
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -350,7 +406,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
             {/* Manual Capture Button */}
             <Button 
               onClick={captureQR}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3"
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 font-semibold"
             >
               <Camera className="w-5 h-5 mr-2" />
               Capture QR Code
