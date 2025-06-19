@@ -12,62 +12,85 @@ interface NotificationPageProps {
 const NotificationPage: React.FC<NotificationPageProps> = ({ isDarkMode = false, onBack }) => {
   const [notifications, setNotifications] = useState([
     {
-      id: 1,
+      id: '1',
       title: 'Setor Sampah Berhasil!',
       message: 'Selamat! Anda telah menyetor 2.5kg sampah plastik dan mendapat +125 poin.',
       time: '2 jam lalu',
-      type: 'success',
-      read: false,
-      details: 'Transaksi setor sampah telah berhasil diproses. Sampah plastik seberat 2.5kg telah diterima di Bank Sampah Hijau dengan operator Ahmad Sutrisno. Poin reward sebesar 125 poin telah ditambahkan ke akun Anda.'
+      type: 'success' as const,
+      isRead: false,
+      details: {
+        transactionId: 'TXN001234',
+        amount: '+125 poin',
+        date: '19 Juni 2025, 14:30',
+        status: 'Berhasil'
+      }
     },
     {
-      id: 2,
+      id: '2',
       title: 'Promo Tukar Poin',
       message: 'Dapatkan diskon 20% untuk voucher belanja dengan menukar 500 poin!',
       time: '1 hari lalu',
-      type: 'info',
-      read: false,
-      details: 'Promo spesial berlaku hingga akhir bulan ini. Tukarkan 500 poin Anda untuk mendapatkan voucher belanja senilai Rp 50.000 dengan diskon 20%. Promo terbatas, buruan tukar sekarang!'
+      type: 'info' as const,
+      isRead: false,
+      details: {
+        amount: '500 poin',
+        date: '18 Juni 2025',
+        status: 'Aktif'
+      }
     },
     {
-      id: 3,
+      id: '3',
       title: 'Target Mingguan',
       message: 'Anda hampir mencapai target mingguan! Tinggal 1.5kg lagi.',
       time: '2 hari lalu',
-      type: 'warning',
-      read: true,
-      details: 'Target mingguan Anda adalah 10kg sampah. Saat ini Anda telah menyetor 8.5kg. Masih butuh 1.5kg lagi untuk mencapai target dan mendapatkan bonus poin 50!'
+      type: 'warning' as const,
+      isRead: true,
+      details: {
+        amount: '8.5/10kg',
+        date: '17 Juni 2025',
+        status: 'Progress'
+      }
     },
     {
-      id: 4,
+      id: '4',
       title: 'Penarikan Berhasil',
       message: 'Penarikan saldo Rp 50.000 telah berhasil diproses.',
       time: '3 hari lalu',
-      type: 'success',
-      read: true,
-      details: 'Penarikan saldo sebesar Rp 50.000 ke rekening Bank BCA ****1234 atas nama John Doe telah berhasil diproses pada tanggal 1 Juni 2025 pukul 14:30 WIB.'
+      type: 'success' as const,
+      isRead: true,
+      details: {
+        transactionId: 'WD001234',
+        amount: '-Rp 50.000',
+        date: '16 Juni 2025, 10:15',
+        status: 'Berhasil'
+      }
     },
     {
-      id: 5,
+      id: '5',
       title: 'Pembelian Token Listrik',
       message: 'Pembelian token listrik Rp 100.000 berhasil diproses.',
       time: '4 hari lalu',
-      type: 'success',
-      read: true,
-      details: 'Token listrik PLN senilai Rp 100.000 telah berhasil dibeli untuk ID Pelanggan 123456789. Token: 1234-5678-9012-3456. Silakan masukkan token ke meteran listrik Anda.'
+      type: 'success' as const,
+      isRead: true,
+      details: {
+        transactionId: 'PLN001234',
+        amount: '-Rp 100.000',
+        date: '15 Juni 2025, 09:45',
+        status: 'Berhasil'
+      }
     }
   ]);
 
   const [selectedNotification, setSelectedNotification] = useState<any>(null);
 
   const handleNotificationClick = (notification: any) => {
-    // Mark as read
-    setNotifications(notifications.map(notif => 
-      notif.id === notification.id ? { ...notif, read: true } : notif
-    ));
-    
-    // Show detail page
     setSelectedNotification(notification);
+  };
+
+  const handleMarkAsRead = (id: string) => {
+    setNotifications(notifications.map(notif => 
+      notif.id === id ? { ...notif, isRead: true } : notif
+    ));
   };
 
   const getIconByType = (type: string) => {
@@ -87,6 +110,7 @@ const NotificationPage: React.FC<NotificationPageProps> = ({ isDarkMode = false,
         onBack={() => setSelectedNotification(null)}
         isDarkMode={isDarkMode}
         notification={selectedNotification}
+        onMarkAsRead={handleMarkAsRead}
       />
     );
   }
@@ -117,7 +141,7 @@ const NotificationPage: React.FC<NotificationPageProps> = ({ isDarkMode = false,
             key={notification.id} 
             className={`cursor-pointer transition-all hover:shadow-md ${
               isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'
-            } ${!notification.read ? 'ring-2 ring-blue-500/20' : ''}`}
+            } ${!notification.isRead ? 'ring-2 ring-blue-500/20' : ''}`}
             onClick={() => handleNotificationClick(notification)}
           >
             <CardContent className="p-4">
@@ -129,10 +153,10 @@ const NotificationPage: React.FC<NotificationPageProps> = ({ isDarkMode = false,
                   <div className="flex items-center justify-between">
                     <h3 className={`font-medium ${
                       isDarkMode ? 'text-white' : 'text-gray-800'
-                    } ${!notification.read ? 'font-semibold' : ''}`}>
+                    } ${!notification.isRead ? 'font-semibold' : ''}`}>
                       {notification.title}
                     </h3>
-                    {!notification.read && (
+                    {!notification.isRead && (
                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                     )}
                   </div>
