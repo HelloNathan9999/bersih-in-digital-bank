@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import OnboardingScreen from '../components/OnboardingScreen';
 import LoginScreen from '../components/LoginScreen';
 import RegisterScreen from '../components/RegisterScreen';
@@ -12,25 +11,36 @@ const Index = () => {
   const [currentView, setCurrentView] = useState('onboarding');
 
   useEffect(() => {
-    // Check if user has seen onboarding before
-    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
-    const userToken = localStorage.getItem('userToken');
-    
-    if (hasSeenOnboarding) {
-      setIsFirstTime(false);
-      if (userToken) {
-        setIsAuthenticated(true);
-        setCurrentView('main');
-      } else {
-        setCurrentView('login');
+    try {
+      // Check if user has seen onboarding before
+      const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
+      const userToken = localStorage.getItem('userToken');
+      
+      if (hasSeenOnboarding) {
+        setIsFirstTime(false);
+        if (userToken) {
+          setIsAuthenticated(true);
+          setCurrentView('main');
+        } else {
+          setCurrentView('login');
+        }
       }
+    } catch (error) {
+      console.error('Error in Index useEffect:', error);
+      // Fallback to onboarding if there's an error
+      setIsFirstTime(true);
+      setCurrentView('onboarding');
     }
   }, []);
 
   const handleOnboardingComplete = () => {
-    localStorage.setItem('hasSeenOnboarding', 'true');
-    setIsFirstTime(false);
-    setCurrentView('login');
+    try {
+      localStorage.setItem('hasSeenOnboarding', 'true');
+      setIsFirstTime(false);
+      setCurrentView('login');
+    } catch (error) {
+      console.error('Error completing onboarding:', error);
+    }
   };
 
   const handleLoginSuccess = () => {
@@ -39,10 +49,14 @@ const Index = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('userToken');
-    localStorage.removeItem('userData');
-    setIsAuthenticated(false);
-    setCurrentView('login');
+    try {
+      localStorage.removeItem('userToken');
+      localStorage.removeItem('userData');
+      setIsAuthenticated(false);
+      setCurrentView('login');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
 
   if (isFirstTime) {
