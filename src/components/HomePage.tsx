@@ -51,6 +51,22 @@ interface Transaction {
   accountNumber?: string;
 }
 
+interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  time: string;
+  type: 'success' | 'warning' | 'info' | 'error' | 'promo' | 'reminder';
+  isRead: boolean;
+  details: {
+    transactionId?: string;
+    amount: string;
+    date: string;
+    status: string;
+  };
+}
+
+
 const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }) => {
   const [showBalance, setShowBalance] = useState(true);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -63,8 +79,68 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
   const [totalSampah, setTotalSampah] = useState(0);
   const [totalPoin, setTotalPoin] = useState(0);
   const [userName, setuserName] = useState('');
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+const [selectedBank, setSelectedBank] = useState('');
+const [accountNumber, setAccountNumber] = useState('');
+const [userData, setUserData] = useState({
+  name: '',
+  nik: '',
+  phone: '',
+  email: '',
+  address: '',
+  level: 'Eco Starter',
+  totalPoints: 0,
+  totalEarnings: 0,
+  totalWaste: 0,
+  joinDate: ''
+});
+
+
+
 
   // Persist theme mode
+useEffect(() => {
+  const stored = localStorage.getItem("userData");
+  if (stored) {
+    const parsed = JSON.parse(stored);
+    setSelectedBank(parsed.bank || '');
+    setAccountNumber(parsed.accountNumber || '');
+    if (!selectedBank || !accountNumber) {
+  toast({
+    title: "Data Tidak Lengkap",
+    description: "Lengkapi data bank & rekening Anda terlebih dahulu",
+    variant: "destructive"
+  });
+  return;
+}
+  }
+}, []);
+
+useEffect(() => {
+  const balance = localStorage.getItem("userBalance");
+  if (balance) setCurrentBalance(Number(balance));
+}, []);
+
+useEffect(() => {
+  // Balance
+  const stored = localStorage.getItem("userBalance");
+  const parsed = stored ? Number(stored) : 0;
+  setCurrentBalance(isNaN(parsed) ? 0 : parsed);
+
+  // User Data
+  const storedUser = localStorage.getItem("userData");
+  if (storedUser) {
+    setUserData(JSON.parse(storedUser));
+  }
+
+  // Notifications (jika kamu load notif di sini)
+  const storedNotif = localStorage.getItem("userNotifications");
+  if (storedNotif) {
+    setNotifications(JSON.parse(storedNotif));
+  }
+}, []);
+
+
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark' && !isDarkMode) {
@@ -90,29 +166,59 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
     setCurrentPage('withdraw-bank');
   };
 
-  const handleWithdrawComplete = (amount: number) => {
-    const transaction: Transaction = {
-      type: 'Penarikan Saldo',
-      amount: `Rp ${amount.toLocaleString()}`,
-      transactionId: `TXN${Date.now()}`,
-      date: new Date().toLocaleString('id-ID'),
-      status: 'success',
-      description: 'Penarikan saldo berhasil',
-      bankName: 'Bank BCA',
-      accountNumber: '****1234'
-    };
-    
-    setCurrentBalance(prevBalance => prevBalance - amount);
-    setCurrentTransaction(transaction);
-    setCurrentPage('transaction-receipt');
-    
-    // Show floating toast notification
-    toast({
-      title: "✅ Penarikan Berhasil",
-      description: `Saldo Rp ${amount.toLocaleString()} berhasil ditarik`,
-      duration: 3000,
-    });
+const handleWithdrawComplete = (amount: number) => {
+  const newBalance = currentBalance - amount;
+
+  const transaction: Transaction = {
+    type: 'Penarikan Saldo',
+    amount: `Rp ${amount.toLocaleString()}`,
+    transactionId: `TXN${Date.now()}`,
+    date: new Date().toLocaleString('id-ID'),
+    status: 'success',
+    description: 'Penarikan saldo berhasil',
+    bankName: selectedBank,
+    accountNumber: `****${accountNumber.slice(-4)}`
   };
+
+  // Update saldo secara lokal & ke localStorage
+  setCurrentBalance(newBalance);
+  localStorage.setItem("userBalance", JSON.stringify(newBalance));
+
+  // Set transaksi aktif
+  setCurrentTransaction(transaction);
+  setCurrentPage('transaction-receipt');
+
+  // Simpan transaksi ke localStorage
+  const storedTxs = JSON.parse(localStorage.getItem("userTransactions") || "[]");
+  const updatedTxs = [transaction, ...storedTxs];
+  localStorage.setItem("userTransactions", JSON.stringify(updatedTxs));
+
+  // Tambahkan ke notifikasi
+  const notif = {
+    id: Date.now().toString(),
+    title: 'Penarikan Berhasil',
+    message: `Penarikan saldo Rp ${amount.toLocaleString()} telah berhasil diproses.`,
+    time: 'Baru saja',
+    type: 'success',
+    isRead: false,
+    details: {
+      transactionId: transaction.transactionId,
+      amount: `-Rp ${amount.toLocaleString()}`,
+      date: transaction.date,
+      status: 'Berhasil'
+    }
+  };
+  const storedNotif = JSON.parse(localStorage.getItem("userNotifications") || "[]");
+  localStorage.setItem("userNotifications", JSON.stringify([notif, ...storedNotif]));
+
+  // Tampilkan toast
+  toast({
+    title: "✅ Penarikan Berhasil",
+    description: `Saldo Rp ${amount.toLocaleString()} berhasil ditarik`,
+    duration: 3000,
+  });
+};
+
 
   const handleBack = () => {
     if (currentPage === 'transaction-receipt') {

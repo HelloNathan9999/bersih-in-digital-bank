@@ -30,32 +30,34 @@ interface ProfilePageProps {
 
 const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout, isDarkMode = false }) => {
   const [showFullNIK, setShowFullNIK] = useState(false);
-  const [userData, setUserData] = useState({
-    name: 'Pengguna BERSIH.IN',
-    nik: '1234567890123456',
-    phone: '08123456789',
-    email: 'user@example.com',
-    address: 'Jl. Contoh No. 123, Jakarta Selatan',
-    level: 'Eco Warrior',
-    totalPoints: 2450,
-    totalEarnings: 125000,
-    totalWaste: 45.5,
-    joinDate: '2025-01-15'
-  });
+const [userData, setUserData] = useState({
+  name: '',
+  nik: '',
+  phone: '',
+  email: '',
+  address: '',
+  level: 'Eco Starter',
+  totalPoints: 0,
+  totalEarnings: 0,
+  totalWaste: 0,
+  joinDate: ''
+});
 
-  useEffect(() => {
-    const storedUserData = localStorage.getItem('userData');
-    if (storedUserData) {
-      const parsed = JSON.parse(storedUserData);
-      setUserData(prev => ({
-        ...prev,
-        name: parsed.name || 'Pengguna BERSIH.IN',
-        nik: parsed.nik || '1234567890123456',
-        phone: parsed.phone || '08123456789',
-        email: parsed.email || 'user@example.com'
-      }));
-    }
-  }, []);
+
+useEffect(() => {
+  const storedUserData = localStorage.getItem('userData');
+  if (storedUserData) {
+    setUserData(JSON.parse(storedUserData));
+  } else {
+    toast({
+      title: 'Belum Login',
+      description: 'Silakan login dulu ya!',
+      variant: 'destructive'
+    });
+    // atau redirect ke login
+  }
+}, []);
+
 
   const handleShowNIK = () => {
     // Request PIN verification
