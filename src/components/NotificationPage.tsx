@@ -1,8 +1,22 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Bell, ArrowLeft, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import NotificationDetailPage from './pages/NotificationDetailPage';
+
+interface NotificationItem {
+  id: string;
+  title: string;
+  message: string;
+  time: string;
+  type: 'success' | 'warning' | 'info';
+  isRead: boolean;
+  details: {
+    transactionId?: string;
+    amount: string;
+    date: string;
+    status: string;
+  };
+}
 
 interface NotificationPageProps {
   isDarkMode?: boolean;
@@ -10,80 +24,23 @@ interface NotificationPageProps {
 }
 
 const NotificationPage: React.FC<NotificationPageProps> = ({ isDarkMode = false, onBack }) => {
-  const [notifications, setNotifications] = useState([
-    {
-      id: '1',
-      title: 'Setor Sampah Berhasil!',
-      message: 'Selamat! Anda telah menyetor 2.5kg sampah plastik dan mendapat +125 poin.',
-      time: '2 jam lalu',
-      type: 'success' as const,
-      isRead: false,
-      details: {
-        transactionId: 'TXN001234',
-        amount: '+125 poin',
-        date: '19 Juni 2025, 14:30',
-        status: 'Berhasil'
-      }
-    },
-    {
-      id: '2',
-      title: 'Promo Tukar Poin',
-      message: 'Dapatkan diskon 20% untuk voucher belanja dengan menukar 500 poin!',
-      time: '1 hari lalu',
-      type: 'info' as const,
-      isRead: false,
-      details: {
-        amount: '500 poin',
-        date: '18 Juni 2025',
-        status: 'Aktif'
-      }
-    },
-    {
-      id: '3',
-      title: 'Target Mingguan',
-      message: 'Anda hampir mencapai target mingguan! Tinggal 1.5kg lagi.',
-      time: '2 hari lalu',
-      type: 'warning' as const,
-      isRead: true,
-      details: {
-        amount: '8.5/10kg',
-        date: '17 Juni 2025',
-        status: 'Progress'
-      }
-    },
-    {
-      id: '4',
-      title: 'Penarikan Berhasil',
-      message: 'Penarikan saldo Rp 50.000 telah berhasil diproses.',
-      time: '3 hari lalu',
-      type: 'success' as const,
-      isRead: true,
-      details: {
-        transactionId: 'WD001234',
-        amount: '-Rp 50.000',
-        date: '16 Juni 2025, 10:15',
-        status: 'Berhasil'
-      }
-    },
-    {
-      id: '5',
-      title: 'Pembelian Token Listrik',
-      message: 'Pembelian token listrik Rp 100.000 berhasil diproses.',
-      time: '4 hari lalu',
-      type: 'success' as const,
-      isRead: true,
-      details: {
-        transactionId: 'PLN001234',
-        amount: '-Rp 100.000',
-        date: '15 Juni 2025, 09:45',
-        status: 'Berhasil'
-      }
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [selectedNotification, setSelectedNotification] = useState<NotificationItem | null>(null);
+
+  // Ambil notifikasi dari localStorage saat pertama kali render
+  useEffect(() => {
+    const stored = localStorage.getItem("userNotifications");
+    if (stored) {
+      setNotifications(JSON.parse(stored));
     }
-  ]);
+  }, []);
 
-  const [selectedNotification, setSelectedNotification] = useState<any>(null);
+  // Simpan notifikasi ke localStorage setiap kali berubah
+  useEffect(() => {
+    localStorage.setItem("userNotifications", JSON.stringify(notifications));
+  }, [notifications]);
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = (notification: NotificationItem) => {
     setSelectedNotification(notification);
   };
 
@@ -128,14 +85,17 @@ const NotificationPage: React.FC<NotificationPageProps> = ({ isDarkMode = false,
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-xl font-bold">
-            Notifikasi
-          </h1>
+          <h1 className="text-xl font-bold">Notifikasi</h1>
         </div>
       </div>
 
       {/* Notifications List */}
       <div className="p-4 space-y-3">
+        {notifications.length === 0 && (
+          <p className={`text-center text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            Ooopssss, kamu belum punya Transaksi nih.
+          </p>
+        )}
         {notifications.map((notification) => (
           <Card 
             key={notification.id} 

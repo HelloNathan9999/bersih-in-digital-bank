@@ -24,7 +24,8 @@ import {
   Moon,
   Sun,
   Trash2,
-  Coins
+  Coins,
+  User
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -56,11 +57,13 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [currentPage, setCurrentPage] = useState('home');
   const [withdrawAmount, setWithdrawAmount] = useState('');
-  const [currentBalance, setCurrentBalance] = useState(1247500);
+  const [currentBalance, setCurrentBalance] = useState(0);
   const [isHeaderExpanded, setIsHeaderExpanded] = useState(false); // Changed to false by default
   const [currentTransaction, setCurrentTransaction] = useState<Transaction | null>(null);
-  const [totalSampah, setTotalSampah] = useState(45);
-  const [totalPoin, setTotalPoin] = useState(100);
+  const [totalSampah, setTotalSampah] = useState(0);
+  const [totalPoin, setTotalPoin] = useState(0);
+  const [userName, setuserName] = useState('');
+
   // Persist theme mode
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -215,7 +218,7 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
                 <Sparkles className="w-6 h-6 text-yellow-300 animate-pulse" />
                 <div>
                   <h1 className="text-xl font-bold">Selamat Datang</h1>
-                  <p className="text-sm text-blue-100">Nathannael Wijaya</p>
+                  <p className="text-sm text-blue-100">{userName || "Guest"}</p>
                 </div>
               </div>
               
@@ -247,7 +250,7 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
       <div>
         <p className="text-xxs text-blue-100">Saldo</p>
         <p className="text-2xl font-bold">
-          {showBalance ? `Rp ${currentBalance.toLocaleString()}` : 'Rp ••••••'}
+          {showBalance ? `Rp ${currentBalance.toLocaleString()}` : 'Rp ••••••••'}
         </p>
       </div>
 
