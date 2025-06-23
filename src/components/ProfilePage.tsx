@@ -1,26 +1,29 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { 
   User, 
-  Edit, 
-  Eye, 
-  EyeOff, 
-  Phone, 
-  Mail, 
-  MapPin, 
-  CreditCard,
+  Settings, 
+  CreditCard, 
+  Bell, 
+  HelpCircle, 
+  LogOut, 
+  ChevronRight,
+  Edit,
   Shield,
-  FileText,
-  HelpCircle,
-  LogOut,
-  Award,
-  TrendingUp,
-  Coins,
-  Share2
+  Gift,
+  Star,
+  Wallet,
+  Target,
+  Users,
+  TrendingUp
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { toast } from '@/hooks/use-toast';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import WithdrawModal from './WithdrawModal';
+import NotificationPage from './NotificationPage';
+import WithdrawBankPage from './pages/WithdrawBankPage';
 
 interface ProfilePageProps {
   onLogout: () => void;
@@ -28,311 +31,245 @@ interface ProfilePageProps {
 }
 
 const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout, isDarkMode = false }) => {
-  const [showFullNIK, setShowFullNIK] = useState(false);
-  const [userData, setUserData] = useState({
-    name: '',
-    nik: '',
-    phone: '',
-    email: '',
-    address: '',
-    level: 'Eco Starter',
-    totalPoints: 0,
-    totalEarnings: 0,
-    totalWaste: 0,
-    joinDate: '',
-    bankAccount: '',
-    bankName: ''
-  });
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showWithdrawBank, setShowWithdrawBank] = useState(false);
 
-  useEffect(() => {
-    const storedUserData = localStorage.getItem('userData');
-    if (storedUserData) {
-      const parsedData = JSON.parse(storedUserData);
-      setUserData(parsedData);
-      
-      // Cek apakah data bank dan rekening lengkap
-      if (!parsedData.bankAccount || !parsedData.bankName) {
-        toast({
-          title: 'Data Tidak Lengkap',
-          description: 'Lengkapi data bank & rekening Anda terlebih dahulu',
-          variant: 'destructive'
-        });
-      }
-    } else {
-      toast({
-        title: 'Belum Login',
-        description: 'Silakan login dulu ya!',
-        variant: 'destructive'
-      });
-    }
-  }, []);
+  // Check if user is in initial setup (no bank data completed yet)
+  const userBankName = localStorage.getItem('userBankName');
+  const userAccountNumber = localStorage.getItem('userAccountNumber');
+  const isInitialSetup = !userBankName || !userAccountNumber;
 
-  const handleShowNIK = () => {
-    // Request PIN verification
-    const pin = prompt("Masukkan PIN 6 digit untuk melihat NIK lengkap:");
-    if (pin && pin.length === 6) {
-      setShowFullNIK(true);
-      toast({
-        title: "NIK Ditampilkan",
-        description: "Data berhasil diverifikasi",
-      });
-    } else {
-      toast({
-        title: "PIN Tidak Valid",
-        description: "PIN harus 6 digit",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const maskNIK = (nik: string) => {
-    if (showFullNIK) return nik;
-    return nik.substring(0, 4) + '****' + nik.substring(12);
+  const userStats = {
+    totalDeposits: 47,
+    totalEarnings: 'Rp 156,750',
+    currentBalance: 'Rp 45,250',
+    ecoPoints: 312,
+    level: 'Eco Warrior',
+    nextLevelPoints: 88
   };
 
   const achievements = [
-    { icon: '🌱', title: 'Eco Starter', description: 'Setor sampah pertama' },
-    { icon: '♻️', title: 'Recycling Hero', description: 'Setor 50kg sampah' },
-    { icon: '🏆', title: 'Top Contributor', description: 'Masuk top 10 bulan ini' },
-    { icon: '🌍', title: 'Earth Protector', description: 'Aktif 30 hari berturut' }
+    { icon: Star, label: 'First Deposit', unlocked: true },
+    { icon: Target, label: '10x Deposits', unlocked: true },
+    { icon: Users, label: 'Community Helper', unlocked: false },
+    { icon: TrendingUp, label: 'Eco Champion', unlocked: false }
   ];
 
   const menuItems = [
-    { icon: Award, label: 'Badge & Pencapaian', action: () => {} },
-    { icon: TrendingUp, label: 'Statistik Kontribusi', action: () => {} },
-    { icon: Coins, label: 'Riwayat Poin & Saldo', action: () => {} },
-    { icon: Share2, label: 'Kode Referral', action: () => {} },
-    { icon: Shield, label: 'Keamanan & Privasi', action: () => {} },
-    { icon: FileText, label: 'Syarat & Ketentuan', action: () => {} },
-    { icon: HelpCircle, label: 'FAQ & Bantuan', action: () => {} }
+    { icon: CreditCard, label: 'Metode Pembayaran', action: () => setShowWithdrawBank(true) },
+    { icon: Bell, label: 'Notifikasi', action: () => setShowNotifications(true) },
+    { icon: Gift, label: 'Reward & Voucher', action: () => {} },
+    { icon: Shield, label: 'Keamanan Akun', action: () => {} },
+    { icon: HelpCircle, label: 'Bantuan & FAQ', action: () => {} },
+    { icon: Settings, label: 'Pengaturan', action: () => {} }
   ];
+
+  if (showNotifications) {
+    return (
+      <NotificationPage 
+        onBack={() => setShowNotifications(false)}
+        isDarkMode={isDarkMode}
+      />
+    );
+  }
+
+  if (showWithdrawBank) {
+    return (
+      <WithdrawBankPage 
+        onBack={() => setShowWithdrawBank(false)}
+        isDarkMode={isDarkMode}
+      />
+    );
+  }
 
   return (
     <div className={`min-h-screen pt-16 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
-      <div className={`fixed top-0 left-0 right-0 z-10 pt-12 pb-4 ${
-        isDarkMode ? 'bg-gray-800/90' : 'bg-white/90'
-      } backdrop-blur-lg shadow-sm`}>
+      <div className={`fixed top-0 left-0 right-0 shadow-sm z-10 pt-12 pb-4 ${
+        isDarkMode ? 'bg-gradient-to-r from-emerald-600 to-teal-700' : 'bg-gradient-to-r from-emerald-500 to-green-600'
+      } text-white`}>
         <div className="px-6">
-          <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-            Profile
-          </h1>
+          <h1 className="text-2xl font-bold">Profile</h1>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="px-6 py-6 space-y-6" style={{ marginTop: '120px' }}>
+      <div className="px-6 py-6" style={{ marginTop: '100px' }}>
+        {/* Bank Data Notification - Only show during initial setup */}
+        {isInitialSetup && (
+          <Card className="mb-6 border-red-200 bg-red-50">
+            <CardContent className="p-4">
+              <div className="flex items-start space-x-3">
+                <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
+                <div>
+                  <h3 className="font-semibold text-red-800 mb-1">Data Tidak Lengkap</h3>
+                  <p className="text-sm text-red-600 mb-3">
+                    Lengkapi data bank & rekening Anda terlebih dahulu
+                  </p>
+                  <Button 
+                    size="sm" 
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                    onClick={() => setShowWithdrawBank(true)}
+                  >
+                    Lengkapi Sekarang
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Profile Header */}
-        <Card className="bg-gradient-to-r from-green-500 to-blue-500 text-white">
+        <Card className={`mb-6 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
           <CardContent className="p-6">
             <div className="flex items-center space-x-4 mb-4">
-              <Avatar className="w-20 h-20 border-4 border-white/20">
-                <AvatarImage src="" alt="Profile" />
-                <AvatarFallback className="bg-white/20 text-white text-xl font-bold">
-                  {userData.name.charAt(0)}
-                </AvatarFallback>
+              <Avatar className="w-16 h-16">
+                <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" />
+                <AvatarFallback>JD</AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <h2 className="text-xl font-bold mb-1">{userData.name}</h2>
-                <div className="flex items-center space-x-2 mb-2">
-                  <Award className="w-4 h-4" />
-                  <span className="font-medium">{userData.level}</span>
-                </div>
-                <p className="text-white/80 text-sm">
-                  Bergabung sejak {new Date(userData.joinDate).toLocaleDateString('id-ID')}
+                <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                  John Doe
+                </h2>
+                <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  john.doe@email.com
                 </p>
+                <div className="flex items-center mt-2">
+                  <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
+                    {userStats.level}
+                  </Badge>
+                  <span className={`text-sm ml-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {userStats.nextLevelPoints} poin lagi
+                  </span>
+                </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white hover:bg-white/10"
-              >
-                <Edit className="w-4 h-4" />
+              <Button variant="ghost" size="icon">
+                <Edit className="w-5 h-5" />
               </Button>
             </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold">{userData.totalPoints}</div>
-                <div className="text-white/80 text-xs">Total Poin</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold">
-                  {(userData.totalEarnings / 1000).toFixed(0)}K
-                </div>
-                <div className="text-white/80 text-xs">Penghasilan</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold">{userData.totalWaste}</div>
-                <div className="text-white/80 text-xs">kg Sampah</div>
-              </div>
-            </div>
           </CardContent>
         </Card>
 
-        {/* Personal Information */}
-        <Card className={`shadow-sm ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
-          <CardContent className="p-6">
-            <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-              Informasi Pribadi
-            </h3>
-            
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <Card className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
                 <div>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Nomor Induk Kependudukan
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Saldo</p>
+                  <p className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                    {userStats.currentBalance}
                   </p>
-                  <p className="font-mono text-lg">{maskNIK(userData.nik)}</p>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleShowNIK}
-                  className="text-blue-600"
-                >
-                  {showFullNIK ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </Button>
+                <Wallet className="w-8 h-8 text-emerald-500" />
               </div>
+              <Button 
+                size="sm" 
+                className="w-full mt-3 bg-emerald-600 hover:bg-emerald-700"
+                onClick={() => setShowWithdrawModal(true)}
+              >
+                Tarik Saldo
+              </Button>
+            </CardContent>
+          </Card>
 
-              <div className="border-t pt-4">
-                <div className="grid grid-cols-1 gap-4">
-                  <div className="flex items-center space-x-3">
-                    <Phone className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} />
-                    <div>
-                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        Nomor Telepon
-                      </p>
-                      <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                        {userData.phone}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <Mail className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} />
-                    <div>
-                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        Email
-                      </p>
-                      <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                        {userData.email}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3">
-                    <MapPin className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} />
-                    <div>
-                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        Alamat
-                      </p>
-                      <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                        {userData.address}
-                      </p>
-                    </div>
-                  </div>
+          <Card className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Eco Points</p>
+                  <p className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                    {userStats.ecoPoints}
+                  </p>
                 </div>
+                <Star className="w-8 h-8 text-yellow-500" />
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Achievements */}
-        <Card className={`shadow-sm ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
+        <Card className={`mb-6 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
           <CardContent className="p-6">
-            <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-              Badge & Pencapaian
+            <h3 className={`font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+              Pencapaian
             </h3>
-            <div className="grid grid-cols-2 gap-3">
-              {achievements.map((achievement, index) => (
-                <div key={index} className={`rounded-lg p-3 text-center ${
-                  isDarkMode ? 'bg-gray-700' : 'bg-gray-50'
-                }`}>
-                  <div className="text-2xl mb-2">{achievement.icon}</div>
-                  <h4 className={`font-semibold text-sm ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                    {achievement.title}
-                  </h4>
-                  <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {achievement.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Menu Items */}
-        <Card className={`shadow-sm ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
-          <CardContent className="p-6">
-            <h3 className={`text-lg font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-              Menu Lainnya
-            </h3>
-            <div className="space-y-1">
-              {menuItems.map((item, index) => {
-                const IconComponent = item.icon;
+            <div className="grid grid-cols-4 gap-4">
+              {achievements.map((achievement, index) => {
+                const IconComponent = achievement.icon;
                 return (
-                  <button
-                    key={index}
-                    onClick={item.action}
-                    className={`w-full flex items-center space-x-4 p-3 rounded-lg transition-colors ${
-                      isDarkMode 
-                        ? 'hover:bg-gray-700 text-white' 
-                        : 'hover:bg-gray-50 text-gray-800'
-                    }`}
-                  >
-                    <IconComponent className={`w-5 h-5 ${
-                      isDarkMode ? 'text-gray-400' : 'text-gray-600'
-                    }`} />
-                    <span className="flex-1 text-left font-medium">
-                      {item.label}
-                    </span>
-                    <span className={isDarkMode ? 'text-gray-500' : 'text-gray-400'}>›</span>
-                  </button>
+                  <div key={index} className="text-center">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2 ${
+                      achievement.unlocked 
+                        ? 'bg-emerald-100 text-emerald-600' 
+                        : isDarkMode ? 'bg-gray-700 text-gray-500' : 'bg-gray-100 text-gray-400'
+                    }`}>
+                      <IconComponent className="w-6 h-6" />
+                    </div>
+                    <p className={`text-xs ${
+                      achievement.unlocked 
+                        ? isDarkMode ? 'text-white' : 'text-gray-800'
+                        : isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                    }`}>
+                      {achievement.label}
+                    </p>
+                  </div>
                 );
               })}
             </div>
           </CardContent>
         </Card>
 
-        {/* Copyright & Terms */}
-        <Card className={`border-gray-200 ${
-          isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50'
-        }`}>
-          <CardContent className="p-6 text-center">
-            <div className={`space-y-3 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              <div>
-                <h4 className={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                  Copyright & Terms of Service
-                </h4>
-                <p className="text-xs leading-relaxed">
-                  © 2025 BERSIH.IN - Semua Hak Cipta Dilindungi<br/>
-                  Dikembangkan oleh RUBIX STUDIO<br/>
-                  Diciptakan oleh: Nathannael Wijaya, S.Ds, MIT
-                </p>
-              </div>
-              
-              <div className="border-t pt-3">
-                <p className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                  Hak cipta aplikasi ini telah terdaftar dan dilindungi berdasarkan UU No. 28 Tahun 2014 
-                  Tentang Hak Cipta di bawah naungan Direktorat Jenderal Kekayaan Intelektual (DJKI).
-                </p>
-              </div>
-            </div>
+        {/* Menu Items */}
+        <Card className={`mb-6 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
+          <CardContent className="p-0">
+            {menuItems.map((item, index) => {
+              const IconComponent = item.icon;
+              return (
+                <button
+                  key={index}
+                  onClick={item.action}
+                  className={`w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors ${
+                    index < menuItems.length - 1 ? 'border-b border-gray-100' : ''
+                  } ${isDarkMode ? 'hover:bg-gray-700 border-gray-700' : ''}`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <IconComponent className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} />
+                    <span className={`${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                      {item.label}
+                    </span>
+                  </div>
+                  <ChevronRight className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-400'}`} />
+                </button>
+              );
+            })}
           </CardContent>
         </Card>
 
         {/* Logout Button */}
         <Button
+          variant="outline"
+          className={`w-full mb-6 ${
+            isDarkMode 
+              ? 'border-red-500 text-red-400 hover:bg-red-500 hover:text-white' 
+              : 'border-red-500 text-red-600 hover:bg-red-500 hover:text-white'
+          }`}
           onClick={onLogout}
-          variant="destructive"
-          className="w-full py-3 font-semibold"
         >
           <LogOut className="w-5 h-5 mr-2" />
-          Keluar dari Akun
+          Keluar
         </Button>
       </div>
+
+      {/* Withdraw Modal */}
+      {showWithdrawModal && (
+        <WithdrawModal
+          isOpen={showWithdrawModal}
+          onClose={() => setShowWithdrawModal(false)}
+          currentBalance={userStats.currentBalance}
+          isDarkMode={isDarkMode}
+        />
+      )}
     </div>
   );
 };
