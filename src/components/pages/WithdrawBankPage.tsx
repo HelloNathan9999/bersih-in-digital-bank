@@ -10,14 +10,14 @@ import TransactionReceiptPage from './TransactionReceiptPage';
 
 interface WithdrawBankPageProps {
   onBack: () => void;
-  amount: string;
+  amount?: string;
   isDarkMode?: boolean;
   onWithdrawComplete?: (amount: number) => void;
 }
 
 const WithdrawBankPage: React.FC<WithdrawBankPageProps> = ({ 
   onBack, 
-  amount, 
+  amount = "0", 
   isDarkMode = false,
   onWithdrawComplete
 }) => {
@@ -27,6 +27,9 @@ const WithdrawBankPage: React.FC<WithdrawBankPageProps> = ({
   const [accountName, setAccountName] = useState('');
   const [showPinDialog, setShowPinDialog] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
+
+  // Check if this is just for setting up bank details (amount is 0 or not provided)
+  const isSetupMode = !amount || amount === "0";
 
   const withdrawMethods = [
     { id: 'bank', icon: Building, label: 'Transfer Bank', color: 'text-blue-600' },
@@ -43,7 +46,7 @@ const WithdrawBankPage: React.FC<WithdrawBankPageProps> = ({
     'GoPay', 'OVO', 'DANA', 'LinkAja', 'ShopeePay'
   ];
 
-  const handleWithdraw = () => {
+  const handleSaveOrWithdraw = () => {
     if (!selectedMethod || !accountNumber || !accountName) {
       toast({
         title: "Data Tidak Lengkap",
@@ -51,7 +54,25 @@ const WithdrawBankPage: React.FC<WithdrawBankPageProps> = ({
       });
       return;
     }
-    setShowPinDialog(true);
+
+    if (isSetupMode) {
+      // Save bank details to localStorage
+      localStorage.setItem('userBankName', bankName || selectedMethod);
+      localStorage.setItem('userAccountNumber', accountNumber);
+      localStorage.setItem('userAccountName', accountName);
+      localStorage.setItem('userPaymentMethod', selectedMethod);
+      
+      toast({
+        title: "Data Berhasil Disimpan",
+        description: "Data bank dan rekening telah disimpan",
+      });
+      
+      // Go back to profile
+      onBack();
+    } else {
+      // Proceed with withdrawal
+      setShowPinDialog(true);
+    }
   };
 
   const handlePinSuccess = () => {
@@ -98,27 +119,31 @@ const WithdrawBankPage: React.FC<WithdrawBankPageProps> = ({
           <Button variant="ghost" size="icon" onClick={onBack} className="text-white">
             <ArrowLeft className="w-6 h-6" />
           </Button>
-          <h1 className="text-xl font-bold ml-2">Tarik Saldo</h1>
+          <h1 className="text-xl font-bold ml-2">
+            {isSetupMode ? 'Setup Metode Pembayaran' : 'Tarik Saldo'}
+          </h1>
         </div>
       </div>
 
       <div className="p-4 space-y-6">
-        {/* Amount Display */}
-        <Card className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
-          <CardContent className="p-4 text-center">
-            <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              Jumlah Penarikan
-            </p>
-            <p className={`text-3xl font-bold text-emerald-600`}>
-              Rp {parseInt(amount).toLocaleString()}
-            </p>
-          </CardContent>
-        </Card>
+        {/* Amount Display - Only show if not in setup mode */}
+        {!isSetupMode && (
+          <Card className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
+            <CardContent className="p-4 text-center">
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Jumlah Penarikan
+              </p>
+              <p className={`text-3xl font-bold text-emerald-600`}>
+                Rp {parseInt(amount).toLocaleString()}
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Withdrawal Methods */}
         <div className="space-y-4">
           <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-            Pilih Metode Penarikan
+            {isSetupMode ? 'Pilih Metode Pembayaran' : 'Pilih Metode Penarikan'}
           </h3>
           <div className="grid gap-3">
             {withdrawMethods.map((method) => {
@@ -228,23 +253,25 @@ const WithdrawBankPage: React.FC<WithdrawBankPageProps> = ({
 
             {/* Submit Button */}
             <Button 
-              onClick={handleWithdraw}
+              onClick={handleSaveOrWithdraw}
               className="w-full bg-emerald-600 hover:bg-emerald-700 py-3 text-lg"
               disabled={!selectedMethod || !accountNumber || !accountName}
             >
-              Proses Penarikan
+              {isSetupMode ? 'Simpan Data' : 'Proses Penarikan'}
             </Button>
           </div>
         )}
       </div>
 
-      <PinDialog
-        open={showPinDialog}
-        onClose={() => setShowPinDialog(false)}
-        onSuccess={handlePinSuccess}
-        title="Verifikasi Penarikan"
-        description={`Masukkan PIN untuk menarik saldo Rp ${parseInt(amount).toLocaleString()}`}
-      />
+      {!isSetupMode && (
+        <PinDialog
+          open={showPinDialog}
+          onClose={() => setShowPinDialog(false)}
+          onSuccess={handlePinSuccess}
+          title="Verifikasi Penarikan"
+          description={`Masukkan PIN untuk menarik saldo Rp ${parseInt(amount).toLocaleString()}`}
+        />
+      )}
     </div>
   );
 };

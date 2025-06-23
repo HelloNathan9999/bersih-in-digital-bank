@@ -78,6 +78,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout, isDarkMode = false 
     return (
       <WithdrawBankPage 
         onBack={() => setShowWithdrawBank(false)}
+        amount="0"
         isDarkMode={isDarkMode}
       />
     );
