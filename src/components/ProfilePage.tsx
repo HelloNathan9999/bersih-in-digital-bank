@@ -45,7 +45,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout, isDarkMode = false 
   const userStats = {
     totalDeposits: 47,
     totalEarnings: 'Rp 156,750',
-    currentBalance: 'Rp 45,250',
+    currentBalance: 45250, // Store as number for calculations
+    currentBalanceFormatted: 'Rp 45,250', // Keep formatted version for display
     ecoPoints: 312,
     level: 'Eco Warrior',
     nextLevelPoints: 88
@@ -161,7 +162,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout, isDarkMode = false 
                 <div>
                   <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Saldo</p>
                   <p className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                    {userStats.currentBalance}
+                    {userStats.currentBalanceFormatted}
                   </p>
                 </div>
                 <Wallet className="w-8 h-8 text-emerald-500" />
@@ -269,6 +270,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout, isDarkMode = false 
         <WithdrawModal
           isOpen={showWithdrawModal}
           onClose={() => setShowWithdrawModal(false)}
+          onNavigateToBank={(amount: string) => {
+            setShowWithdrawBank(true);
+          }}
           currentBalance={userStats.currentBalance}
           isDarkMode={isDarkMode}
         />
