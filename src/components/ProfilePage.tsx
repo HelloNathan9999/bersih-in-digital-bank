@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   User, 
@@ -77,7 +76,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout, isDarkMode = false 
     return (
       <WithdrawBankPage 
         onBack={() => setShowWithdrawBank(false)}
-        amount={0}
+        amount="0"
         isDarkMode={isDarkMode}
       />
     );
