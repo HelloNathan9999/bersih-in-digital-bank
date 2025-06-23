@@ -1,12 +1,12 @@
-
 import React, { useState } from 'react';
-import { ArrowLeft, ShoppingCart, Search, Star, Plus } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Search, Star, Plus, HandCoins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import ShoppingCartPage from './ShoppingCartPage';
 import TransactionReceiptPage from './TransactionReceiptPage';
+import PinjamModalPage from './PinjamModalPage';
 
 interface CartItem {
   id: number;
@@ -181,6 +181,15 @@ const BelanjaPage: React.FC<BelanjaPageProps> = ({ onBack, isDarkMode = false })
     );
   }
 
+  if (currentPage === 'pinjam-modal') {
+    return (
+      <PinjamModalPage
+        onBack={() => setCurrentPage('products')}
+        isDarkMode={isDarkMode}
+      />
+    );
+  }
+
   const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   return (
@@ -195,18 +204,27 @@ const BelanjaPage: React.FC<BelanjaPageProps> = ({ onBack, isDarkMode = false })
             <h1 className="text-xl font-bold ml-2">Belanja Produk</h1>
           </div>
           
-          {/* Shopping Cart Icon */}
-          <button
-            onClick={() => setCurrentPage('cart')}
-            className="relative p-2 rounded-full hover:bg-white/10"
-          >
-            <ShoppingCart className="w-6 h-6" />
-            {cartItemCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {cartItemCount}
-              </span>
-            )}
-          </button>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setCurrentPage('pinjam-modal')}
+              className="relative p-2 rounded-full hover:bg-white/10 flex flex-col items-center"
+            >
+              <HandCoins className="w-6 h-6" />
+              <span className="text-xs mt-1">Pinjam Modal</span>
+            </button>
+            
+            <button
+              onClick={() => setCurrentPage('cart')}
+              className="relative p-2 rounded-full hover:bg-white/10"
+            >
+              <ShoppingCart className="w-6 h-6" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {cartItemCount}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
         
         {/* Search */}
@@ -270,7 +288,6 @@ const BelanjaPage: React.FC<BelanjaPageProps> = ({ onBack, isDarkMode = false })
                     {product.description}
                   </p>
                   
-                  {/* Rating and sold */}
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-1">
                       <Star className="w-3 h-3 text-yellow-500 fill-current" />

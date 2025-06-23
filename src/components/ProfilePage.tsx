@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   User, 
@@ -30,34 +29,43 @@ interface ProfilePageProps {
 
 const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout, isDarkMode = false }) => {
   const [showFullNIK, setShowFullNIK] = useState(false);
-const [userData, setUserData] = useState({
-  name: '',
-  nik: '',
-  phone: '',
-  email: '',
-  address: '',
-  level: 'Eco Starter',
-  totalPoints: 0,
-  totalEarnings: 0,
-  totalWaste: 0,
-  joinDate: ''
-});
+  const [userData, setUserData] = useState({
+    name: '',
+    nik: '',
+    phone: '',
+    email: '',
+    address: '',
+    level: 'Eco Starter',
+    totalPoints: 0,
+    totalEarnings: 0,
+    totalWaste: 0,
+    joinDate: '',
+    bankAccount: '',
+    bankName: ''
+  });
 
-
-useEffect(() => {
-  const storedUserData = localStorage.getItem('userData');
-  if (storedUserData) {
-    setUserData(JSON.parse(storedUserData));
-  } else {
-    toast({
-      title: 'Belum Login',
-      description: 'Silakan login dulu ya!',
-      variant: 'destructive'
-    });
-    // atau redirect ke login
-  }
-}, []);
-
+  useEffect(() => {
+    const storedUserData = localStorage.getItem('userData');
+    if (storedUserData) {
+      const parsedData = JSON.parse(storedUserData);
+      setUserData(parsedData);
+      
+      // Cek apakah data bank dan rekening lengkap
+      if (!parsedData.bankAccount || !parsedData.bankName) {
+        toast({
+          title: 'Data Tidak Lengkap',
+          description: 'Lengkapi data bank & rekening Anda terlebih dahulu',
+          variant: 'destructive'
+        });
+      }
+    } else {
+      toast({
+        title: 'Belum Login',
+        description: 'Silakan login dulu ya!',
+        variant: 'destructive'
+      });
+    }
+  }, []);
 
   const handleShowNIK = () => {
     // Request PIN verification
