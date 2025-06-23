@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   User, 
@@ -34,27 +35,22 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout, isDarkMode = false 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showWithdrawBank, setShowWithdrawBank] = useState(false);
 
-  // Check if user has completed bank data setup
-  const userBankName = localStorage.getItem('userBankName');
-  const userAccountNumber = localStorage.getItem('userAccountNumber');
-  const userAccountName = localStorage.getItem('userAccountName');
-  const userPaymentMethod = localStorage.getItem('userPaymentMethod');
+  // Get user data from localStorage or use empty defaults
+  const userData = JSON.parse(localStorage.getItem('userData') || '{}');
   
-  const isBankDataComplete = userBankName && userAccountNumber && userAccountName && userPaymentMethod;
-
   const userStats = {
-    totalDeposits: 47,
-    totalEarnings: 'Rp 156,750',
-    currentBalance: 45250, // Store as number for calculations
-    currentBalanceFormatted: 'Rp 45,250', // Keep formatted version for display
-    ecoPoints: 312,
-    level: 'Eco Warrior',
-    nextLevelPoints: 88
+    totalDeposits: 0,
+    totalEarnings: 'Rp 0',
+    currentBalance: 0,
+    currentBalanceFormatted: 'Rp 0',
+    ecoPoints: 0,
+    level: 'Pemula',
+    nextLevelPoints: 100
   };
 
   const achievements = [
-    { icon: Star, label: 'First Deposit', unlocked: true },
-    { icon: Target, label: '10x Deposits', unlocked: true },
+    { icon: Star, label: 'First Deposit', unlocked: false },
+    { icon: Target, label: '10x Deposits', unlocked: false },
     { icon: Users, label: 'Community Helper', unlocked: false },
     { icon: TrendingUp, label: 'Eco Champion', unlocked: false }
   ];
@@ -81,7 +77,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout, isDarkMode = false 
     return (
       <WithdrawBankPage 
         onBack={() => setShowWithdrawBank(false)}
-        amount="0"
+        amount={0}
         isDarkMode={isDarkMode}
       />
     );
@@ -98,20 +94,22 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout, isDarkMode = false 
         </div>
       </div>
 
+      <div className="px-6">
         {/* Profile Header */}
         <Card className={`mb-6 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
           <CardContent className="p-6">
             <div className="flex items-center space-x-4 mb-4">
               <Avatar className="w-16 h-16">
-                <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" />
-                <AvatarFallback>JD</AvatarFallback>
+                <AvatarFallback className="text-gray-500">
+                  {userData.name ? userData.name.charAt(0).toUpperCase() : 'U'}
+                </AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                  John Doe
+                  {userData.name || 'Nama Pengguna'}
                 </h2>
                 <p className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  john.doe@email.com
+                  {userData.email || 'email@example.com'}
                 </p>
                 <div className="flex items-center mt-2">
                   <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
