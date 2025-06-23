@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   User, 
@@ -35,10 +34,13 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout, isDarkMode = false 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showWithdrawBank, setShowWithdrawBank] = useState(false);
 
-  // Check if user is in initial setup (no bank data completed yet)
+  // Check if user has completed bank data setup
   const userBankName = localStorage.getItem('userBankName');
   const userAccountNumber = localStorage.getItem('userAccountNumber');
-  const isInitialSetup = !userBankName || !userAccountNumber;
+  const userAccountName = localStorage.getItem('userAccountName');
+  const userPaymentMethod = localStorage.getItem('userPaymentMethod');
+  
+  const isBankDataComplete = userBankName && userAccountNumber && userAccountName && userPaymentMethod;
 
   const userStats = {
     totalDeposits: 47,
@@ -96,8 +98,8 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout, isDarkMode = false 
       </div>
 
       <div className="px-6 py-6" style={{ marginTop: '100px' }}>
-        {/* Bank Data Notification - Only show during initial setup */}
-        {isInitialSetup && (
+        {/* Bank Data Notification - Only show when data is incomplete */}
+        {!isBankDataComplete && (
           <Card className="mb-6 border-red-200 bg-red-50">
             <CardContent className="p-4">
               <div className="flex items-start space-x-3">
