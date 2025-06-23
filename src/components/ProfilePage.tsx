@@ -98,31 +98,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout, isDarkMode = false 
         </div>
       </div>
 
-      <div className="px-6 py-6" style={{ marginTop: '100px' }}>
-        {/* Bank Data Notification - Only show when data is incomplete */}
-        {!isBankDataComplete && (
-          <Card className="mb-6 border-red-200 bg-red-50">
-            <CardContent className="p-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
-                <div>
-                  <h3 className="font-semibold text-red-800 mb-1">Data Tidak Lengkap</h3>
-                  <p className="text-sm text-red-600 mb-3">
-                    Lengkapi data bank & rekening Anda terlebih dahulu
-                  </p>
-                  <Button 
-                    size="sm" 
-                    className="bg-red-600 hover:bg-red-700 text-white"
-                    onClick={() => setShowWithdrawBank(true)}
-                  >
-                    Lengkapi Sekarang
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Profile Header */}
         <Card className={`mb-6 ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
           <CardContent className="p-6">
