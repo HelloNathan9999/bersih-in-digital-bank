@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ShoppingCart, Search, Star, Plus, HandCoins } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Search, Star, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import ShoppingCartPage from './ShoppingCartPage';
 import TransactionReceiptPage from './TransactionReceiptPage';
-import PinjamModalPage from './PinjamModalPage';
 
 interface CartItem {
   id: number;
@@ -181,21 +180,12 @@ const BelanjaPage: React.FC<BelanjaPageProps> = ({ onBack, isDarkMode = false })
     );
   }
 
-  if (currentPage === 'pinjam-modal') {
-    return (
-      <PinjamModalPage
-        onBack={() => setCurrentPage('products')}
-        isDarkMode={isDarkMode}
-      />
-    );
-  }
-
   const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
-      <div className={`${isDarkMode ? 'bg-gradient-to-r from-emerald-600 to-teal-700' : 'bg-gradient-to-r from-emerald-500 to-green-600'} text-white p-4`}>
+      <div className={`${isDarkMode ? 'bg-gradient-to-r from-emerald-600/90 to-teal-700/90 border-emerald-500/20' : 'bg-gradient-to-r from-emerald-500/90 to-green-600/90 border-white/20'} text-white p-4 rounded-b-2xl backdrop-blur-lg border`}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
             <Button variant="ghost" size="icon" onClick={onBack} className="text-white">
@@ -204,27 +194,17 @@ const BelanjaPage: React.FC<BelanjaPageProps> = ({ onBack, isDarkMode = false })
             <h1 className="text-xl font-bold ml-2">Belanja Produk</h1>
           </div>
           
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setCurrentPage('pinjam-modal')}
-              className="relative p-2 rounded-full hover:bg-white/10 flex flex-col items-center"
-            >
-              <HandCoins className="w-6 h-6" />
-              <span className="text-xs mt-1">Pinjam Modal</span>
-            </button>
-            
-            <button
-              onClick={() => setCurrentPage('cart')}
-              className="relative p-2 rounded-full hover:bg-white/10"
-            >
-              <ShoppingCart className="w-6 h-6" />
-              {cartItemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {cartItemCount}
-                </span>
-              )}
-            </button>
-          </div>
+          <button
+            onClick={() => setCurrentPage('cart')}
+            className="relative p-2 rounded-full hover:bg-white/10"
+          >
+            <ShoppingCart className="w-6 h-6" />
+            {cartItemCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {cartItemCount}
+              </span>
+            )}
+          </button>
         </div>
         
         {/* Search */}

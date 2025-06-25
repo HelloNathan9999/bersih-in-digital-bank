@@ -73,62 +73,60 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
   const [currentPage, setCurrentPage] = useState('home');
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [currentBalance, setCurrentBalance] = useState(0);
-  const [isHeaderExpanded, setIsHeaderExpanded] = useState(false); // Changed to false by default
+  const [isHeaderExpanded, setIsHeaderExpanded] = useState(false);
   const [currentTransaction, setCurrentTransaction] = useState<Transaction | null>(null);
   const [totalSampah, setTotalSampah] = useState(0);
   const [totalPoin, setTotalPoin] = useState(0);
   const [userName, setuserName] = useState('');
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-const [selectedBank, setSelectedBank] = useState('');
-const [accountNumber, setAccountNumber] = useState('');
-const [userData, setUserData] = useState({
-  name: '',
-  nik: '',
-  phone: '',
-  email: '',
-  address: '',
-  level: 'Eco Starter',
-  totalPoints: 0,
-  totalEarnings: 0,
-  totalWaste: 0,
-  joinDate: ''
-});
+  const [selectedBank, setSelectedBank] = useState('');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [userData, setUserData] = useState({
+    name: '',
+    nik: '',
+    phone: '',
+    email: '',
+    address: '',
+    level: 'Eco Starter',
+    totalPoints: 0,
+    totalEarnings: 0,
+    totalWaste: 0,
+    joinDate: ''
+  });
 
   // Persist theme mode
-useEffect(() => {
-  const stored = localStorage.getItem("userData");
-  if (stored) {
-    const parsed = JSON.parse(stored);
-    setSelectedBank(parsed.bank || '');
-    setAccountNumber(parsed.accountNumber || '');
-    // Removed the toast notification for incomplete bank data
-  }
-}, []);
+  useEffect(() => {
+    const stored = localStorage.getItem("userData");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      setSelectedBank(parsed.bank || '');
+      setAccountNumber(parsed.accountNumber || '');
+    }
+  }, []);
 
-useEffect(() => {
-  const balance = localStorage.getItem("userBalance");
-  if (balance) setCurrentBalance(Number(balance));
-}, []);
+  useEffect(() => {
+    const balance = localStorage.getItem("userBalance");
+    if (balance) setCurrentBalance(Number(balance));
+  }, []);
 
-useEffect(() => {
-  // Balance
-  const stored = localStorage.getItem("userBalance");
-  const parsed = stored ? Number(stored) : 0;
-  setCurrentBalance(isNaN(parsed) ? 0 : parsed);
+  useEffect(() => {
+    // Balance
+    const stored = localStorage.getItem("userBalance");
+    const parsed = stored ? Number(stored) : 0;
+    setCurrentBalance(isNaN(parsed) ? 0 : parsed);
 
-  // User Data
-  const storedUser = localStorage.getItem("userData");
-  if (storedUser) {
-    setUserData(JSON.parse(storedUser));
-  }
+    // User Data
+    const storedUser = localStorage.getItem("userData");
+    if (storedUser) {
+      setUserData(JSON.parse(storedUser));
+    }
 
-  // Notifications (jika kamu load notif di sini)
-  const storedNotif = localStorage.getItem("userNotifications");
-  if (storedNotif) {
-    setNotifications(JSON.parse(storedNotif));
-  }
-}, []);
-
+    // Notifications
+    const storedNotif = localStorage.getItem("userNotifications");
+    if (storedNotif) {
+      setNotifications(JSON.parse(storedNotif));
+    }
+  }, []);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -155,58 +153,53 @@ useEffect(() => {
     setCurrentPage('withdraw-bank');
   };
 
-const handleWithdrawComplete = (amount: number) => {
-  const newBalance = currentBalance - amount;
+  const handleWithdrawComplete = (amount: number) => {
+    const newBalance = currentBalance - amount;
 
-  const transaction: Transaction = {
-    type: 'Penarikan Saldo',
-    amount: `Rp ${amount.toLocaleString()}`,
-    transactionId: `TXN${Date.now()}`,
-    date: new Date().toLocaleString('id-ID'),
-    status: 'success',
-    description: 'Penarikan saldo berhasil',
-    bankName: selectedBank,
-    accountNumber: `****${accountNumber.slice(-4)}`
+    const transaction: Transaction = {
+      type: 'Penarikan Saldo',
+      amount: `Rp ${amount.toLocaleString()}`,
+      transactionId: `TXN${Date.now()}`,
+      date: new Date().toLocaleString('id-ID'),
+      status: 'success',
+      description: 'Penarikan saldo berhasil',
+      bankName: selectedBank,
+      accountNumber: `****${accountNumber.slice(-4)}`
+    };
+
+    setCurrentBalance(newBalance);
+    localStorage.setItem("userBalance", JSON.stringify(newBalance));
+
+    setCurrentTransaction(transaction);
+    setCurrentPage('transaction-receipt');
+
+    const storedTxs = JSON.parse(localStorage.getItem("userTransactions") || "[]");
+    const updatedTxs = [transaction, ...storedTxs];
+    localStorage.setItem("userTransactions", JSON.stringify(updatedTxs));
+
+    const notif = {
+      id: Date.now().toString(),
+      title: 'Penarikan Berhasil',
+      message: `Penarikan saldo Rp ${amount.toLocaleString()} telah berhasil diproses.`,
+      time: 'Baru saja',
+      type: 'success',
+      isRead: false,
+      details: {
+        transactionId: transaction.transactionId,
+        amount: `-Rp ${amount.toLocaleString()}`,
+        date: transaction.date,
+        status: 'Berhasil'
+      }
+    };
+    const storedNotif = JSON.parse(localStorage.getItem("userNotifications") || "[]");
+    localStorage.setItem("userNotifications", JSON.stringify([notif, ...storedNotif]));
+
+    toast({
+      title: "✅ Penarikan Berhasil",
+      description: `Saldo Rp ${amount.toLocaleString()} berhasil ditarik`,
+      duration: 3000,
+    });
   };
-
-  // Update saldo secara lokal & ke localStorage
-  setCurrentBalance(newBalance);
-  localStorage.setItem("userBalance", JSON.stringify(newBalance));
-
-  // Set transaksi aktif
-  setCurrentTransaction(transaction);
-  setCurrentPage('transaction-receipt');
-
-  // Simpan transaksi ke localStorage
-  const storedTxs = JSON.parse(localStorage.getItem("userTransactions") || "[]");
-  const updatedTxs = [transaction, ...storedTxs];
-  localStorage.setItem("userTransactions", JSON.stringify(updatedTxs));
-
-  // Tambahkan ke notifikasi
-  const notif = {
-    id: Date.now().toString(),
-    title: 'Penarikan Berhasil',
-    message: `Penarikan saldo Rp ${amount.toLocaleString()} telah berhasil diproses.`,
-    time: 'Baru saja',
-    type: 'success',
-    isRead: false,
-    details: {
-      transactionId: transaction.transactionId,
-      amount: `-Rp ${amount.toLocaleString()}`,
-      date: transaction.date,
-      status: 'Berhasil'
-    }
-  };
-  const storedNotif = JSON.parse(localStorage.getItem("userNotifications") || "[]");
-  localStorage.setItem("userNotifications", JSON.stringify([notif, ...storedNotif]));
-
-  // Tampilkan toast
-  toast({
-    title: "✅ Penarikan Berhasil",
-    description: `Saldo Rp ${amount.toLocaleString()} berhasil ditarik`,
-    duration: 3000,
-  });
-};
 
   const handleBack = () => {
     if (currentPage === 'transaction-receipt') {
@@ -291,6 +284,9 @@ const handleWithdrawComplete = (amount: number) => {
     }
   ];
 
+  // Calculate unread notifications count
+  const unreadNotificationsCount = notifications.filter(notif => !notif.isRead).length;
+
   return (
     <div className={`min-h-screen pb-20 ${isDarkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'}`}>
       {/* Floating Tray Header */}
@@ -328,80 +324,72 @@ const handleWithdrawComplete = (amount: number) => {
                   className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-300 relative"
                 >
                   <Bell className="w-5 h-5" />
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-bold">3</span>
-                  </div>
+                  {unreadNotificationsCount > 0 && (
+                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center">
+                      <span className="text-xs font-bold">{unreadNotificationsCount}</span>
+                    </div>
+                  )}
                 </button>
               </div>
             </div>
 
-{/* Expandable Content */}
-{isHeaderExpanded && (
-  <div className="animate-fade-in px-4 py-4 bg-white/5 backdrop-blur-md rounded-xl mt-2 space-y-4 text-white">
+            {/* Expandable Content */}
+            {isHeaderExpanded && (
+              <div className="animate-fade-in px-4 py-4 bg-white/5 backdrop-blur-md rounded-xl mt-2 space-y-4 text-white">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xxs text-blue-100">Saldo</p>
+                    <p className="text-2xl font-bold">
+                      {showBalance ? `Rp ${currentBalance.toLocaleString()}` : 'Rp ••••••••'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowBalance(!showBalance)}
+                    className="text-white/80 hover:text-white transition"
+                  >
+                    {showBalance ? (
+                      <Eye className="w-5 h-5" />
+                    ) : (
+                      <EyeOff className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
 
-    {/* SALDO */}
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-xxs text-blue-100">Saldo</p>
-        <p className="text-2xl font-bold">
-          {showBalance ? `Rp ${currentBalance.toLocaleString()}` : 'Rp ••••••••'}
-        </p>
-      </div>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex gap-8">
+                    <div className="text-left">
+                      <div className="text-xl font-bold text-green-200">{totalSampah} kg</div>
+                      <div className="text-xxs text-blue-100">Sampah</div>
+                    </div>
+                    <div className="text-left">
+                      <div className="text-xl font-bold text-yellow-200">{totalPoin}</div>
+                      <div className="text-xxs text-blue-100">Poin</div>
+                    </div>
+                  </div>
 
-      {/* Toggle Hide Balance */}
-      <button
-        onClick={() => setShowBalance(!showBalance)}
-        className="text-white/80 hover:text-white transition"
-      >
-        {showBalance ? (
-          <Eye className="w-5 h-5" />
-        ) : (
-          <EyeOff className="w-5 h-5" />
-        )}
-      </button>
-    </div>
-
-    {/* SAMPAH - POIN - TARIK SALDO */}
-    <div className="flex items-center justify-between gap-4">
-      {/* SAMPAH & POIN */}
-      <div className="flex gap-8">
-        <div className="text-left">
-          <div className="text-xl font-bold text-green-200">{totalSampah} kg</div>
-          <div className="text-xxs text-blue-100">Sampah</div>
-        </div>
-        <div className="text-left">
-          <div className="text-xl font-bold text-yellow-200">{totalPoin}</div>
-          <div className="text-xxs text-blue-100">Poin</div>
-        </div>
-      </div>
-
-      {/* Tombol Tarik Saldo */}
-<button
-  onClick={() => setShowWithdrawModal(true)}
-  className="p-3 bg-white/10 hover:bg-white/20 rounded-full shadow-lg transition"
->
-  <ArrowUpRight className="w-5 h-5 text-white" />
-</button>
-
-    </div>
-  </div>
-)}
+                  <button
+                    onClick={() => setShowWithdrawModal(true)}
+                    className="p-3 bg-white/10 hover:bg-white/20 rounded-full shadow-lg transition"
+                  >
+                    <ArrowUpRight className="w-5 h-5 text-white" />
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Repositioned Toggle Button - Moved to bottom center with better positioning */}
-<button
-  onClick={() => setIsHeaderExpanded(!isHeaderExpanded)}
-  className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-white hover:text-blue-200 transition z-60"
->
-  {isHeaderExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-</button>
-
+            <button
+              onClick={() => setIsHeaderExpanded(!isHeaderExpanded)}
+              className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-white hover:text-blue-200 transition z-60"
+            >
+              {isHeaderExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+            </button>
           </div>
         </div>
       </div>
 
       {/* Main Content with proper spacing */}
       <div className={`px-6 py-6 ${isHeaderExpanded ? 'mt-[280px]' : 'mt-[120px]'}`}>
-
         {/* Educational Banners */}
         <section>
           <div className="flex items-center space-x-2 mb-6">

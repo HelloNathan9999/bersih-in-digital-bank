@@ -16,7 +16,8 @@ import {
   Settings,
   GraduationCap,
   Gamepad2,
-  Earth
+  Earth,
+  HandCoins
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,6 +30,9 @@ import CheckinPage from './pages/CheckinPage';
 import LokasiPage from './pages/LokasiPage';
 import PulsaDataPage from './pages/PulsaDataPage';
 import SembakoPage from './pages/SembakoPage';
+import PinjamModalPage from './pages/PinjamModalPage';
+import LoanHistoryPage from './pages/LoanHistoryPage';
+import LoanRejectionPage from './pages/LoanRejectionPage';
 
 interface ShoppingPageProps {
   isDarkMode?: boolean;
@@ -38,9 +42,11 @@ const ShoppingPage: React.FC<ShoppingPageProps> = ({ isDarkMode = false }) => {
   const [activeToggle, setActiveToggle] = useState('pelayanan');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState('main');
+  const [loanAmount, setLoanAmount] = useState(0);
 
   const services = [
     { id: 'belanja', icon: ShoppingCart, label: 'Belanja', color: 'text-green-500', bg: isDarkMode ? 'bg-gray-700' : 'bg-green-100' },
+    { id: 'pinjam-modal', icon: HandCoins, label: 'Pinjam Modal', color: 'text-purple-500', bg: isDarkMode ? 'bg-gray-700' : 'bg-purple-100' },
     { id: 'listrik', icon: Zap, label: 'Listrik', color: 'text-yellow-500', bg: isDarkMode ? 'bg-gray-700' : 'bg-yellow-100' },
     { id: 'pdam', icon: Droplets, label: 'PDAM', color: 'text-blue-500', bg: isDarkMode ? 'bg-gray-700' : 'bg-blue-100' },
     { id: 'bpjs', icon: Heart, label: 'BPJS', color: 'text-red-500', bg: isDarkMode ? 'bg-gray-700' : 'bg-red-100' },
@@ -120,6 +126,7 @@ const ShoppingPage: React.FC<ShoppingPageProps> = ({ isDarkMode = false }) => {
       case 'lokasi':
       case 'pulsa':
       case 'sembako':
+      case 'pinjam-modal':
         setCurrentPage(serviceId);
         break;
       default:
@@ -132,6 +139,34 @@ const ShoppingPage: React.FC<ShoppingPageProps> = ({ isDarkMode = false }) => {
 
   const handleBack = () => {
     setCurrentPage('main');
+  };
+
+  const handleLoanSuccess = (amount: number) => {
+    setLoanAmount(amount);
+    
+    // Update user balance
+    const currentBalance = Number(localStorage.getItem('userBalance') || '0');
+    const newBalance = currentBalance + amount;
+    localStorage.setItem('userBalance', JSON.stringify(newBalance));
+    
+    // Add transaction record
+    const transaction = {
+      type: 'Pinjaman Modal Berhasil',
+      amount: `+Rp ${amount.toLocaleString()}`,
+      transactionId: `TXN${Date.now()}`,
+      date: new Date().toLocaleString('id-ID'),
+      status: 'success',
+      description: `Pinjaman modal sebesar Rp ${amount.toLocaleString()} berhasil dicairkan`
+    };
+
+    const storedTxs = JSON.parse(localStorage.getItem("userTransactions") || "[]");
+    localStorage.setItem("userTransactions", JSON.stringify([transaction, ...storedTxs]));
+
+    setCurrentPage('loan-history');
+  };
+
+  const handleLoanRejection = () => {
+    setCurrentPage('loan-rejection');
   };
 
   // Render different pages
@@ -156,13 +191,40 @@ const ShoppingPage: React.FC<ShoppingPageProps> = ({ isDarkMode = false }) => {
   if (currentPage === 'sembako') {
     return <SembakoPage onBack={handleBack} isDarkMode={isDarkMode} />;
   }
+  if (currentPage === 'pinjam-modal') {
+    return (
+      <PinjamModalPage 
+        onBack={handleBack} 
+        isDarkMode={isDarkMode}
+        onLoanSuccess={handleLoanSuccess}
+        onLoanRejection={handleLoanRejection}
+      />
+    );
+  }
+  if (currentPage === 'loan-history') {
+    return (
+      <LoanHistoryPage 
+        onBack={handleBack} 
+        isDarkMode={isDarkMode}
+        loanAmount={loanAmount}
+      />
+    );
+  }
+  if (currentPage === 'loan-rejection') {
+    return (
+      <LoanRejectionPage 
+        onBack={handleBack} 
+        isDarkMode={isDarkMode}
+      />
+    );
+  }
 
   return (
     <div className={`min-h-screen pt-16 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
-      <div className={`fixed top-0 left-0 right-0 shadow-sm z-10 pt-12 pb-4 ${
-        isDarkMode ? 'bg-gradient-to-r from-emerald-600 to-teal-700' : 'bg-gradient-to-r from-emerald-500 to-green-600'
-      } text-white`}>
+      <div className={`fixed top-0 left-0 right-0 shadow-sm z-10 pt-12 pb-4 rounded-b-2xl backdrop-blur-lg ${
+        isDarkMode ? 'bg-gradient-to-r from-emerald-600/90 to-teal-700/90 border-emerald-500/20' : 'bg-gradient-to-r from-emerald-500/90 to-green-600/90 border-white/20'
+      } text-white border`}>
         <div className="px-6">
           <h1 className="text-2xl font-bold mb-4">
             Belanja & Layanan
