@@ -197,7 +197,7 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
     toast({
       title: "✅ Penarikan Berhasil",
       description: `Saldo Rp ${amount.toLocaleString()} berhasil ditarik`,
-      duration: 3000,
+      duration: 2000, // Changed from 3000 to 2000ms (2 seconds)
     });
   };
 
@@ -281,6 +281,171 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
       summary: "Bergabunglah dalam acara bersih-bersih kota weekend ini",
       time: "1 hari lalu",
       category: "Event"
+    }
+  ];
+
+  // Expanded news timeline with 20 items
+  const newsTimeline = [
+    {
+      id: 1,
+      title: "Gubernur Kang Dedi Mulyadi Launching Program Bank Sampah Digital BERSIH.IN",
+      summary: "Program revolusioner bank sampah digital diluncurkan untuk masyarakat Jawa Barat",
+      time: "2 jam lalu",
+      category: "Berita Utama",
+      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=200&fit=crop",
+      isBreaking: true
+    },
+    {
+      id: 2,
+      title: "Walikota Sukabumi H. Ayep Zaki Dukung Penuh Program Kebersihan Digital",
+      summary: "Dukungan penuh dari pemerintah daerah untuk implementasi teknologi ramah lingkungan",
+      time: "4 jam lalu",
+      category: "Pemerintahan",
+      image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400&h=200&fit=crop"
+    },
+    {
+      id: 3,
+      title: "Reward Poin Naik 50% untuk Setoran Sampah Plastik",
+      summary: "Peningkatan insentif untuk mendorong partisipasi masyarakat dalam daur ulang",
+      time: "6 jam lalu",
+      category: "Update",
+      image: "https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=400&h=200&fit=crop"
+    },
+    {
+      id: 4,
+      title: "Event Bersih-Bersih Kota Sukabumi Weekend Ini",
+      summary: "Bergabunglah dalam aksi nyata membersihkan lingkungan bersama ribuan relawan",
+      time: "8 jam lalu",
+      category: "Event",
+      image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=400&h=200&fit=crop"
+    },
+    {
+      id: 5,
+      title: "Fitur AI Pendeteksi Jenis Sampah Kini Tersedia",
+      summary: "Teknologi artificial intelligence membantu identifikasi sampah secara otomatis",
+      time: "12 jam lalu",
+      category: "Teknologi",
+      image: "https://images.unsplash.com/photo-1485833077593-4278bba3f11f?w=400&h=200&fit=crop"
+    },
+    {
+      id: 6,
+      title: "Kemitraan dengan 100+ Toko untuk Program Voucher",
+      summary: "Ekspansi jaringan merchant untuk memudahkan penukaran poin dengan voucher",
+      time: "1 hari lalu",
+      category: "Partnership",
+      image: "https://images.unsplash.com/photo-1487887235947-a955ef187fcc?w=400&h=200&fit=crop"
+    },
+    {
+      id: 7,
+      title: "Workshop Edukasi Lingkungan di 50 Sekolah",
+      summary: "Program edukasi kesadaran lingkungan untuk generasi muda dimulai bulan ini",
+      time: "1 hari lalu",
+      category: "Edukasi",
+      image: "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?w=400&h=200&fit=crop"
+    },
+    {
+      id: 8,
+      title: "Komunitas BERSIH.IN Capai 10,000 Anggota Aktif",
+      summary: "Milestone penting dalam membangun komunitas peduli lingkungan yang solid",
+      time: "2 hari lalu",
+      category: "Komunitas",
+      image: "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=200&fit=crop"
+    },
+    {
+      id: 9,
+      title: "Bank Sampah Digital Raih Penghargaan Inovasi Terbaik",
+      summary: "Pengakuan atas kontribusi teknologi dalam pengelolaan sampah berkelanjutan",
+      time: "2 hari lalu",
+      category: "Prestasi",
+      image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=200&fit=crop"
+    },
+    {
+      id: 10,
+      title: "Peluncuran Program Mini Games Edukatif",
+      summary: "Belajar sambil bermain dengan games ramah lingkungan yang mendidik",
+      time: "3 hari lalu",
+      category: "Games",
+      image: "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=400&h=200&fit=crop"
+    },
+    {
+      id: 11,
+      title: "Sistem Poin Loyalty Terintegrasi dengan E-Wallet",
+      summary: "Kemudahan konversi poin ke saldo digital untuk transaksi sehari-hari",
+      time: "3 hari lalu",
+      category: "Fintech",
+      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&h=200&fit=crop"
+    },
+    {
+      id: 12,
+      title: "Kolaborasi dengan Dinas Lingkungan Hidup Jawa Barat",
+      summary: "Sinergi pemerintah dan teknologi untuk lingkungan yang lebih bersih",
+      time: "4 hari lalu",
+      category: "Kolaborasi",
+      image: "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=400&h=200&fit=crop"
+    },
+    {
+      id: 13,
+      title: "Update Fitur Tracking Jejak Karbon Personal",
+      summary: "Monitor dampak lingkungan aktivitas harian Anda secara real-time",
+      time: "4 hari lalu",
+      category: "Fitur Baru",
+      image: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=400&h=200&fit=crop"
+    },
+    {
+      id: 14,
+      title: "Webinar Nasional: 'Masa Depan Pengelolaan Sampah Digital'",
+      summary: "Diskusi dengan pakar lingkungan tentang revolusi teknologi hijau",
+      time: "5 hari lalu",
+      category: "Webinar",
+      image: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=400&h=200&fit=crop"
+    },
+    {
+      id: 15,
+      title: "Implementasi QR Code untuk Tracking Sampah Real-time",
+      summary: "Teknologi QR memungkinkan pelacakan sampah dari sumber hingga pengolahan",
+      time: "5 hari lalu",
+      category: "Teknologi",
+      image: "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?w=400&h=200&fit=crop"
+    },
+    {
+      id: 16,
+      title: "Program Beasiswa Lingkungan untuk Mahasiswa Berprestasi",
+      summary: "Investasi pendidikan untuk menciptakan generasi peduli lingkungan",
+      time: "6 hari lalu",
+      category: "Beasiswa",
+      image: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=400&h=200&fit=crop"
+    },
+    {
+      id: 17,
+      title: "Peluncuran Marketplace Produk Daur Ulang",
+      summary: "Platform jual-beli produk ramah lingkungan dari hasil daur ulang",
+      time: "6 hari lalu",
+      category: "Marketplace",
+      image: "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=400&h=200&fit=crop"
+    },
+    {
+      id: 18,
+      title: "Kampanye #SetoranSampahChallenge Viral di Media Sosial",
+      summary: "Gerakan viral yang menginspirasi jutaan orang untuk berpartisipasi",
+      time: "1 minggu lalu",
+      category: "Viral",
+      image: "https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=400&h=200&fit=crop"
+    },
+    {
+      id: 19,
+      title: "Integrasi dengan Sistem Pembayaran BPJS dan Tagihan Listrik",
+      summary: "Satu aplikasi untuk semua kebutuhan pembayaran dan lingkungan",
+      time: "1 minggu lalu",
+      category: "Integrasi",
+      image: "https://images.unsplash.com/photo-1469041797191-50ace28483c3?w=400&h=200&fit=crop"
+    },
+    {
+      id: 20,
+      title: "Roadmap 2025: Ekspansi ke Seluruh Indonesia",
+      summary: "Visi besar menjangkau seluruh nusantara dengan teknologi ramah lingkungan",
+      time: "1 minggu lalu",
+      category: "Roadmap",
+      image: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=400&h=200&fit=crop"
     }
   ];
 
@@ -390,6 +555,57 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
 
       {/* Main Content with proper spacing */}
       <div className={`px-6 py-6 ${isHeaderExpanded ? 'mt-[280px]' : 'mt-[120px]'}`}>
+        {/* News Timeline */}
+        <section className="mb-8">
+          <div className="flex items-center space-x-2 mb-6">
+            <TrendingUp className={`w-5 h-5 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`} />
+            <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+              Timeline Berita Terbaru
+            </h2>
+          </div>
+          
+          <div className="space-y-4">
+            {newsTimeline.map((news) => (
+              <Card key={news.id} className={`${isDarkMode ? 'bg-gray-800/80 border-gray-700/50' : 'bg-white/80 border-white/50'} hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden ${news.isBreaking ? 'ring-2 ring-red-500' : ''}`}>
+                <CardContent className="p-0">
+                  <div className="flex">
+                    <img 
+                      src={news.image} 
+                      alt={news.title}
+                      className="w-28 h-28 object-cover"
+                    />
+                    <div className="p-4 flex-1">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1">
+                          {news.isBreaking && (
+                            <span className="inline-block bg-red-500 text-white text-xs px-2 py-1 rounded-full mb-2 animate-pulse">
+                              BREAKING
+                            </span>
+                          )}
+                          <h3 className={`font-semibold text-sm mb-1 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                            {news.title}
+                          </h3>
+                          <p className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'} mb-2`}>
+                            {news.summary}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className={`text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full ${isDarkMode ? 'bg-blue-900/50 text-blue-300' : ''}`}>
+                          {news.category}
+                        </span>
+                        <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {news.time}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
         {/* Educational Banners */}
         <section>
           <div className="flex items-center space-x-2 mb-6">
