@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Bell, 
@@ -95,9 +94,6 @@ const [userData, setUserData] = useState({
   joinDate: ''
 });
 
-
-
-
   // Persist theme mode
 useEffect(() => {
   const stored = localStorage.getItem("userData");
@@ -105,14 +101,7 @@ useEffect(() => {
     const parsed = JSON.parse(stored);
     setSelectedBank(parsed.bank || '');
     setAccountNumber(parsed.accountNumber || '');
-    if (!selectedBank || !accountNumber) {
-  toast({
-    title: "Data Tidak Lengkap",
-    description: "Lengkapi data bank & rekening Anda terlebih dahulu",
-    variant: "destructive"
-  });
-  return;
-}
+    // Removed the toast notification for incomplete bank data
   }
 }, []);
 
@@ -218,7 +207,6 @@ const handleWithdrawComplete = (amount: number) => {
     duration: 3000,
   });
 };
-
 
   const handleBack = () => {
     if (currentPage === 'transaction-receipt') {
