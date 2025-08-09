@@ -1,10 +1,15 @@
 
 import React, { useState } from 'react';
+<<<<<<< HEAD
 import { ArrowLeft, Zap, CreditCard, Building, Smartphone, Wallet } from 'lucide-react';
+=======
+import { ArrowLeft, Zap, CreditCard } from 'lucide-react';
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+<<<<<<< HEAD
 import PinDialog from '../PinDialog';
 import TransactionReceiptPage from './TransactionReceiptPage';
 
@@ -21,6 +26,16 @@ const ListrikPage: React.FC<ListrikPageProps> = ({ onBack, isDarkMode = false })
   const [paymentMethod, setPaymentMethod] = useState('');
   const [showPinDialog, setShowPinDialog] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
+=======
+
+interface ListrikPageProps {
+  onBack: () => void;
+}
+
+const ListrikPage: React.FC<ListrikPageProps> = ({ onBack }) => {
+  const [meterNumber, setMeterNumber] = useState('');
+  const [selectedAmount, setSelectedAmount] = useState('');
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
 
   const amounts = [
     { value: '20000', label: 'Rp 20.000' },
@@ -31,6 +46,7 @@ const ListrikPage: React.FC<ListrikPageProps> = ({ onBack, isDarkMode = false })
     { value: 'custom', label: 'Nominal Lain' }
   ];
 
+<<<<<<< HEAD
   const paymentMethods = [
     { id: 'balance', icon: Wallet, label: 'Saldo Tersedia', description: 'Bayar dengan saldo aplikasi' },
     { id: 'bank', icon: Building, label: 'Transfer Bank', description: 'Transfer via bank lokal' },
@@ -183,6 +199,12 @@ const ListrikPage: React.FC<ListrikPageProps> = ({ onBack, isDarkMode = false })
     <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
       <div className={`${isDarkMode ? 'bg-gradient-to-r from-yellow-600 to-orange-600' : 'bg-gradient-to-r from-yellow-500 to-orange-500'} text-white p-4`}>
+=======
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-yellow-500 text-white p-4">
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
         <div className="flex items-center mb-4">
           <Button variant="ghost" size="icon" onClick={onBack} className="text-white">
             <ArrowLeft className="w-6 h-6" />
@@ -193,13 +215,22 @@ const ListrikPage: React.FC<ListrikPageProps> = ({ onBack, isDarkMode = false })
 
       <div className="p-4 space-y-6">
         {/* Info Card */}
+<<<<<<< HEAD
         <Card className={`${isDarkMode ? 'bg-yellow-800/20 border-yellow-600' : 'bg-yellow-50 border-yellow-200'}`}>
+=======
+        <Card className="bg-blue-50 border-blue-200">
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
           <CardContent className="p-4">
             <div className="flex items-center">
               <Zap className="w-8 h-8 text-yellow-500 mr-3" />
               <div>
+<<<<<<< HEAD
                 <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Token PLN Prabayar</h3>
                 <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Beli token listrik dengan mudah dan cepat</p>
+=======
+                <h3 className="font-semibold">Token PLN Prabayar</h3>
+                <p className="text-sm text-gray-600">Beli token listrik dengan mudah dan cepat</p>
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
               </div>
             </div>
           </CardContent>
@@ -213,7 +244,10 @@ const ListrikPage: React.FC<ListrikPageProps> = ({ onBack, isDarkMode = false })
             placeholder="Masukkan nomor meter"
             value={meterNumber}
             onChange={(e) => setMeterNumber(e.target.value)}
+<<<<<<< HEAD
             className={isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''}
+=======
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
           />
         </div>
 
@@ -226,6 +260,7 @@ const ListrikPage: React.FC<ListrikPageProps> = ({ onBack, isDarkMode = false })
                 key={amount.value}
                 variant={selectedAmount === amount.value ? "default" : "outline"}
                 onClick={() => setSelectedAmount(amount.value)}
+<<<<<<< HEAD
                 className={`h-12 ${
                   selectedAmount === amount.value 
                     ? 'bg-yellow-500 hover:bg-yellow-600' 
@@ -233,6 +268,9 @@ const ListrikPage: React.FC<ListrikPageProps> = ({ onBack, isDarkMode = false })
                       ? 'border-gray-600 bg-gray-800 text-white hover:bg-gray-700' 
                       : ''
                 }`}
+=======
+                className="h-12"
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
               >
                 {amount.label}
               </Button>
@@ -248,18 +286,26 @@ const ListrikPage: React.FC<ListrikPageProps> = ({ onBack, isDarkMode = false })
               id="custom-amount"
               placeholder="Masukkan nominal"
               type="number"
+<<<<<<< HEAD
               value={customAmount}
               onChange={(e) => setCustomAmount(e.target.value)}
               className={isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''}
+=======
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
             />
           </div>
         )}
 
         {/* Buy Button */}
         <Button 
+<<<<<<< HEAD
           onClick={handleBuy}
           className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
           disabled={!meterNumber || !selectedAmount || (selectedAmount === 'custom' && !customAmount)}
+=======
+          className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
+          disabled={!meterNumber || !selectedAmount}
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
         >
           <CreditCard className="w-4 h-4 mr-2" />
           Beli Token Sekarang
@@ -267,6 +313,7 @@ const ListrikPage: React.FC<ListrikPageProps> = ({ onBack, isDarkMode = false })
 
         {/* Recent Transactions */}
         <div className="space-y-2">
+<<<<<<< HEAD
           <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Transaksi Terakhir</h3>
           <Card className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
             <CardContent className="p-4">
@@ -275,6 +322,16 @@ const ListrikPage: React.FC<ListrikPageProps> = ({ onBack, isDarkMode = false })
                   <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Token PLN Rp 100.000</p>
                   <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Meter: ****5678</p>
                   <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>2025-06-03 14:30</p>
+=======
+          <h3 className="font-semibold">Transaksi Terakhir</h3>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium">Token PLN Rp 100.000</p>
+                  <p className="text-sm text-gray-600">Meter: ****5678</p>
+                  <p className="text-xs text-gray-500">2025-06-03 14:30</p>
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
                 </div>
                 <span className="text-green-600 font-semibold">Berhasil</span>
               </div>

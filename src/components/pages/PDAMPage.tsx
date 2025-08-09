@@ -1,10 +1,15 @@
 
 import React, { useState } from 'react';
+<<<<<<< HEAD
 import { ArrowLeft, Droplets, CreditCard, Building, Smartphone, Wallet } from 'lucide-react';
+=======
+import { ArrowLeft, Droplets, CreditCard } from 'lucide-react';
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+<<<<<<< HEAD
 import PinDialog from '../PinDialog';
 import TransactionReceiptPage from './TransactionReceiptPage';
 
@@ -27,6 +32,16 @@ const PDAMPage: React.FC<PDAMPageProps> = ({ onBack, isDarkMode = false }) => {
     { id: 'va', icon: CreditCard, label: 'Virtual Account', description: 'Virtual Account bank' },
     { id: 'ewallet', icon: Smartphone, label: 'E-Wallet', description: 'GoPay, OVO, DANA, dll' }
   ];
+=======
+
+interface PDAMPageProps {
+  onBack: () => void;
+}
+
+const PDAMPage: React.FC<PDAMPageProps> = ({ onBack }) => {
+  const [customerId, setCustomerId] = useState('');
+  const [billInfo, setBillInfo] = useState<any>(null);
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
 
   const checkBill = () => {
     // Simulate bill check
@@ -39,6 +54,7 @@ const PDAMPage: React.FC<PDAMPageProps> = ({ onBack, isDarkMode = false }) => {
     });
   };
 
+<<<<<<< HEAD
   const handlePayment = () => {
     if (!paymentMethod) {
       return;
@@ -178,6 +194,12 @@ const PDAMPage: React.FC<PDAMPageProps> = ({ onBack, isDarkMode = false }) => {
     <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
       <div className={`${isDarkMode ? 'bg-gradient-to-r from-blue-600 to-cyan-600' : 'bg-gradient-to-r from-blue-500 to-cyan-500'} text-white p-4`}>
+=======
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-blue-500 text-white p-4">
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
         <div className="flex items-center mb-4">
           <Button variant="ghost" size="icon" onClick={onBack} className="text-white">
             <ArrowLeft className="w-6 h-6" />
@@ -188,13 +210,22 @@ const PDAMPage: React.FC<PDAMPageProps> = ({ onBack, isDarkMode = false }) => {
 
       <div className="p-4 space-y-6">
         {/* Info Card */}
+<<<<<<< HEAD
         <Card className={`${isDarkMode ? 'bg-blue-800/20 border-blue-600' : 'bg-blue-50 border-blue-200'}`}>
+=======
+        <Card className="bg-blue-50 border-blue-200">
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
           <CardContent className="p-4">
             <div className="flex items-center">
               <Droplets className="w-8 h-8 text-blue-500 mr-3" />
               <div>
+<<<<<<< HEAD
                 <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Pembayaran Air PDAM</h3>
                 <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Bayar tagihan air bulanan dengan mudah</p>
+=======
+                <h3 className="font-semibold">Pembayaran Air PDAM</h3>
+                <p className="text-sm text-gray-600">Bayar tagihan air bulanan dengan mudah</p>
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
               </div>
             </div>
           </CardContent>
@@ -209,6 +240,7 @@ const PDAMPage: React.FC<PDAMPageProps> = ({ onBack, isDarkMode = false }) => {
               placeholder="Masukkan ID pelanggan"
               value={customerId}
               onChange={(e) => setCustomerId(e.target.value)}
+<<<<<<< HEAD
               className={`flex-1 ${isDarkMode ? 'bg-gray-800 border-gray-600 text-white' : ''}`}
             />
             <Button 
@@ -216,6 +248,11 @@ const PDAMPage: React.FC<PDAMPageProps> = ({ onBack, isDarkMode = false }) => {
               disabled={!customerId}
               className={isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : ''}
             >
+=======
+              className="flex-1"
+            />
+            <Button onClick={checkBill} disabled={!customerId}>
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
               Cek Tagihan
             </Button>
           </div>
@@ -223,6 +260,7 @@ const PDAMPage: React.FC<PDAMPageProps> = ({ onBack, isDarkMode = false }) => {
 
         {/* Bill Information */}
         {billInfo && (
+<<<<<<< HEAD
           <Card className={`${isDarkMode ? 'bg-green-800/20 border-green-600' : 'bg-green-50 border-green-200'}`}>
             <CardContent className="p-4">
               <h3 className={`font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Informasi Tagihan</h3>
@@ -246,6 +284,31 @@ const PDAMPage: React.FC<PDAMPageProps> = ({ onBack, isDarkMode = false }) => {
                 <div className="border-t pt-2">
                   <div className="flex justify-between items-center">
                     <span className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Total Tagihan:</span>
+=======
+          <Card className="border-green-200 bg-green-50">
+            <CardContent className="p-4">
+              <h3 className="font-semibold mb-3">Informasi Tagihan</h3>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span>Nama Pelanggan:</span>
+                  <span className="font-medium">{billInfo.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Periode:</span>
+                  <span className="font-medium">{billInfo.period}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Pemakaian:</span>
+                  <span className="font-medium">{billInfo.usage}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Jatuh Tempo:</span>
+                  <span className="font-medium">{billInfo.dueDate}</span>
+                </div>
+                <div className="border-t pt-2">
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold">Total Tagihan:</span>
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
                     <span className="font-bold text-lg text-blue-600">
                       Rp {billInfo.amount.toLocaleString()}
                     </span>
@@ -258,10 +321,14 @@ const PDAMPage: React.FC<PDAMPageProps> = ({ onBack, isDarkMode = false }) => {
 
         {/* Payment Button */}
         {billInfo && (
+<<<<<<< HEAD
           <Button 
             onClick={() => setShowPayment(true)}
             className="w-full bg-blue-500 hover:bg-blue-600 text-white"
           >
+=======
+          <Button className="w-full bg-blue-500 hover:bg-blue-600 text-white">
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
             <CreditCard className="w-4 h-4 mr-2" />
             Bayar Sekarang
           </Button>
@@ -269,6 +336,7 @@ const PDAMPage: React.FC<PDAMPageProps> = ({ onBack, isDarkMode = false }) => {
 
         {/* Recent Payments */}
         <div className="space-y-2">
+<<<<<<< HEAD
           <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Pembayaran Terakhir</h3>
           <Card className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'}`}>
             <CardContent className="p-4">
@@ -281,6 +349,20 @@ const PDAMPage: React.FC<PDAMPageProps> = ({ onBack, isDarkMode = false }) => {
                 <div className="text-right">
                   <span className="text-green-600 font-semibold">Berhasil</span>
                   <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Rp 135.000</p>
+=======
+          <h3 className="font-semibold">Pembayaran Terakhir</h3>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium">PDAM April 2025</p>
+                  <p className="text-sm text-gray-600">ID: ****1234</p>
+                  <p className="text-xs text-gray-500">2025-05-15 09:30</p>
+                </div>
+                <div className="text-right">
+                  <span className="text-green-600 font-semibold">Berhasil</span>
+                  <p className="text-sm">Rp 135.000</p>
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
                 </div>
               </div>
             </CardContent>

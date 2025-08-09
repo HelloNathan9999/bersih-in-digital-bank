@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
 import { useToast } from "@/hooks/use-toast"
 import {
   Toast,
@@ -16,7 +19,11 @@ export function Toaster() {
     <ToastProvider>
       {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
+<<<<<<< HEAD
           <Toast key={id} {...props} className="fixed top-4 right-4 z-50">
+=======
+          <Toast key={id} {...props}>
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
             <div className="grid gap-1">
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && (

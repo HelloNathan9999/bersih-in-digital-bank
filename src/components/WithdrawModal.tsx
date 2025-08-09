@@ -109,7 +109,11 @@ const WithdrawModal: React.FC<WithdrawModalProps> = ({
         </Button>
 
         <p className={`text-xs text-center mt-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+<<<<<<< HEAD
           Proses penarikan membutuhkan waktu 1-3 hari kerja
+=======
+          Proses penarikan membutuhkan waktu 2 - 5 Menit
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
         </p>
       </div>
     </div>

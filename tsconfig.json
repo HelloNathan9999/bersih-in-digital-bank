@@ -7,14 +7,23 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+<<<<<<< HEAD
       "@/*": ["./src/*"]
+=======
+      "@/*": ["./src/*"],
+      "rubixstudio-tagger": ["./rubixstudio-tagger"]
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
     },
     "noImplicitAny": false,
     "noUnusedParameters": false,
     "skipLibCheck": true,
     "allowJs": true,
     "noUnusedLocals": false,
+<<<<<<< HEAD
     "strictNullChecks": false,
     "typeRoots": ["./node_modules/@types", "./src/types"]
+=======
+    "strictNullChecks": false
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
   }
 }

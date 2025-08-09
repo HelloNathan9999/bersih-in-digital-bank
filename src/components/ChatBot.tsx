@@ -23,6 +23,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ isDarkMode = false }) => {
   const [animationClass, setAnimationClass] = useState('');
 
   // Enhanced animation: bounce only twice per minute
+<<<<<<< HEAD
   useEffect(() => {
     if (!isOpen) {
       const interval = setInterval(() => {
@@ -35,6 +36,27 @@ const ChatBot: React.FC<ChatBotProps> = ({ isDarkMode = false }) => {
       return () => clearInterval(interval);
     }
   }, [isOpen]);
+=======
+useEffect(() => {
+  let intervalId: NodeJS.Timeout;
+  let timeoutId: NodeJS.Timeout;
+
+  if (!isOpen) {
+    intervalId = setInterval(() => {
+      setAnimationClass('animate-bounce');
+      timeoutId = setTimeout(() => {
+        setAnimationClass('');
+      }, 2000); // stop bounce after 2 seconds
+    }, 60000); // run every 60 seconds
+  }
+
+  return () => {
+    clearInterval(intervalId);
+    clearTimeout(timeoutId);
+  };
+}, [isOpen]);
+
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
 
   const botResponses = [
     'Terima kasih atas pertanyaannya! Saya akan membantu Anda dengan senang hati.',

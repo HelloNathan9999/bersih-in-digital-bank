@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+<<<<<<< HEAD
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
@@ -25,13 +26,31 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === "development" && componentTagger(),
+=======
+import { componentTagger } from "./rubixstudio-tagger/index";
+
+
+// https://vitejs.dev/config/
+export default defineConfig(({ mode }) => ({
+  server: {
+    host: "::",
+    port: 8080,
+  },
+  plugins: [
+    react(),
+    mode === 'development' &&
+    componentTagger(),
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
   ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
+<<<<<<< HEAD
   optimizeDeps: {
     exclude: ["lucide-react"],
   },
+=======
+>>>>>>> 0fd5d8bc551d026d03784ba71de0bb995a11daa8
 }));
