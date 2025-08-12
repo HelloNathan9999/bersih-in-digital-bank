@@ -12,7 +12,12 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://jinustozhspnbc
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '...';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-const LoginScreen: React.FC = () => {
+interface LoginScreenProps {
+  onLoginSuccess?: () => void;
+  onSwitchToRegister?: () => void;
+}
+
+const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess, onSwitchToRegister }) => {
   const [formData, setFormData] = useState({ nik: '', pin: '' });
   const [showPin, setShowPin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -77,7 +82,11 @@ if (userData) {
       toast({ title: 'Berhasil Masuk', description: `Selamat datang, ${user.nama_lengkap}` });
 
       // Navigasi ke halaman OnboardingScreen setelah login sukses
-      navigate('/onboarding');
+      if (onLoginSuccess) {
+        onLoginSuccess();
+      } else {
+        navigate('/onboarding');
+      }
     } catch (err) {
       console.error('Login error:', err);
       toast({ title: 'Error', description: 'Terjadi kesalahan saat login', variant: 'destructive' });
@@ -149,7 +158,7 @@ if (userData) {
             <p className="text-gray-600">
               Belum punya akun?{' '}
               <button
-                onClick={() => navigate('/register')}
+                onClick={() => onSwitchToRegister ? onSwitchToRegister() : navigate('/register')}
                 className="text-blue-600 font-semibold hover:underline"
               >
                 Daftar Sekarang
