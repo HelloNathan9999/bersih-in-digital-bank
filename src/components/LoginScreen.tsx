@@ -4,13 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
-import bcrypt from 'bcryptjs';
-import { createClient } from '@supabase/supabase-js';
-import { useNavigate } from 'react-router-dom'; // import untuk navigasi
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://jinustozhspnbcbzfcnp.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '...';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 interface LoginScreenProps {
   onLoginSuccess?: () => void;
@@ -41,45 +36,24 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess, onSwitchToReg
     }
 
     try {
-      const { data: user, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('nik', nik)
-        .single();
+      // Call secure authentication edge function
+      const { data, error } = await supabase.functions.invoke('auth', {
+        body: {
+          action: 'login',
+          nik: nik,
+          pin: pin
+        }
+      });
 
-      if (error || !user) {
-        toast({ title: 'Login gagal', description: 'NIK tidak ditemukan', variant: 'destructive' });
-        setIsLoading(false);
-        return;
-      }
-      
-      // Ambil user dari Supabase
-const { data: userData, error: userDataError } = await supabase
-  .from('users')
-  .select('nik, nama_lengkap, created_at') // pastikan created_at ikut diambil
-  .eq('nik', nik)
-  .single();
-
-if (userData) {
-  localStorage.setItem('userData', JSON.stringify({
-    nik: userData.nik,
-    nama_lengkap: userData.nama_lengkap,
-    join_date: userData.created_at, // simpan created_at ke localStorage
-  }));
-}
-
-
-      const isPinValid = await bcrypt.compare(pin, user.pin_hash);
-
-      if (!isPinValid) {
-        toast({ title: 'Login gagal', description: 'PIN salah', variant: 'destructive' });
+      if (error || !data.success) {
+        toast({ title: 'Login gagal', description: data?.error || 'Login gagal', variant: 'destructive' });
         setIsLoading(false);
         return;
       }
 
-      // Simpan data user di localStorage
-      localStorage.setItem('userData', JSON.stringify(user));
-      toast({ title: 'Berhasil Masuk', description: `Selamat datang, ${user.nama_lengkap}` });
+      // Store minimal user data in localStorage for compatibility
+      localStorage.setItem('userData', JSON.stringify(data.user));
+      toast({ title: 'Berhasil Masuk', description: `Selamat datang, ${data.user.nama_lengkap}` });
 
       // Navigasi ke halaman OnboardingScreen setelah login sukses
       if (onLoginSuccess) {

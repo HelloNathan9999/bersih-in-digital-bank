@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabaseClient";
-import bcrypt from "bcryptjs";
+import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
@@ -30,38 +29,28 @@ export default function AuthScreen() {
     }
 
     try {
-      // 🔹 Ambil user berdasarkan NIK
-      const { data: user, error } = await supabase
-        .from("users")
-        .select("user_id, nik, nama_lengkap, password_hash, pin_hash") // ambil kolom penting saja
-        .eq("nik", nik.trim())
-        .single();
+      // Call secure authentication edge function
+      const { data, error } = await supabase.functions.invoke('auth', {
+        body: {
+          action: 'login',
+          nik: nik.trim(),
+          password: password,
+          pin: password  // Try both password and pin
+        }
+      });
 
-      if (error || !user) {
-        toast({ title: "NIK tidak ditemukan!" });
+      if (error || !data.success) {
+        toast({ title: data?.error || "Login gagal!" });
+        setLoading(false);
         return;
       }
 
-      // 🔹 Cek password atau PIN
-      const passwordMatch = await bcrypt.compare(password, user.password_hash);
-      const pinMatch = await bcrypt.compare(password, user.pin_hash);
-
-      if (!passwordMatch && !pinMatch) {
-        toast({ title: "Password atau PIN salah!" });
-        return;
-      }
-
-      // 🔹 Simpan ke localStorage (jangan simpan hash)
-      const safeUser = {
-        id: user.user_id,
-        nik: user.nik,
-        nama_lengkap: user.nama_lengkap,
-      };
-      localStorage.setItem("user", JSON.stringify(safeUser));
+      // Store minimal user data in localStorage
+      localStorage.setItem("user", JSON.stringify(data.user));
 
       toast({
         title: "Login berhasil!",
-        description: `Selamat datang, ${user.nama_lengkap}`,
+        description: `Selamat datang, ${data.user.nama_lengkap}`,
       });
 
       navigate("/");

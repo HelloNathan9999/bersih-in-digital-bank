@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
-import bcrypt from "bcryptjs";
 
 export default function AuthPage() {
   const [nik, setNik] = useState("");
@@ -19,62 +18,53 @@ export default function AuthPage() {
     }
 
     if (isLogin) {
-      // LOGIN: cari user berdasarkan NIK
-      const { data: user, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("nik", nik)
-        .single();
+      // Call secure authentication edge function
+      const { data, error } = await supabase.functions.invoke('auth', {
+        body: {
+          action: 'login',
+          nik: nik,
+          pin: pin
+        }
+      });
 
-      if (error || !user) {
-        toast({ title: "NIK tidak ditemukan!" });
+      if (error || !data.success) {
+        toast({ title: data?.error || "Login gagal!" });
         return;
       }
 
-      const isValid = await bcrypt.compare(pin, user.pin_hash);
-      if (!isValid) {
-        toast({ title: "PIN salah!" });
-        return;
-      }
-
-      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("user", JSON.stringify(data.user));
       toast({
         title: "Login berhasil!",
-        description: `Selamat datang, ${user.nama_lengkap}`,
+        description: `Selamat datang, ${data.user.nama_lengkap}`,
       });
       navigate("/");
     } else {
-      // REGISTER: cek apakah NIK sudah ada
-      const { data: existingUser } = await supabase
-        .from("users")
-        .select("nik")
-        .eq("nik", nik)
-        .maybeSingle();
+      // Call secure registration edge function
+      const { data, error } = await supabase.functions.invoke('auth', {
+        body: {
+          action: 'register',
+          nik: nik,
+          nama_lengkap: namaLengkap,
+          nomor_hp: '',
+          email: `${nik}@bersih.in`,
+          password: pin,
+          pin: pin,
+        }
+      });
 
-      if (existingUser) {
-        toast({ title: "NIK sudah terdaftar!" });
+      if (error || !data.success) {
+        toast({ title: "Registrasi gagal", description: data?.error });
         return;
       }
 
-      const hashedPin = bcrypt.hashSync(pin, 10);
-      const { error } = await supabase.from("users").insert({
-        nik,
-        nama_lengkap: namaLengkap,
-        pin_hash: hashedPin,
+      toast({
+        title: "Registrasi berhasil!",
+        description: "Silakan login.",
       });
-
-      if (error) {
-        toast({ title: "Registrasi gagal", description: error.message });
-      } else {
-        toast({
-          title: "Registrasi berhasil!",
-          description: "Silakan login.",
-        });
-        setIsLogin(true);
-        setNik("");
-        setPin("");
-        setNamaLengkap("");
-      }
+      setIsLogin(true);
+      setNik("");
+      setPin("");
+      setNamaLengkap("");
     }
   };
 

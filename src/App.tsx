@@ -17,7 +17,7 @@ import OnboardingScreen from "./components/OnboardingScreen"; // Halaman Onboard
 import ProtectedRoute from "./components/ProtectedRoute";   // Komponen pembungkus route yang perlu login
 
 // Supabase client
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/integrations/supabase/client";
 
 // React Query Client untuk data fetching & caching
 const queryClient = new QueryClient({

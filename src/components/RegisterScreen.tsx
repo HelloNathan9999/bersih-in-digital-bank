@@ -5,13 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
-import { createClient } from "@supabase/supabase-js";
-import bcrypt from "bcryptjs";
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL || "",
-  import.meta.env.VITE_SUPABASE_ANON_KEY || ""
-);
+import { supabase } from "@/integrations/supabase/client";
 
 interface RegisterScreenProps {
   onRegisterSuccess: () => void;
@@ -80,37 +74,25 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
     setIsLoading(true);
 
     try {
-      const { data: existingUser } = await supabase
-        .from("users")
-        .select("id")
-        .eq("nik", formData.nik)
-        .single();
-
-      if (existingUser) {
-        toastError("NIK sudah terdaftar di sistem BERSIH.IN");
-        setIsLoading(false);
-        return;
-      }
-
-      const salt = bcrypt.genSaltSync(10);
-      const hashedPassword = bcrypt.hashSync(formData.kataSandi, salt);
-      const hashedPin = bcrypt.hashSync(formData.pin, salt);
-
-      const { error } = await supabase.from("users").insert([
-        {
+      // Call secure registration edge function
+      const { data, error } = await supabase.functions.invoke('auth', {
+        body: {
+          action: 'register',
           nik: formData.nik,
           nama_lengkap: formData.namaLengkap,
           nomor_hp: formData.nomorTelepon,
           email: formData.email,
-          password_hash: hashedPassword,
-          pin_hash: hashedPin,
-          referral_code: formData.kodeReferral || null,
-          alamat: "",
-          photo_url: "",
-        },
-      ]);
+          password: formData.kataSandi,
+          pin: formData.pin,
+          refferal_code: formData.kodeReferral
+        }
+      });
 
-      if (error) throw error;
+      if (error || !data.success) {
+        toastError(data?.error || "Terjadi kesalahan saat registrasi.");
+        setIsLoading(false);
+        return;
+      }
 
       toast({
         title: "Registrasi Berhasil",

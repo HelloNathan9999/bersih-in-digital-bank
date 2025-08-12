@@ -1,20 +1,17 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const [loading, setLoading] = useState(true);
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const user = localStorage.getItem("userData"); // harus sama dengan key di LoginScreen
-
-    if (!user) {
+    if (!loading && !user) {
       navigate("/auth", { replace: true });
-    } else {
-      setLoading(false);
     }
-  }, [navigate]);
+  }, [user, loading, navigate]);
 
   if (loading) {
     return (
@@ -22,6 +19,10 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
         <Loader2 className="animate-spin w-6 h-6 text-gray-500" />
       </div>
     );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return <>{children}</>;

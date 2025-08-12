@@ -6,8 +6,13 @@ import { componentTagger } from "lovable-tagger";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    port: 3000, // 🔁 GANTI PORT DARI 8082 KE 3000
-    strictPort: false, // 🔁 Ubah jadi false biar kalau 3000 dipakai, otomatis pindah ke port lain
+    port: 8080,
+    strictPort: false,
+    headers: {
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'X-XSS-Protection': '1; mode=block',
+    },
     watch: {
       usePolling: false,
       interval: 1000,
