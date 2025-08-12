@@ -273,8 +273,8 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
         <div>
           <Label>Kode Referral (Opsional)</Label>
           <Input
-            value={formData.kodeRefferal}
-            onChange={(e) => handleInputChange("kodeRefferal", e.target.value)}
+            value={formData.kodeReferral}
+            onChange={(e) => handleInputChange("kodeReferral", e.target.value)}
           />
         </div>
 
