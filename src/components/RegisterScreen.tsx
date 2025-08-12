@@ -31,7 +31,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
     verifikasiKataSandi: "",
     pin: "",
     verifikasiPin: "",
-    kodeRefferal: "",
+    kodeReferral: "",
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -104,7 +104,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
           email: formData.email,
           password_hash: hashedPassword,
           pin_hash: hashedPin,
-          refferal_code: formData.kodeRefferal || null,
+          referral_code: formData.kodeReferral || null,
           alamat: "",
           photo_url: "",
         },
@@ -126,7 +126,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
         verifikasiKataSandi: "",
         pin: "",
         verifikasiPin: "",
-        kodeRefferal: "",
+        kodeReferral: "",
       });
 
       setAgreedToTerms(false);
