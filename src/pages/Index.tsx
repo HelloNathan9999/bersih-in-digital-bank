@@ -1,5 +1,5 @@
 import React from 'react';
-import MainApp from '../components/MainApp';
+import MainApp from '@/components/MainApp';
 import { useAuth } from '@/hooks/useAuth';
 
 const Index = () => {

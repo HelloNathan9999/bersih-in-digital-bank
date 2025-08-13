@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from '@/hooks/use-toast';
-import PinDialog from '../PinDialog';
+import PinDialog from '@/components/PinDialog';
 
 interface CartItem {
   id: number;
