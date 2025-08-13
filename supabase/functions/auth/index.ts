@@ -87,33 +87,45 @@ async function handleLogin(supabase: any, { nik, password, pin }: LoginRequest) 
       );
     }
 
-    // Create Supabase auth user if doesn't exist
-    const { data: authData, error: signInError } = await supabase.auth.admin.createUser({
-      email: user.email || `${nik}@bersih.in`,
-      user_metadata: {
-        nik: user.nik,
-        nama_lengkap: user.nama_lengkap,
-        user_id: user.user_id
-      },
-      email_confirm: true,
-    });
-
-    if (signInError && !signInError.message.includes('already registered')) {
-      console.error('Auth creation error:', signInError);
-      return new Response(
-        JSON.stringify({ error: 'Login gagal' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // Create or get Supabase auth user
+    let authUser;
+    const email = user.email || `${nik}@bersih.in`;
+    
+    // Try to get existing auth user
+    const { data: existingAuthUser } = await supabase.auth.admin.getUserById(user.user_id);
+    
+    if (!existingAuthUser.user) {
+      // Create auth user if doesn't exist
+      const { data: newAuthUser, error: createError } = await supabase.auth.admin.createUser({
+        email: email,
+        user_metadata: {
+          nik: user.nik,
+          nama_lengkap: user.nama_lengkap,
+          user_id: user.user_id
+        },
+        email_confirm: true,
+      });
+      
+      if (createError) {
+        console.error('Auth user creation error:', createError);
+        return new Response(
+          JSON.stringify({ error: 'Login gagal' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      authUser = newAuthUser.user;
+    } else {
+      authUser = existingAuthUser.user;
     }
 
-    // Generate session token
-    const { data: sessionData, error: sessionError } = await supabase.auth.admin.generateLink({
+    // Generate access token for client
+    const { data: tokenData, error: tokenError } = await supabase.auth.admin.generateLink({
       type: 'magiclink',
-      email: user.email || `${nik}@bersih.in`,
+      email: email,
     });
 
-    if (sessionError) {
-      console.error('Session error:', sessionError);
+    if (tokenError) {
+      console.error('Token generation error:', tokenError);
       return new Response(
         JSON.stringify({ error: 'Login gagal' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -129,7 +141,9 @@ async function handleLogin(supabase: any, { nik, password, pin }: LoginRequest) 
           nama_lengkap: user.nama_lengkap,
           email: user.email
         },
-        session: sessionData
+        access_token: tokenData.properties?.access_token,
+        refresh_token: tokenData.properties?.refresh_token,
+        magic_link: tokenData.properties?.action_link
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -206,6 +220,12 @@ async function handleRegister(supabase: any, data: RegisterRequest) {
       );
     }
 
+    // Generate auth tokens for immediate login after registration
+    const { data: tokenData, error: tokenError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email: data.email,
+    });
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -215,7 +235,10 @@ async function handleRegister(supabase: any, data: RegisterRequest) {
           nik: data.nik,
           nama_lengkap: data.nama_lengkap,
           email: data.email
-        }
+        },
+        access_token: tokenData?.properties?.access_token,
+        refresh_token: tokenData?.properties?.refresh_token,
+        magic_link: tokenData?.properties?.action_link
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

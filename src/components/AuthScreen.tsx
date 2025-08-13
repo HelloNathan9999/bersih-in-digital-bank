@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LoginScreen from './LoginScreen';
 import RegisterScreen from './RegisterScreen';
 
 const AuthScreen: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const navigate = useNavigate();
 
   return isLogin ? (
     <LoginScreen
       onLoginSuccess={() => {
-        // misal navigate ke home atau trigger apapun
-        console.log('Login sukses!');
+        // Navigate to onboarding after successful login
+        navigate('/onboarding');
       }}
       onSwitchToRegister={() => setIsLogin(false)}
     />

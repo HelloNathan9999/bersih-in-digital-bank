@@ -51,6 +51,29 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess, onSwitchToReg
         return;
       }
 
+      // Use magic link to authenticate with Supabase Auth
+      if (data.magic_link) {
+        // Extract token from magic link
+        const url = new URL(data.magic_link);
+        const accessToken = url.searchParams.get('access_token');
+        const refreshToken = url.searchParams.get('refresh_token');
+        
+        if (accessToken && refreshToken) {
+          // Set session with Supabase Auth
+          const { error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (sessionError) {
+            console.error('Session error:', sessionError);
+            toast({ title: 'Login gagal', description: 'Gagal membuat sesi', variant: 'destructive' });
+            setIsLoading(false);
+            return;
+          }
+        }
+      }
+
       // Store minimal user data in localStorage for compatibility
       localStorage.setItem('userData', JSON.stringify(data.user));
       toast({ title: 'Berhasil Masuk', description: `Selamat datang, ${data.user.nama_lengkap}` });

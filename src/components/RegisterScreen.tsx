@@ -94,9 +94,29 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
         return;
       }
 
+      // Use magic link to authenticate with Supabase Auth after registration
+      if (data.magic_link) {
+        // Extract token from magic link
+        const url = new URL(data.magic_link);
+        const accessToken = url.searchParams.get('access_token');
+        const refreshToken = url.searchParams.get('refresh_token');
+        
+        if (accessToken && refreshToken) {
+          // Set session with Supabase Auth
+          const { error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (sessionError) {
+            console.error('Session error after registration:', sessionError);
+          }
+        }
+      }
+
       toast({
         title: "Registrasi Berhasil",
-        description: "Akun Anda telah dibuat! Silakan login.",
+        description: "Akun Anda telah dibuat! Selamat datang!",
       });
 
       setFormData({

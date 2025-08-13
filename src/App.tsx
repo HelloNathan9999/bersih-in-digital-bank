@@ -15,6 +15,7 @@ import AuthScreen from "./components/AuthScreen";   // Halaman Login / Auth
 import RegisterScreen from "./components/RegisterScreen"; // Halaman Registrasi
 import OnboardingScreen from "./components/OnboardingScreen"; // Halaman Onboarding
 import ProtectedRoute from "./components/ProtectedRoute";   // Komponen pembungkus route yang perlu login
+import { AuthProvider } from "./components/AuthProvider";   // Auth context provider
 
 // Supabase client
 import { supabase } from "@/integrations/supabase/client";
@@ -60,7 +61,8 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <BrowserRouter>
+        <AuthProvider>
+          <BrowserRouter>
           <Routes>
             {/* Halaman Beranda, hanya bisa diakses kalau sudah login */}
             <Route
@@ -109,6 +111,7 @@ const App = () => {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        </AuthProvider>
 
         {/* Toaster Notifications (ShadCN UI + Sonner) */}
         <Toaster />
