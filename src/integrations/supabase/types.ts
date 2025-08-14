@@ -59,29 +59,79 @@ export type Database = {
           },
         ]
       }
+      auth_audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          ip_address: unknown | null
+          log_id: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          ip_address?: unknown | null
+          log_id?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          ip_address?: unknown | null
+          log_id?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auth_audit_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       auth_sessions: {
         Row: {
           created_at: string
           device_id: string | null
           expires_at: string | null
+          ip_address: unknown | null
+          is_active: boolean | null
+          last_activity: string | null
           otp: string | null
           session_id: string
+          user_agent: string | null
           user_id: string | null
         }
         Insert: {
           created_at?: string
           device_id?: string | null
           expires_at?: string | null
+          ip_address?: unknown | null
+          is_active?: boolean | null
+          last_activity?: string | null
           otp?: string | null
           session_id?: string
+          user_agent?: string | null
           user_id?: string | null
         }
         Update: {
           created_at?: string
           device_id?: string | null
           expires_at?: string | null
+          ip_address?: unknown | null
+          is_active?: boolean | null
+          last_activity?: string | null
           otp?: string | null
           session_id?: string
+          user_agent?: string | null
           user_id?: string | null
         }
         Relationships: [
@@ -1118,8 +1168,30 @@ export type Database = {
           message: string
         }[]
       }
+      automated_security_maintenance: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       check_nik_exists: {
         Args: { user_nik: string }
+        Returns: boolean
+      }
+      cleanup_expired_sessions: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      create_secure_session: {
+        Args: {
+          p_user_id: string
+          p_device_id?: string
+          p_otp_code?: string
+          p_ip_address?: unknown
+          p_user_agent?: string
+        }
+        Returns: string
+      }
+      deactivate_session: {
+        Args: { p_session_id: string }
         Returns: boolean
       }
       get_user_password_hash: {
@@ -1130,6 +1202,10 @@ export type Database = {
         Args: { user_nik: string }
         Returns: string
       }
+      hash_otp: {
+        Args: { otp_code: string }
+        Returns: string
+      }
       validate_qr_code: {
         Args: { qr_code_unique: string }
         Returns: {
@@ -1138,6 +1214,18 @@ export type Database = {
           lokasi_admin: string
           is_valid: boolean
         }[]
+      }
+      validate_session_security: {
+        Args: {
+          p_session_id: string
+          p_current_ip?: unknown
+          p_current_user_agent?: string
+        }
+        Returns: boolean
+      }
+      verify_otp: {
+        Args: { otp_code: string; hashed_otp: string }
+        Returns: boolean
       }
     }
     Enums: {
