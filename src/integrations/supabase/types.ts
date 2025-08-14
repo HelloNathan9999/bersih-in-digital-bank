@@ -1130,6 +1130,15 @@ export type Database = {
         Args: { user_nik: string }
         Returns: string
       }
+      validate_qr_code: {
+        Args: { qr_code_unique: string }
+        Returns: {
+          qr_code_id: string
+          jenis_sampah: string
+          lokasi_admin: string
+          is_valid: boolean
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
