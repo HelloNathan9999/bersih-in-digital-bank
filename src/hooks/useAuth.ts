@@ -55,9 +55,14 @@ export const useAuthState = () => {
     if (error) {
       console.error('Sign out error:', error);
     } else {
-      // Clear local storage
+      // Clear secure storage
+      const { secureStorage } = await import('@/lib/secure-storage');
+      secureStorage.clear();
+      
+      // Clear any remaining localStorage items
       localStorage.removeItem('userData');
       localStorage.removeItem('userToken');
+      localStorage.removeItem('user');
     }
   };
 

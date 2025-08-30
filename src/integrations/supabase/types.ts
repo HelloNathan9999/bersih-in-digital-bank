@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -1161,11 +1161,11 @@ export type Database = {
       authenticate_user: {
         Args: { user_nik: string; user_password: string; user_pin: string }
         Returns: {
-          user_id: string
-          nik: string
-          nama_lengkap: string
-          success: boolean
           message: string
+          nama_lengkap: string
+          nik: string
+          success: boolean
+          user_id: string
         }[]
       }
       automated_security_maintenance: {
@@ -1182,11 +1182,11 @@ export type Database = {
       }
       create_secure_session: {
         Args: {
-          p_user_id: string
           p_device_id?: string
-          p_otp_code?: string
           p_ip_address?: unknown
+          p_otp_code?: string
           p_user_agent?: string
+          p_user_id: string
         }
         Returns: string
       }
@@ -1206,25 +1206,29 @@ export type Database = {
         Args: { otp_code: string }
         Returns: string
       }
+      log_security_event: {
+        Args: { p_details?: Json; p_event_type: string; p_user_id?: string }
+        Returns: undefined
+      }
       validate_qr_code: {
         Args: { qr_code_unique: string }
         Returns: {
-          qr_code_id: string
+          is_valid: boolean
           jenis_sampah: string
           lokasi_admin: string
-          is_valid: boolean
+          qr_code_id: string
         }[]
       }
       validate_session_security: {
         Args: {
-          p_session_id: string
           p_current_ip?: unknown
           p_current_user_agent?: string
+          p_session_id: string
         }
         Returns: boolean
       }
       verify_otp: {
-        Args: { otp_code: string; hashed_otp: string }
+        Args: { hashed_otp: string; otp_code: string }
         Returns: boolean
       }
     }

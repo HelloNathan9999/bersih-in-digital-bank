@@ -74,8 +74,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess, onSwitchToReg
         }
       }
 
-      // Store minimal user data in localStorage for compatibility
-      localStorage.setItem('userData', JSON.stringify(data.user));
+      // Store minimal user data in secure storage
+      const { secureStorage } = await import('@/lib/secure-storage');
+      secureStorage.setItem("userData", data.user, 6 * 60 * 60 * 1000); // 6 hours expiry
       toast({ title: 'Berhasil Masuk', description: `Selamat datang, ${data.user.nama_lengkap}` });
 
       // Navigasi ke halaman OnboardingScreen setelah login sukses

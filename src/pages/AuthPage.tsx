@@ -32,7 +32,8 @@ export default function AuthPage() {
         return;
       }
 
-      localStorage.setItem("user", JSON.stringify(data.user));
+      const { secureStorage } = await import('@/lib/secure-storage');
+      secureStorage.setItem("user", data.user, 6 * 60 * 60 * 1000); // 6 hours expiry
       toast({
         title: "Login berhasil!",
         description: `Selamat datang, ${data.user.nama_lengkap}`,
@@ -69,6 +70,8 @@ export default function AuthPage() {
   };
 
   const handleLogout = async () => {
+    const { secureStorage } = await import('@/lib/secure-storage');
+    secureStorage.clear();
     localStorage.removeItem("user");
     toast({ title: "Logout berhasil" });
   };
