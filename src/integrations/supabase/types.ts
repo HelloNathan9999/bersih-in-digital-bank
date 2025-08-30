@@ -51,13 +51,6 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
           {
-            foreignKeyName: "admin_actions_admin_id_fkey"
-            columns: ["admin_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
-            referencedColumns: ["user_id"]
-          },
-          {
             foreignKeyName: "admin_actions_target_id_fkey"
             columns: ["target_id"]
             isOneToOne: false
@@ -100,13 +93,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "auth_audit_log_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
             referencedColumns: ["user_id"]
           },
         ]
@@ -183,13 +169,6 @@ export type Database = {
             referencedRelation: "users"
             referencedColumns: ["user_id"]
           },
-          {
-            foreignKeyName: "auth_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
-            referencedColumns: ["user_id"]
-          },
         ]
       }
       badges_master: {
@@ -255,13 +234,6 @@ export type Database = {
             referencedRelation: "users"
             referencedColumns: ["user_id"]
           },
-          {
-            foreignKeyName: "checkin_history_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
-            referencedColumns: ["user_id"]
-          },
         ]
       }
       comments: {
@@ -299,13 +271,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "comments_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
             referencedColumns: ["user_id"]
           },
         ]
@@ -357,13 +322,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "deposit_transactions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
             referencedColumns: ["user_id"]
           },
         ]
@@ -437,13 +395,6 @@ export type Database = {
             referencedRelation: "users"
             referencedColumns: ["user_id"]
           },
-          {
-            foreignKeyName: "game_activity_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
-            referencedColumns: ["user_id"]
-          },
         ]
       }
       leaderboard: {
@@ -474,13 +425,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: true
             referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "leaderboard_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "users_safe"
             referencedColumns: ["user_id"]
           },
         ]
@@ -514,13 +458,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "likes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
             referencedColumns: ["user_id"]
           },
         ]
@@ -563,13 +500,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "mission_progress_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
             referencedColumns: ["user_id"]
           },
         ]
@@ -646,13 +576,6 @@ export type Database = {
             referencedRelation: "users"
             referencedColumns: ["user_id"]
           },
-          {
-            foreignKeyName: "notifications_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
-            referencedColumns: ["user_id"]
-          },
         ]
       }
       orders: {
@@ -695,24 +618,10 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
           {
-            foreignKeyName: "orders_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: true
-            referencedRelation: "users_safe"
-            referencedColumns: ["user_id"]
-          },
-          {
             foreignKeyName: "orders_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "orders_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
             referencedColumns: ["user_id"]
           },
         ]
@@ -755,13 +664,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "post_media_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
             referencedColumns: ["user_id"]
           },
         ]
@@ -812,13 +714,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "posts_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
             referencedColumns: ["user_id"]
           },
         ]
@@ -920,24 +815,10 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
           {
-            foreignKeyName: "referral_logs_referred_id_fkey"
-            columns: ["referred_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
-            referencedColumns: ["user_id"]
-          },
-          {
             foreignKeyName: "referral_logs_referrer_id_fkey"
             columns: ["referrer_id"]
             isOneToOne: false
             referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "referral_logs_referrer_id_fkey"
-            columns: ["referrer_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
             referencedColumns: ["user_id"]
           },
         ]
@@ -992,24 +873,10 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
           {
-            foreignKeyName: "reports_reviewed_by_fkey"
-            columns: ["reviewed_by"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
-            referencedColumns: ["user_id"]
-          },
-          {
             foreignKeyName: "reports_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "reports_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
             referencedColumns: ["user_id"]
           },
         ]
@@ -1066,13 +933,6 @@ export type Database = {
             referencedRelation: "users"
             referencedColumns: ["user_id"]
           },
-          {
-            foreignKeyName: "shares_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
-            referencedColumns: ["user_id"]
-          },
         ]
       }
       user_badges: {
@@ -1107,13 +967,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "user_badges_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
             referencedColumns: ["user_id"]
           },
         ]
@@ -1151,13 +1004,6 @@ export type Database = {
             referencedRelation: "users"
             referencedColumns: ["user_id"]
           },
-          {
-            foreignKeyName: "user_levels_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
-            referencedColumns: ["user_id"]
-          },
         ]
       }
       user_wallets: {
@@ -1188,13 +1034,6 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: true
             referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "user_wallets_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "users_safe"
             referencedColumns: ["user_id"]
           },
         ]
@@ -1301,13 +1140,6 @@ export type Database = {
             referencedRelation: "users"
             referencedColumns: ["user_id"]
           },
-          {
-            foreignKeyName: "voucher_reward_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
-            referencedColumns: ["user_id"]
-          },
         ]
       }
       withdraw_transactions: {
@@ -1346,77 +1178,11 @@ export type Database = {
             referencedRelation: "users"
             referencedColumns: ["user_id"]
           },
-          {
-            foreignKeyName: "withdraw_transactions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users_safe"
-            referencedColumns: ["user_id"]
-          },
         ]
       }
     }
     Views: {
-      users_safe: {
-        Row: {
-          alamat: string | null
-          badges: string[] | null
-          created_at: string | null
-          email_masked: string | null
-          green_coins: number | null
-          is_active: boolean | null
-          last_checkin: string | null
-          level_user: string | null
-          nama_lengkap_masked: string | null
-          nik_masked: string | null
-          nomor_hp_masked: string | null
-          photo_url: string | null
-          poin: number | null
-          refferal_code: string | null
-          saldo: number | null
-          user_id: string | null
-          xp: number | null
-        }
-        Insert: {
-          alamat?: string | null
-          badges?: string[] | null
-          created_at?: string | null
-          email_masked?: never
-          green_coins?: number | null
-          is_active?: boolean | null
-          last_checkin?: string | null
-          level_user?: string | null
-          nama_lengkap_masked?: never
-          nik_masked?: never
-          nomor_hp_masked?: never
-          photo_url?: string | null
-          poin?: number | null
-          refferal_code?: string | null
-          saldo?: number | null
-          user_id?: string | null
-          xp?: number | null
-        }
-        Update: {
-          alamat?: string | null
-          badges?: string[] | null
-          created_at?: string | null
-          email_masked?: never
-          green_coins?: number | null
-          is_active?: boolean | null
-          last_checkin?: string | null
-          level_user?: string | null
-          nama_lengkap_masked?: never
-          nik_masked?: never
-          nomor_hp_masked?: never
-          photo_url?: string | null
-          poin?: number | null
-          refferal_code?: string | null
-          saldo?: number | null
-          user_id?: string | null
-          xp?: number | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       authenticate_user: {
@@ -1475,13 +1241,48 @@ export type Database = {
         Args: { user_nik: string }
         Returns: string
       }
+      get_user_safe_data: {
+        Args: { target_user_id?: string }
+        Returns: {
+          alamat: string
+          badges: string[]
+          created_at: string
+          email_masked: string
+          green_coins: number
+          is_active: boolean
+          last_checkin: string
+          level_user: string
+          nama_lengkap_masked: string
+          nik_masked: string
+          nomor_hp_masked: string
+          photo_url: string
+          poin: number
+          refferal_code: string
+          saldo: number
+          user_id: string
+          xp: number
+        }[]
+      }
       hash_otp: {
         Args: { otp_code: string }
         Returns: string
       }
+      log_authentication_attempt: {
+        Args: {
+          p_error_message?: string
+          p_ip_address?: unknown
+          p_nik: string
+          p_success: boolean
+        }
+        Returns: undefined
+      }
       log_security_event: {
         Args: { p_details?: Json; p_event_type: string; p_user_id?: string }
         Returns: undefined
+      }
+      sanitize_input: {
+        Args: { input_text: string }
+        Returns: string
       }
       schedule_cleanup: {
         Args: Record<PropertyKey, never>

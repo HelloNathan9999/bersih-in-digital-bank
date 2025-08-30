@@ -46,7 +46,7 @@ class SecureStorage {
       const encoded = this.encode(JSON.stringify(storageData));
       localStorage.setItem(this.prefix + key, encoded);
     } catch (error) {
-      console.error('Failed to store secure data:', error);
+      console.log('Failed to store secure data:', error);
       toast({
         title: "Storage Error",
         description: "Failed to save data securely.",
@@ -74,7 +74,7 @@ class SecureStorage {
 
       return storageData.data;
     } catch (error) {
-      console.error('Failed to retrieve secure data:', error);
+      console.log('Failed to retrieve secure data:', error);
       this.removeItem(key); // Clean up corrupted data
       return null;
     }
@@ -85,7 +85,7 @@ class SecureStorage {
     try {
       localStorage.removeItem(this.prefix + key);
     } catch (error) {
-      console.error('Failed to remove secure data:', error);
+      console.log('Failed to remove secure data:', error);
     }
   }
 
@@ -99,7 +99,7 @@ class SecureStorage {
         }
       });
     } catch (error) {
-      console.error('Failed to clear secure storage:', error);
+      console.log('Failed to clear secure storage:', error);
     }
   }
 
@@ -125,7 +125,7 @@ class SecureStorage {
         }
       });
     } catch (error) {
-      console.error('Failed to cleanup secure storage:', error);
+      console.log('Failed to cleanup secure storage:', error);
     }
   }
 
@@ -142,7 +142,7 @@ class SecureStorage {
         }
       });
     } catch (error) {
-      console.error('Failed to get storage info:', error);
+      console.log('Failed to get storage info:', error);
     }
 
     return { keys, totalSize };

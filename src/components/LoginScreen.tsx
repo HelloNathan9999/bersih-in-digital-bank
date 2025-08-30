@@ -66,7 +66,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess, onSwitchToReg
           });
           
           if (sessionError) {
-            console.error('Session error:', sessionError);
+            console.log('Session error:', sessionError);
             toast({ title: 'Login gagal', description: 'Gagal membuat sesi', variant: 'destructive' });
             setIsLoading(false);
             return;
@@ -85,8 +85,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess, onSwitchToReg
       } else {
         navigate('/onboarding');
       }
-    } catch (err) {
-      console.error('Login error:', err);
+    } catch (err: any) {
+      console.log('Login error:', err);
       toast({ title: 'Error', description: 'Terjadi kesalahan saat login', variant: 'destructive' });
     } finally {
       setIsLoading(false);

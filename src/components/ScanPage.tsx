@@ -128,7 +128,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
       });
       
     } catch (error: any) {
-      console.error('Camera error:', error);
+      console.log('Camera error:', error);
       let errorMessage = 'Gagal mengakses kamera';
       
       if (error.name === 'NotAllowedError') {
@@ -185,7 +185,7 @@ const ScanPage: React.FC<ScanPageProps> = ({ isDarkMode = false }) => {
         setFlashEnabled(!flashEnabled);
         console.log('Flash toggled:', !flashEnabled);
       } catch (error) {
-        console.error('Error toggling flash:', error);
+        console.log('Error toggling flash:', error);
         toast({
           title: "⚠️ Flash Error",
           description: "Tidak dapat mengontrol flash pada perangkat ini",

@@ -53,7 +53,7 @@ export const useAuthState = () => {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      console.error('Sign out error:', error);
+      console.log('Sign out error:', error);
     } else {
       // Clear secure storage
       const { secureStorage } = await import('@/lib/secure-storage');
