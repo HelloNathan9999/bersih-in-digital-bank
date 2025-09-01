@@ -109,7 +109,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
           });
           
           if (sessionError) {
-            console.error('Session error after registration:', sessionError);
+            console.log('Session error after registration:', sessionError);
           }
         }
       }

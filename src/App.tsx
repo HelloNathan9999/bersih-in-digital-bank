@@ -50,7 +50,7 @@ const App = () => {
     const fetchUsers = async () => {
       const { data, error } = await supabase.from("users").select("*");
       if (error) {
-        console.error("❌ Supabase error:", error.message);
+        console.log("❌ Supabase error:", error.message);
       } else {
         console.log("✅ Supabase users:", data);
       }
