@@ -62,18 +62,17 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout, isDarkMode = false 
     nik: ''
   });
   useEffect(() => {
-    const userDataString = localStorage.getItem('userData');
-    if (userDataString) {
-      try {
-        const user = JSON.parse(userDataString);
+    const loadUserData = async () => {
+      const { secureStorage } = await import('@/lib/secure-storage');
+      const user = secureStorage.getItem('userData');
+      if (user) {
         setUserData({
           ...userData,
           name: user.nama_lengkap || '',
           nik: user.nik || '',
           joinDate: user.join_date || '',
-          // ...state lain jika perlu
         });
-          } catch {
+      } else {
         setUserData({
           name: '',
           email: '',
@@ -84,36 +83,38 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ onLogout, isDarkMode = false 
           nik: '',
         });
       }
-    }
+    };
+    loadUserData();
   }, []);
 
-useEffect(() => {
-  const userDataString = localStorage.getItem('userData');
-  if (userDataString) {
-    try {
-      const user = JSON.parse(userDataString);
-      setUserData({
-        name: user.nama_lengkap || '',
-        email: user.email || '',
-        joinDate: user.join_date || '',
-        totalPoints: user.totalPoints || 0,
-        totalEarnings: user.totalEarnings || 0,
-        totalWaste: user.totalWaste || 0,
-        nik: user.nik || '',
-      });
-    } catch {
-      setUserData({
-        name: '',
-        email: '',
-        joinDate: '',
-        totalPoints: 0,
-        totalEarnings: 0,
-        totalWaste: 0,
-        nik: '',
-      });
-    }
-  }
-}, []);
+  useEffect(() => {
+    const loadCompleteUserData = async () => {
+      const { secureStorage } = await import('@/lib/secure-storage');
+      const user = secureStorage.getItem('userData');
+      if (user) {
+        setUserData({
+          name: user.nama_lengkap || '',
+          email: user.email || '',
+          joinDate: user.join_date || '',
+          totalPoints: user.totalPoints || 0,
+          totalEarnings: user.totalEarnings || 0,
+          totalWaste: user.totalWaste || 0,
+          nik: user.nik || '',
+        });
+      } else {
+        setUserData({
+          name: '',
+          email: '',
+          joinDate: '',
+          totalPoints: 0,
+          totalEarnings: 0,
+          totalWaste: 0,
+          nik: '',
+        });
+      }
+    };
+    loadCompleteUserData();
+  }, []);
 
     // Level configs and related logic
     const levelConfigs: LevelConfig[] = [

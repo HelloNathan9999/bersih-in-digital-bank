@@ -141,28 +141,58 @@ const ShoppingPage: React.FC<ShoppingPageProps> = ({ isDarkMode = false }) => {
     setCurrentPage('main');
   };
 
-  const handleLoanSuccess = (amount: number) => {
-    setLoanAmount(amount);
-    
-    // Update user balance
-    const currentBalance = Number(localStorage.getItem('userBalance') || '0');
-    const newBalance = currentBalance + amount;
-    localStorage.setItem('userBalance', JSON.stringify(newBalance));
-    
-    // Add transaction record
-    const transaction = {
-      type: 'Pinjaman Modal Berhasil',
-      amount: `+Rp ${amount.toLocaleString()}`,
-      transactionId: `TXN${Date.now()}`,
-      date: new Date().toLocaleString('id-ID'),
-      status: 'success',
-      description: `Pinjaman modal sebesar Rp ${amount.toLocaleString()} berhasil dicairkan`
-    };
+  const handleLoanSuccess = async (amount: number) => {
+    try {
+      // Validate loan with server-side function
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data, error } = await supabase.rpc('validate_financial_operation', {
+        p_user_id: (await supabase.auth.getUser()).data.user?.id,
+        p_operation: 'loan',
+        p_amount: amount
+      });
 
-    const storedTxs = JSON.parse(localStorage.getItem("userTransactions") || "[]");
-    localStorage.setItem("userTransactions", JSON.stringify([transaction, ...storedTxs]));
+      if (error || !data) {
+        toast({
+          title: "❌ Pinjaman Ditolak",
+          description: "Tidak memenuhi kriteria pinjaman",
+        });
+        setCurrentPage('loan-rejection');
+        return;
+      }
 
-    setCurrentPage('loan-history');
+      setLoanAmount(amount);
+      
+      // Update user balance securely
+      const { secureStorage } = await import('@/lib/secure-storage');
+      const currentBalance = secureStorage.getItem('userBalance') || 0;
+      const newBalance = currentBalance + amount;
+      secureStorage.setItem('userBalance', newBalance, 24 * 60 * 60 * 1000); // 24 hour expiry
+      
+      // Add transaction record securely
+      const transaction = {
+        type: 'Pinjaman Modal Berhasil',
+        amount: `+Rp ${amount.toLocaleString()}`,
+        transactionId: `TXN${Date.now()}`,
+        date: new Date().toLocaleString('id-ID'),
+        status: 'success',
+        description: `Pinjaman modal sebesar Rp ${amount.toLocaleString()} berhasil dicairkan`
+      };
+
+      const storedTxs = secureStorage.getItem("userTransactions") || [];
+      secureStorage.setItem("userTransactions", [transaction, ...storedTxs], 30 * 24 * 60 * 60 * 1000);
+
+      // Log security event
+      const { securityMonitor } = await import('@/lib/security-monitor');
+      await securityMonitor.monitorUserBehavior('loan_approved', {
+        amount: amount,
+        timestamp: Date.now()
+      });
+
+      setCurrentPage('loan-history');
+    } catch (error) {
+      console.error('Loan processing error:', error);
+      setCurrentPage('loan-rejection');
+    }
   };
 
   const handleLoanRejection = () => {

@@ -14,8 +14,32 @@ export default function ScanQR() {
         false
       );
       scannerRef.current.render(
-        (decodedText: string) => {
-          alert("QR: " + decodedText);
+        async (decodedText: string) => {
+          // Sanitize QR content to prevent XSS
+          const sanitizedText = decodedText.replace(/[<>"'&]/g, '');
+          
+          // Validate QR code with server-side function
+          try {
+            const { supabase } = await import('@/integrations/supabase/client');
+            const { data, error } = await supabase.rpc('validate_qr_code', {
+              qr_code_unique: sanitizedText
+            });
+
+            if (error || !data || data.length === 0) {
+              console.error('Invalid QR code:', sanitizedText);
+              return;
+            }
+
+            const qrData = data[0];
+            if (qrData.is_valid) {
+              console.log('Valid QR code detected:', qrData);
+              // Process valid QR code here
+            } else {
+              console.warn('QR code already used or invalid');
+            }
+          } catch (error) {
+            console.error('QR validation error:', error);
+          }
         },
         (error: any) => {
           // console.warn("Scan Error:", error);

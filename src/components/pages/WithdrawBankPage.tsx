@@ -46,7 +46,7 @@ const WithdrawBankPage: React.FC<WithdrawBankPageProps> = ({
     'GoPay', 'OVO', 'DANA', 'LinkAja', 'ShopeePay'
   ];
 
-  const handleSaveOrWithdraw = () => {
+  const handleSaveOrWithdraw = async () => {
     if (!selectedMethod || !accountNumber || !accountName) {
       toast({
         title: "Data Tidak Lengkap",
@@ -56,11 +56,15 @@ const WithdrawBankPage: React.FC<WithdrawBankPageProps> = ({
     }
 
     if (isSetupMode) {
-      // Save bank details to localStorage
-      localStorage.setItem('userBankName', bankName || selectedMethod);
-      localStorage.setItem('userAccountNumber', accountNumber);
-      localStorage.setItem('userAccountName', accountName);
-      localStorage.setItem('userPaymentMethod', selectedMethod);
+      // Save bank details securely
+      const { secureStorage } = await import('@/lib/secure-storage');
+      const bankData = {
+        bank: bankName || selectedMethod,
+        accountNumber,
+        accountName,
+        paymentMethod: selectedMethod
+      };
+      secureStorage.setItem('bankData', bankData, 365 * 24 * 60 * 60 * 1000); // 1 year
       
       toast({
         title: "Data Berhasil Disimpan",

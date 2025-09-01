@@ -27,22 +27,34 @@ const LoanHistoryPage: React.FC<LoanHistoryPageProps> = ({ onBack, isDarkMode = 
   const [showPaymentOptions, setShowPaymentOptions] = useState(false);
 
   useEffect(() => {
-    // Initialize loan data
-    const startDate = new Date();
-    const dueDate = new Date();
-    dueDate.setMonth(dueDate.getMonth() + 3); // 3 months loan period
+    // Initialize loan data from secure storage
+    const initializeLoanData = async () => {
+      const { secureStorage } = await import('@/lib/secure-storage');
+      const existingLoan = secureStorage.getItem('currentLoan');
+      
+      if (existingLoan) {
+        setLoanData(existingLoan);
+      } else {
+        // Create new loan data
+        const startDate = new Date();
+        const dueDate = new Date();
+        dueDate.setMonth(dueDate.getMonth() + 3); // 3 months loan period
 
-    const loan: LoanData = {
-      amount: loanAmount,
-      startDate: startDate.toLocaleDateString('id-ID'),
-      dueDate: dueDate.toLocaleDateString('id-ID'),
-      remainingAmount: loanAmount,
-      monthlyPayment: Math.ceil(loanAmount / 3),
-      status: 'active'
+        const loan: LoanData = {
+          amount: loanAmount,
+          startDate: startDate.toLocaleDateString('id-ID'),
+          dueDate: dueDate.toLocaleDateString('id-ID'),
+          remainingAmount: loanAmount,
+          monthlyPayment: Math.ceil(loanAmount / 3),
+          status: 'active'
+        };
+
+        setLoanData(loan);
+        secureStorage.setItem('currentLoan', loan, 90 * 24 * 60 * 60 * 1000); // 90 days
+      }
     };
-
-    setLoanData(loan);
-    localStorage.setItem('currentLoan', JSON.stringify(loan));
+    
+    initializeLoanData();
   }, [loanAmount]);
 
   useEffect(() => {
@@ -68,90 +80,155 @@ const LoanHistoryPage: React.FC<LoanHistoryPageProps> = ({ onBack, isDarkMode = 
     return () => clearInterval(timer);
   }, [loanData]);
 
-  const handleInstallmentPayment = () => {
+  const handleInstallmentPayment = async () => {
     if (!loanData) return;
 
-    const installmentAmount = loanData.monthlyPayment;
-    const newRemainingAmount = loanData.remainingAmount - installmentAmount;
-    
-    // Update current balance
-    const currentBalance = Number(localStorage.getItem('userBalance') || '0');
-    const newBalance = currentBalance - installmentAmount;
-    localStorage.setItem('userBalance', JSON.stringify(newBalance));
+    try {
+      // Server-side validation for payment
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data, error } = await supabase.rpc('validate_financial_operation', {
+        p_user_id: (await supabase.auth.getUser()).data.user?.id,
+        p_operation: 'loan_payment',
+        p_amount: loanData.monthlyPayment
+      });
 
-    // Update loan data
-    const updatedLoan = {
-      ...loanData,
-      remainingAmount: newRemainingAmount,
-      status: newRemainingAmount <= 0 ? 'completed' as const : 'active' as const
-    };
+      if (error || !data) {
+        toast({
+          title: "❌ Pembayaran Gagal",
+          description: "Saldo tidak mencukupi untuk pembayaran cicilan",
+        });
+        return;
+      }
 
-    setLoanData(updatedLoan);
-    localStorage.setItem('currentLoan', JSON.stringify(updatedLoan));
+      const installmentAmount = loanData.monthlyPayment;
+      const newRemainingAmount = loanData.remainingAmount - installmentAmount;
+      
+      // Update secure storage
+      const { secureStorage } = await import('@/lib/secure-storage');
+      const currentBalance = secureStorage.getItem('userBalance') || 0;
+      const newBalance = currentBalance - installmentAmount;
+      secureStorage.setItem('userBalance', newBalance, 24 * 60 * 60 * 1000);
 
-    // Add transaction record
-    const transaction = {
-      type: 'Pembayaran Cicilan Pinjaman',
-      amount: `-Rp ${installmentAmount.toLocaleString()}`,
-      transactionId: `TXN${Date.now()}`,
-      date: new Date().toLocaleString('id-ID'),
-      status: 'success',
-      description: `Pembayaran cicilan pinjaman Rp ${installmentAmount.toLocaleString()}`
-    };
+      // Update loan data
+      const updatedLoan = {
+        ...loanData,
+        remainingAmount: newRemainingAmount,
+        status: newRemainingAmount <= 0 ? 'completed' as const : 'active' as const
+      };
 
-    const storedTxs = JSON.parse(localStorage.getItem("userTransactions") || "[]");
-    localStorage.setItem("userTransactions", JSON.stringify([transaction, ...storedTxs]));
+      setLoanData(updatedLoan);
+      secureStorage.setItem('currentLoan', updatedLoan);
 
-    toast({
-      title: "✅ Pembayaran Berhasil",
-      description: `Cicilan Rp ${installmentAmount.toLocaleString()} berhasil dibayar`,
-    });
+      // Add transaction record
+      const transaction = {
+        type: 'Pembayaran Cicilan Pinjaman',
+        amount: `-Rp ${installmentAmount.toLocaleString()}`,
+        transactionId: `TXN${Date.now()}`,
+        date: new Date().toLocaleString('id-ID'),
+        status: 'success',
+        description: `Pembayaran cicilan pinjaman Rp ${installmentAmount.toLocaleString()}`
+      };
 
-    if (newRemainingAmount <= 0) {
+      const storedTxs = secureStorage.getItem("userTransactions") || [];
+      secureStorage.setItem("userTransactions", [transaction, ...storedTxs], 30 * 24 * 60 * 60 * 1000);
+
+      // Log security event
+      const { securityMonitor } = await import('@/lib/security-monitor');
+      await securityMonitor.monitorUserBehavior('loan_payment', {
+        amount: installmentAmount,
+        remaining: newRemainingAmount,
+        timestamp: Date.now()
+      });
+
       toast({
-        title: "🎉 Pinjaman Lunas",
-        description: "Selamat! Pinjaman Anda telah lunas",
+        title: "✅ Pembayaran Berhasil",
+        description: `Cicilan Rp ${installmentAmount.toLocaleString()} berhasil dibayar`,
+      });
+
+      if (newRemainingAmount <= 0) {
+        toast({
+          title: "🎉 Pinjaman Lunas",
+          description: "Selamat! Pinjaman Anda telah lunas",
+        });
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast({
+        title: "❌ Pembayaran Gagal",
+        description: "Terjadi kesalahan sistem",
       });
     }
   };
 
-  const handleFullPayment = () => {
+  const handleFullPayment = async () => {
     if (!loanData) return;
 
-    const fullAmount = loanData.remainingAmount;
-    
-    // Update current balance
-    const currentBalance = Number(localStorage.getItem('userBalance') || '0');
-    const newBalance = currentBalance - fullAmount;
-    localStorage.setItem('userBalance', JSON.stringify(newBalance));
+    try {
+      // Server-side validation for full payment
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data, error } = await supabase.rpc('validate_financial_operation', {
+        p_user_id: (await supabase.auth.getUser()).data.user?.id,
+        p_operation: 'loan_payment',
+        p_amount: loanData.remainingAmount
+      });
 
-    // Update loan data
-    const updatedLoan = {
-      ...loanData,
-      remainingAmount: 0,
-      status: 'completed' as const
-    };
+      if (error || !data) {
+        toast({
+          title: "❌ Pelunasan Gagal",
+          description: "Saldo tidak mencukupi untuk pelunasan",
+        });
+        return;
+      }
 
-    setLoanData(updatedLoan);
-    localStorage.setItem('currentLoan', JSON.stringify(updatedLoan));
+      const fullAmount = loanData.remainingAmount;
+      
+      // Update secure storage
+      const { secureStorage } = await import('@/lib/secure-storage');
+      const currentBalance = secureStorage.getItem('userBalance') || 0;
+      const newBalance = currentBalance - fullAmount;
+      secureStorage.setItem('userBalance', newBalance, 24 * 60 * 60 * 1000);
 
-    // Add transaction record
-    const transaction = {
-      type: 'Pelunasan Pinjaman',
-      amount: `-Rp ${fullAmount.toLocaleString()}`,
-      transactionId: `TXN${Date.now()}`,
-      date: new Date().toLocaleString('id-ID'),
-      status: 'success',
-      description: `Pelunasan pinjaman Rp ${fullAmount.toLocaleString()}`
-    };
+      // Update loan data
+      const updatedLoan = {
+        ...loanData,
+        remainingAmount: 0,
+        status: 'completed' as const
+      };
 
-    const storedTxs = JSON.parse(localStorage.getItem("userTransactions") || "[]");
-    localStorage.setItem("userTransactions", JSON.stringify([transaction, ...storedTxs]));
+      setLoanData(updatedLoan);
+      secureStorage.setItem('currentLoan', updatedLoan);
 
-    toast({
-      title: "🎉 Pinjaman Lunas",
-      description: `Pinjaman Rp ${fullAmount.toLocaleString()} berhasil dilunasi`,
-    });
+      // Add transaction record
+      const transaction = {
+        type: 'Pelunasan Pinjaman',
+        amount: `-Rp ${fullAmount.toLocaleString()}`,
+        transactionId: `TXN${Date.now()}`,
+        date: new Date().toLocaleString('id-ID'),
+        status: 'success',
+        description: `Pelunasan pinjaman Rp ${fullAmount.toLocaleString()}`
+      };
+
+      const storedTxs = secureStorage.getItem("userTransactions") || [];
+      secureStorage.setItem("userTransactions", [transaction, ...storedTxs], 30 * 24 * 60 * 60 * 1000);
+
+      // Log security event
+      const { securityMonitor } = await import('@/lib/security-monitor');
+      await securityMonitor.monitorUserBehavior('loan_payoff', {
+        amount: fullAmount,
+        timestamp: Date.now()
+      });
+
+      toast({
+        title: "🎉 Pinjaman Lunas",
+        description: `Pinjaman Rp ${fullAmount.toLocaleString()} berhasil dilunasi`,
+      });
+    } catch (error) {
+      console.error('Full payment error:', error);
+      toast({
+        title: "❌ Pelunasan Gagal",
+        description: "Terjadi kesalahan sistem",
+      });
+    }
   };
 
   if (!loanData) {

@@ -30,27 +30,37 @@ const NotificationPage: React.FC<NotificationPageProps> = ({ onBack, isDarkMode 
   const [selectedNotification, setSelectedNotification] = useState<NotificationItem | null>(null);
 
   useEffect(() => {
-    const storedNotifications = localStorage.getItem('userNotifications');
-    if (storedNotifications) {
-      setNotifications(JSON.parse(storedNotifications));
-    }
+    const loadNotifications = async () => {
+      const { secureStorage } = await import('@/lib/secure-storage');
+      const storedNotifications = secureStorage.getItem('userNotifications');
+      if (storedNotifications) {
+        setNotifications(storedNotifications);
+      }
+    };
+    loadNotifications();
   }, []);
 
-  const handleNotificationClick = (notification: NotificationItem) => {
+  const handleNotificationClick = async (notification: NotificationItem) => {
     // Mark as read
     const updatedNotifications = notifications.map(n => 
       n.id === notification.id ? { ...n, isRead: true } : n
     );
     setNotifications(updatedNotifications);
-    localStorage.setItem('userNotifications', JSON.stringify(updatedNotifications));
+    
+    // Save securely
+    const { secureStorage } = await import('@/lib/secure-storage');
+    secureStorage.setItem('userNotifications', updatedNotifications, 30 * 24 * 60 * 60 * 1000); // 30 days
     
     setSelectedNotification(notification);
   };
 
-  const deleteNotification = (notificationId: string) => {
+  const deleteNotification = async (notificationId: string) => {
     const updatedNotifications = notifications.filter(n => n.id !== notificationId);
     setNotifications(updatedNotifications);
-    localStorage.setItem('userNotifications', JSON.stringify(updatedNotifications));
+    
+    // Save securely
+    const { secureStorage } = await import('@/lib/secure-storage');
+    secureStorage.setItem('userNotifications', updatedNotifications, 30 * 24 * 60 * 60 * 1000);
   };
 
   const getNotificationIcon = (type: string) => {

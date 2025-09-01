@@ -59,10 +59,21 @@ export const useAuthState = () => {
       const { secureStorage } = await import('@/lib/secure-storage');
       secureStorage.clear();
       
-      // Clear any remaining localStorage items
+      // Clear any remaining localStorage items for legacy data
       localStorage.removeItem('userData');
       localStorage.removeItem('userToken');
       localStorage.removeItem('user');
+      localStorage.removeItem('userBalance');
+      localStorage.removeItem('userNotifications');
+      localStorage.removeItem('userTransactions');
+      localStorage.removeItem('currentLoan');
+      localStorage.removeItem('bankData');
+
+      // Log security event
+      const { securityMonitor } = await import('@/lib/security-monitor');
+      await securityMonitor.monitorUserBehavior('user_logout', {
+        timestamp: Date.now()
+      });
     }
   };
 

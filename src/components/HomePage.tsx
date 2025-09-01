@@ -79,16 +79,17 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
   const [totalPoin, setTotalPoin] = useState(0);
   const [userName, setuserName] = useState('');
   useEffect(() => {
-  const userDataString = localStorage.getItem('userData');
-  if (userDataString) {
-    try {
-      const userData = JSON.parse(userDataString);
-      setuserName(userData.nama_lengkap || '');
-    } catch {
-      setuserName('');
-    }
-  }
-}, []);
+    const getUserData = async () => {
+      const { secureStorage } = await import('@/lib/secure-storage');
+      const userData = secureStorage.getItem('userData');
+      if (userData) {
+        setuserName(userData.nama_lengkap || '');
+      } else {
+        setuserName('');
+      }
+    };
+    getUserData();
+  }, []);
 
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [selectedBank, setSelectedBank] = useState('');
@@ -107,65 +108,56 @@ const HomePage: React.FC<HomePageProps> = ({ isDarkMode = false, onThemeToggle }
   });
   
 
-useEffect(() => {
-  const userDataString = localStorage.getItem('userData');
-  if (userDataString) {
-    try {
-      const userData = JSON.parse(userDataString);
-      setuserName(userData.nama_lengkap || '');
-      // Kalau mau, kamu juga bisa set data lain di userData state, contoh:
-      setUserData({
-        name: userData.nama_lengkap || '',
-        nik: userData.nik || '',
-        phone: userData.nomor_hp || '',
-        email: userData.email || '',
-        address: userData.alamat || '',
-        level: userData.level || 'Eco Starter',
-        totalPoints: userData.total_poin || 0,
-        totalEarnings: userData.total_saldo || 0,
-        totalWaste: userData.total_sampah || 0,
-        joinDate: userData.tanggal_join || '',
-      });
-    } catch {
-      setuserName('');
-    }
-  }
-}, []);
-
-
-
-  // Persist theme mode
   useEffect(() => {
-    const stored = localStorage.getItem("userData");
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      setSelectedBank(parsed.bank || '');
-      setAccountNumber(parsed.accountNumber || '');
-    }
+    const loadUserData = async () => {
+      const { secureStorage } = await import('@/lib/secure-storage');
+      const userData = secureStorage.getItem('userData');
+      if (userData) {
+        setuserName(userData.nama_lengkap || '');
+        setUserData({
+          name: userData.nama_lengkap || '',
+          nik: userData.nik || '',
+          phone: userData.nomor_hp || '',
+          email: userData.email || '',
+          address: userData.alamat || '',
+          level: userData.level || 'Eco Starter',
+          totalPoints: userData.total_poin || 0,
+          totalEarnings: userData.total_saldo || 0,
+          totalWaste: userData.total_sampah || 0,
+          joinDate: userData.tanggal_join || '',
+        });
+      } else {
+        setuserName('');
+      }
+    };
+    loadUserData();
   }, []);
 
+
+
+  // Load secure data
   useEffect(() => {
-    const balance = localStorage.getItem("userBalance");
-    if (balance) setCurrentBalance(Number(balance));
-  }, []);
-
-  useEffect(() => {
-    // Balance
-    const stored = localStorage.getItem("userBalance");
-    const parsed = stored ? Number(stored) : 0;
-    setCurrentBalance(isNaN(parsed) ? 0 : parsed);
-
-    // User Data
-    const storedUser = localStorage.getItem("userData");
-    if (storedUser) {
-      setUserData(JSON.parse(storedUser));
-    }
-
-    // Notifications
-    const storedNotif = localStorage.getItem("userNotifications");
-    if (storedNotif) {
-      setNotifications(JSON.parse(storedNotif));
-    }
+    const loadSecureData = async () => {
+      const { secureStorage } = await import('@/lib/secure-storage');
+      
+      // Balance
+      const balance = secureStorage.getItem("userBalance");
+      if (balance) setCurrentBalance(Number(balance));
+      
+      // Bank details
+      const bankData = secureStorage.getItem("bankData");
+      if (bankData) {
+        setSelectedBank(bankData.bank || '');
+        setAccountNumber(bankData.accountNumber || '');
+      }
+      
+      // Notifications
+      const notifications = secureStorage.getItem("userNotifications");
+      if (notifications) {
+        setNotifications(notifications);
+      }
+    };
+    loadSecureData();
   }, []);
 
   useEffect(() => {
@@ -178,7 +170,11 @@ useEffect(() => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+    const saveTheme = async () => {
+      const { secureStorage } = await import('@/lib/secure-storage');
+      secureStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+    };
+    saveTheme();
   }, [isDarkMode]);
 
   // Reset header to collapsed when returning to home
@@ -193,52 +189,90 @@ useEffect(() => {
     setCurrentPage('withdraw-bank');
   };
 
-  const handleWithdrawComplete = (amount: number) => {
-    const newBalance = currentBalance - amount;
+  const handleWithdrawComplete = async (amount: number) => {
+    try {
+      // Validate withdrawal with server-side function
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data, error } = await supabase.rpc('validate_financial_operation', {
+        p_user_id: (await supabase.auth.getUser()).data.user?.id,
+        p_operation: 'withdraw',
+        p_amount: amount
+      });
 
-    const transaction: Transaction = {
-      type: 'Penarikan Saldo',
-      amount: `Rp ${amount.toLocaleString()}`,
-      transactionId: `TXN${Date.now()}`,
-      date: new Date().toLocaleString('id-ID'),
-      status: 'success',
-      description: 'Penarikan saldo berhasil',
-      bankName: selectedBank,
-      accountNumber: `****${accountNumber.slice(-4)}`
-    };
-
-    setCurrentBalance(newBalance);
-    localStorage.setItem("userBalance", JSON.stringify(newBalance));
-
-    setCurrentTransaction(transaction);
-    setCurrentPage('transaction-receipt');
-
-    const storedTxs = JSON.parse(localStorage.getItem("userTransactions") || "[]");
-    const updatedTxs = [transaction, ...storedTxs];
-    localStorage.setItem("userTransactions", JSON.stringify(updatedTxs));
-
-    const notif = {
-      id: Date.now().toString(),
-      title: 'Penarikan Berhasil',
-      message: `Penarikan saldo Rp ${amount.toLocaleString()} telah berhasil diproses.`,
-      time: 'Baru saja',
-      type: 'success',
-      isRead: false,
-      details: {
-        transactionId: transaction.transactionId,
-        amount: `-Rp ${amount.toLocaleString()}`,
-        date: transaction.date,
-        status: 'Berhasil'
+      if (error || !data) {
+        toast({
+          title: "❌ Penarikan Gagal",
+          description: "Insufficient balance or daily limit exceeded",
+          duration: 2000,
+        });
+        return;
       }
-    };
-    const storedNotif = JSON.parse(localStorage.getItem("userNotifications") || "[]");
-    localStorage.setItem("userNotifications", JSON.stringify([notif, ...storedNotif]));
 
-    toast({
-      title: "✅ Penarikan Berhasil",
-      description: `Saldo Rp ${amount.toLocaleString()} berhasil ditarik`,
-      duration: 2000, // Changed from 3000 to 2000ms (2 seconds)
-    });
+      const newBalance = currentBalance - amount;
+      const transaction: Transaction = {
+        type: 'Penarikan Saldo',
+        amount: `Rp ${amount.toLocaleString()}`,
+        transactionId: `TXN${Date.now()}`,
+        date: new Date().toLocaleString('id-ID'),
+        status: 'success',
+        description: 'Penarikan saldo berhasil',
+        bankName: selectedBank,
+        accountNumber: `****${accountNumber.slice(-4)}`
+      };
+
+      setCurrentBalance(newBalance);
+      
+      // Save securely
+      const { secureStorage } = await import('@/lib/secure-storage');
+      secureStorage.setItem("userBalance", newBalance, 24 * 60 * 60 * 1000); // 24 hour expiry
+
+      setCurrentTransaction(transaction);
+      setCurrentPage('transaction-receipt');
+
+      // Save transactions securely
+      const storedTxs = secureStorage.getItem("userTransactions") || [];
+      const updatedTxs = [transaction, ...storedTxs];
+      secureStorage.setItem("userTransactions", updatedTxs, 30 * 24 * 60 * 60 * 1000); // 30 days
+
+      const notif = {
+        id: Date.now().toString(),
+        title: 'Penarikan Berhasil',
+        message: `Penarikan saldo Rp ${amount.toLocaleString()} telah berhasil diproses.`,
+        time: 'Baru saja',
+        type: 'success',
+        isRead: false,
+        details: {
+          transactionId: transaction.transactionId,
+          amount: `-Rp ${amount.toLocaleString()}`,
+          date: transaction.date,
+          status: 'Berhasil'
+        }
+      };
+      
+      const storedNotif = secureStorage.getItem("userNotifications") || [];
+      secureStorage.setItem("userNotifications", [notif, ...storedNotif], 30 * 24 * 60 * 60 * 1000);
+
+      // Log security event
+      const { securityMonitor } = await import('@/lib/security-monitor');
+      await securityMonitor.monitorUserBehavior('withdrawal', {
+        amount: amount,
+        method: 'bank_transfer',
+        timestamp: Date.now()
+      });
+
+      toast({
+        title: "✅ Penarikan Berhasil",
+        description: `Saldo Rp ${amount.toLocaleString()} berhasil ditarik`,
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error('Withdrawal error:', error);
+      toast({
+        title: "❌ Penarikan Gagal",
+        description: "Terjadi kesalahan sistem",
+        duration: 2000,
+      });
+    }
   };
 
   const handleBack = () => {
