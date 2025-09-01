@@ -1219,6 +1219,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      cleanup_rate_limits: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       create_secure_session: {
         Args: {
           p_device_id?: string
@@ -1287,6 +1291,14 @@ export type Database = {
       schedule_cleanup: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      secure_rate_limit_check: {
+        Args: {
+          p_identifier: string
+          p_max_attempts?: number
+          p_window_minutes?: number
+        }
+        Returns: boolean
       }
       validate_financial_operation: {
         Args: { p_amount?: number; p_operation: string; p_user_id: string }
