@@ -1,11 +1,26 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { compare, hash } from 'https://deno.land/x/bcrypt@v0.4.1/mod.ts';
+import { crypto } from "https://deno.land/std@0.177.0/crypto/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Hash password using SHA-256 (compatible with Deno edge runtime)
+async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Verify password against hash
+async function verifyPassword(password: string, hash: string): Promise<boolean> {
+  const inputHash = await hashPassword(password);
+  return inputHash === hash;
+}
 
 interface LoginRequest {
   nik: string;
@@ -75,9 +90,9 @@ async function handleLogin(supabase: any, { nik, password, pin }: LoginRequest) 
     // Verify password or PIN
     let isValid = false;
     if (password && user.password_hash) {
-      isValid = await compare(password, user.password_hash);
+      isValid = await verifyPassword(password, user.password_hash);
     } else if (pin && user.pin_hash) {
-      isValid = await compare(pin, user.pin_hash);
+      isValid = await verifyPassword(pin, user.pin_hash);
     }
 
     if (!isValid) {
@@ -174,8 +189,8 @@ async function handleRegister(supabase: any, data: RegisterRequest) {
     }
 
     // Hash password and PIN
-    const password_hash = await hash(data.password);
-    const pin_hash = await hash(data.pin);
+    const password_hash = await hashPassword(data.password);
+    const pin_hash = await hashPassword(data.pin);
 
     // Create Supabase auth user first
     const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
