@@ -84,7 +84,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({
           email: formData.email,
           password: formData.kataSandi,
           pin: formData.pin,
-          refferal_code: formData.kodeReferral
+          referral_code: formData.kodeReferral
         }
       });
 

@@ -45,6 +45,25 @@ export default function AuthScreen() {
         return;
       }
 
+      // Set Supabase session from tokens if provided
+      try {
+        if (data.access_token && data.refresh_token) {
+          await supabase.auth.setSession({
+            access_token: data.access_token,
+            refresh_token: data.refresh_token,
+          });
+        } else if (data.magic_link) {
+          const url = new URL(data.magic_link);
+          const accessToken = url.searchParams.get('access_token');
+          const refreshToken = url.searchParams.get('refresh_token');
+          if (accessToken && refreshToken) {
+            await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+          }
+        }
+      } catch (e) {
+        console.warn('Tidak bisa membuat sesi Supabase:', e);
+      }
+
       // Store minimal user data in localStorage
       localStorage.setItem("user", JSON.stringify(data.user));
 

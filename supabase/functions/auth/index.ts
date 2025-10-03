@@ -34,7 +34,7 @@ interface RegisterRequest {
   email: string;
   password: string;
   pin: string;
-  refferal_code?: string;
+  referral_code?: string;
 }
 
 serve(async (req) => {
@@ -221,7 +221,7 @@ async function handleRegister(supabase: any, data: RegisterRequest) {
         email: data.email,
         password_hash,
         pin_hash,
-        refferal_code: data.refferal_code || null,
+        referral_code: data.referral_code || null,
       });
 
     if (insertError) {
