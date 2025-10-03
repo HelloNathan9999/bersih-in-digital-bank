@@ -754,7 +754,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      log_security_event: {
+        Args: { p_details: Json; p_event_type: string; p_user_id: string }
+        Returns: undefined
+      }
+      validate_financial_operation: {
+        Args: { p_amount: number; p_operation: string; p_user_id: string }
+        Returns: boolean
+      }
+      validate_qr_code: {
+        Args: { p_code: string; p_user_id: string }
+        Returns: {
+          is_valid: boolean
+          message: string
+          reward_amount: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
