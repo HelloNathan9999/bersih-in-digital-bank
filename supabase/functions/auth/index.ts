@@ -1,25 +1,24 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { crypto } from "https://deno.land/std@0.177.0/crypto/mod.ts";
+import * as bcrypt from "https://deno.land/x/bcrypt/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Hash password using SHA-256 (compatible with Deno edge runtime)
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+// Hash password using bcrypt
+export async function hashPassword(password: string): Promise<string> {
+  const saltRounds = 10; // standar, cukup aman
+  const hash = await bcrypt.hash(password, saltRounds);
+  return hash;
 }
 
 // Verify password against hash
-async function verifyPassword(password: string, hash: string): Promise<boolean> {
-  const inputHash = await hashPassword(password);
-  return inputHash === hash;
+export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+  const isValid = await bcrypt.compare(password, hash);
+  return isValid;
 }
 
 interface LoginRequest {
