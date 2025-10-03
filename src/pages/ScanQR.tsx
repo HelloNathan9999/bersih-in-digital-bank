@@ -21,8 +21,11 @@ export default function ScanQR() {
           // Validate QR code with server-side function
           try {
             const { supabase } = await import('@/integrations/supabase/client');
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) { console.error('Not authenticated'); return; }
             const { data, error } = await supabase.rpc('validate_qr_code', {
-              qr_code_unique: sanitizedText
+              p_code: sanitizedText,
+              p_user_id: user.id
             });
 
             if (error || !data || data.length === 0) {

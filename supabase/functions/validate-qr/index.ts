@@ -39,7 +39,8 @@ serve(async (req) => {
     
     // Validate QR code using existing database function
     const { data, error } = await supabaseClient.rpc('validate_qr_code', {
-      qr_code_unique: sanitizedContent
+      p_code: sanitizedContent,
+      p_user_id: user.id
     })
 
     if (error) {
@@ -71,7 +72,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('QR validation error:', error)
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: error instanceof Error ? error.message : String(error) }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400 

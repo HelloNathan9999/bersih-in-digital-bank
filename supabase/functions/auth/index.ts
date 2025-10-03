@@ -10,8 +10,8 @@ const corsHeaders = {
 
 // Hash password using bcrypt
 export async function hashPassword(password: string): Promise<string> {
-  const saltRounds = 10; // standar, cukup aman
-  const hash = await bcrypt.hash(password, saltRounds);
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(password, salt);
   return hash;
 }
 

@@ -20,9 +20,13 @@ export class SecurityMonitor {
   // Log security events
   async logSecurityEvent(eventType: string, details?: any) {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { error } = await supabase.rpc('log_security_event', {
         p_event_type: eventType,
-        p_details: details || {}
+        p_details: details || {},
+        p_user_id: user.id,
       });
 
       if (error) {
@@ -66,9 +70,9 @@ export class SecurityMonitor {
     try {
       // Check recent failed attempts from database
       const { data, error } = await supabase
-        .from('auth_audit_log')
-        .select('created_at')
-        .eq('action', 'login_failed')
+        .from('activity_logs_user')
+        .select('created_at, activity_type')
+        .eq('activity_type', 'login_failed')
         .gte('created_at', new Date(Date.now() - this.timeWindow).toISOString())
         .limit(this.maxAttempts);
 
